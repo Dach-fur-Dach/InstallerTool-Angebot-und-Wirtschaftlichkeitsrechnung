@@ -1,0 +1,58 @@
+"use client";
+
+import Image from "next/image";
+import { fmt1, fmtInt, num } from "@/lib/calculator";
+import type { MieterstromCalculator } from "@/hooks/useMieterstromCalculator";
+
+const Row = ({ label, value }: { label: string; value: string }) => (
+  <>
+    <div className="text-[#5B6472]">{label}</div>
+    <div className="text-right font-bold text-[#1B2A3A]">{value}</div>
+  </>
+);
+
+export function ImmobilieSection({ calc }: { calc: MieterstromCalculator }) {
+  const { form, results: r, sectionOpen, toggleSection } = calc;
+  const open = sectionOpen.immobilie;
+
+  return (
+    <div className="mb-5 overflow-hidden rounded-[10px] border border-[#EDF1F6]">
+      <div
+        onClick={() => toggleSection("immobilie")}
+        className="flex cursor-pointer items-center gap-2.5 bg-[#F7FAFC] px-3.5 py-2.5 select-none"
+      >
+        <Image src="/icon-house-solar.png" alt="" width={22} height={22} className="h-[22px] w-[22px]" />
+        <h3 className="m-0 flex-1 text-[13px] font-bold tracking-wide text-[#1B2A3A] uppercase">
+          Angaben zur Immobilie
+        </h3>
+        <span
+          className="flex h-6 w-6 items-center justify-center rounded-full bg-[#EAF2FF] text-[11px] font-extrabold text-[#3AA8DC] transition-transform"
+          style={{ transform: open ? "rotate(180deg)" : "rotate(0deg)" }}
+        >
+          ⌄
+        </span>
+      </div>
+
+      {open && (
+        <div className="grid grid-cols-[1fr_auto] gap-x-4 gap-y-2 p-3.5 text-[12.5px]">
+          <Row label="Wohneinheiten" value={fmtInt(r.einheiten)} />
+          <Row label="Verbrauch Mieterstrom" value={`${fmtInt(r.verbrauchMieterstrom)} kWh`} />
+          <Row label="Verbrauch Wärmepumpe" value={r.wpAktiv ? `${fmtInt(r.wpVerbrauch)} kWh` : "–"} />
+          <Row label="PV-Anlage" value={`${fmt1(num(form.pvGroesse))} kWp`} />
+          <Row label="PV-Speicher" value={`${fmtInt(num(form.speicher))} kWh`} />
+          <Row label="PV-Erzeugung" value={`${fmtInt(r.pvErtrag)} kWh`} />
+          <Row label="Eigenverbrauch Mieterstrom" value={`${fmtInt(r.eigenverbrauchMieterstrom)} kWh`} />
+          <Row label="Netzstrombedarf (Wohnungen)" value={`${fmtInt(r.netzMieterstrom)} kWh`} />
+          <Row label="Eigenverbrauch (Wärmepumpe)" value={r.wpAktiv ? `${fmtInt(r.eigenverbrauchWP)} kWh` : "–"} />
+          <Row label="Netzstrombedarf (Wärmepumpe)" value={r.wpAktiv ? `${fmtInt(r.netzWP)} kWh` : "–"} />
+          <Row label="Überschusseinspeisung" value={`${fmtInt(r.ueberschusseinspeisung)} kWh`} />
+        </div>
+      )}
+
+      <div className="grid grid-cols-[1fr_auto] gap-x-4 gap-y-2 border-t border-[#EDF1F6] px-3.5 py-3 text-[12.5px]">
+        <Row label="Eigenverbrauchsquote" value={`${fmt1(r.eigenverbrauchsquote)} %`} />
+        <Row label="Autarkiegrad" value={`${fmt1(r.autarkiegrad)} %`} />
+      </div>
+    </div>
+  );
+}
