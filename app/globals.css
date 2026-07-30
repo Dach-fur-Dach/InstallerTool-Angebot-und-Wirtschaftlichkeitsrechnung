@@ -1,0 +1,72 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: var(--font-inter);
+}
+
+@keyframes gradient-shift {
+  0% {
+    background-position: 20% 0%;
+  }
+  25% {
+    background-position: 70% 30%;
+  }
+  50% {
+    background-position: 90% 100%;
+  }
+  75% {
+    background-position: 35% 70%;
+  }
+  100% {
+    background-position: 20% 0%;
+  }
+}
+
+@keyframes spin-slow {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+body {
+  margin: 0;
+  background: linear-gradient(
+    160deg,
+    #ffd79b 0%,
+    #ffe1b0 14%,
+    #fff2dc 30%,
+    #e4f5f9 48%,
+    #bee7f2 66%,
+    #9cd9ec 82%,
+    #7fcbe8 100%
+  );
+  background-attachment: fixed;
+  background-size: 220% 320vh;
+  animation: gradient-shift 14s ease-in-out infinite;
+  font-family: var(--font-inter), -apple-system, sans-serif;
+}
+
+input,
+select,
+button {
+  font-family: var(--font-inter), -apple-system, sans-serif;
+}
+
+input:focus,
+select:focus {
+  outline: none;
+  border-color: #3aa8dc !important;
+  box-shadow: 0 0 0 3px rgba(58, 168, 220, 0.15) !important;
+}
+
+::placeholder {
+  color: #a0aec0;
+}
+
+a {
+  color: #3aa8dc;
+}
+
+a:hover {
+  color: #2e86b8;
+}
