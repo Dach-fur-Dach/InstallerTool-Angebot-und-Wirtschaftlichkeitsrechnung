@@ -61,6 +61,14 @@ export function MieterstromModelBox({ calc }: { calc: MieterstromCalculator }) {
           value={form.allgemeinstrom}
           onChange={(v) => setBool("allgemeinstrom", v)}
         />
+        <div>
+          <FieldLabel label="Wallbox / Ladeinfrastruktur" />
+          <SelectInput value={form.wallboxModus} onChange={onText("wallboxModus")}>
+            <option value="nein">Nein (Standard)</option>
+            <option value="hinter_zaehler">Ja, hinter Mieter/Allgemeinstromzähler</option>
+            <option value="eigener_zaehler">Ja mit eigenem Zähler für Ladeinfrastruktur</option>
+          </SelectInput>
+        </div>
         <YesNoToggle
           label="Wandlermessung"
           value={form.wandlermessung}
@@ -75,6 +83,12 @@ export function MieterstromModelBox({ calc }: { calc: MieterstromCalculator }) {
           <div>
             <FieldLabel label="Wie viele?" />
             <NumberInput min={0} value={form.durchlauferhitzerAnzahl} onChange={onNum("durchlauferhitzerAnzahl")} />
+          </div>
+        )}
+        {form.wallboxModus === "eigener_zaehler" && (
+          <div>
+            <FieldLabel label="Wie viele Wallboxen?" />
+            <NumberInput min={0} value={form.wallboxAnzahl} onChange={onNum("wallboxAnzahl")} />
           </div>
         )}
       </div>

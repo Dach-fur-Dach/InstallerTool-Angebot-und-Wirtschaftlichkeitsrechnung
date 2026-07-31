@@ -1,5 +1,6 @@
 "use client";
 
+import { Fragment } from "react";
 import Image from "next/image";
 import { MODELL_LABEL, UST, fmt2 } from "@/lib/calculator";
 import type { MieterstromCalculator } from "@/hooks/useMieterstromCalculator";
@@ -8,10 +9,19 @@ const money = (n: number) => `${fmt2(n)} €`;
 const brutto = (n: number) => n * (1 + UST);
 
 export function AngebotPanel({ calc }: { calc: MieterstromCalculator }) {
-  const { angebotReady, results: r, loading, form } = calc;
+  const { angebotReady, results: r, loading, form, messtechnikExpanded, setMesstechnikExpanded } = calc;
   const messkonzeptLabel = MODELL_LABEL[form.mieterstromModell] ?? "GGV";
   const todayFmt = new Date().toLocaleDateString("de-DE");
   const dashboardOpacity = loading ? 0.55 : 1;
+
+  const messtechnikComponents = ["PV-Anlage"];
+  if (r.wpOwnMeter) messtechnikComponents.push("WP");
+  if (r.wallboxOwnMeter) messtechnikComponents.push("Wallbox");
+  const messtechnikLabel = messtechnikComponents.join(" / ");
+
+  const messtechnikRows: { label: string; price: number }[] = [{ label: "Zähler PV-Anlage", price: r.zaehlerStueckpreis }];
+  if (r.wpOwnMeter) messtechnikRows.push({ label: "Zähler Wärmepumpe", price: r.zaehlerStueckpreis });
+  if (r.wallboxOwnMeter) messtechnikRows.push({ label: "Zähler Wallbox / Ladeinfrastruktur", price: r.zaehlerStueckpreis });
 
   return (
     <div className="relative rounded-2xl border border-[#E5EAF1] bg-white px-7 py-[26px] shadow-[0_1px_3px_rgba(16,24,40,0.06)]">
@@ -51,10 +61,31 @@ export function AngebotPanel({ calc }: { calc: MieterstromCalculator }) {
             <div className="text-right text-[#98A2B3]">{money(r.zaehlerASNetto * UST)}</div>
             <div className="text-right">{money(brutto(r.zaehlerASNetto))}</div>
 
-            <div className="pl-1 text-[#5B6472]">2x Zähler PV-Anlage / WP</div>
+            <div
+              onClick={() => setMesstechnikExpanded(!messtechnikExpanded)}
+              className="flex cursor-pointer items-center gap-1.5 pl-1 text-[#5B6472] select-none"
+            >
+              <span
+                className="inline-block text-[9px] font-bold text-[#3AA8DC] transition-transform"
+                style={{ transform: messtechnikExpanded ? "rotate(180deg)" : "rotate(0deg)" }}
+              >
+                ⌄
+              </span>
+              {r.pvWpWallboxAnzahl}x Zähler {messtechnikLabel}
+            </div>
             <div className="text-right">{money(r.zaehlerPVNetto)}</div>
             <div className="text-right text-[#98A2B3]">{money(r.zaehlerPVNetto * UST)}</div>
             <div className="text-right">{money(brutto(r.zaehlerPVNetto))}</div>
+
+            {messtechnikExpanded &&
+              messtechnikRows.map((row) => (
+                <Fragment key={row.label}>
+                  <div className="pl-6 text-[11.5px] text-[#98A2B3]">1x {row.label}</div>
+                  <div className="text-right text-[11.5px] text-[#98A2B3]">{money(row.price)}</div>
+                  <div className="text-right text-[11.5px] text-[#98A2B3]">{money(row.price * UST)}</div>
+                  <div className="text-right text-[11.5px] text-[#98A2B3]">{money(brutto(row.price))}</div>
+                </Fragment>
+              ))}
 
             <div className="pl-1 text-[#5B6472]">1x Gateway</div>
             <div className="text-right">{money(r.gatewayNetto)}</div>

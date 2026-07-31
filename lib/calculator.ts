@@ -1,5 +1,6 @@
 export type MieterstromModell = "physischer_sz" | "ggv" | "virtueller_sz";
 export type WaermepumpeModus = "nein" | "eigener_zaehler" | "allgemeinstrom";
+export type WallboxModus = "nein" | "hinter_zaehler" | "eigener_zaehler";
 export type PvSzenario = "steildach" | "flachdach";
 export type WpSzenario = "ungesteuert" | "pv_optimiert";
 
@@ -12,6 +13,8 @@ export interface FormState {
   wandlermessung: boolean;
   durchlauferhitzer: boolean;
   durchlauferhitzerAnzahl: number | "";
+  wallboxModus: WallboxModus;
+  wallboxAnzahl: number | "";
 
   kunde: string;
   installer: string;
@@ -47,6 +50,8 @@ export const DEFAULTS: FormState = {
   wandlermessung: true,
   durchlauferhitzer: false,
   durchlauferhitzerAnzahl: 0,
+  wallboxModus: "nein",
+  wallboxAnzahl: 0,
 
   kunde: "",
   installer: "",
@@ -81,6 +86,19 @@ export const MODELL_LABEL: Record<MieterstromModell, string> = {
   virtueller_sz: "Virtueller SZ",
   physischer_sz: "Physischer SZ",
 };
+
+interface ModellPricing {
+  projektpauschale: number;
+  preisProZaehler: number;
+  gateway: number;
+}
+
+const MODELL_PRICING: Record<MieterstromModell, ModellPricing> = {
+  physischer_sz: { projektpauschale: 1299, preisProZaehler: 149, gateway: 349 },
+  virtueller_sz: { projektpauschale: 1999, preisProZaehler: 25, gateway: 25 },
+  ggv: { projektpauschale: 1999, preisProZaehler: 25, gateway: 25 },
+};
+
 const WHOLESALE_RESTSTROM = 0.22;
 const MIETERSTROMZUSCHLAG = 0.021;
 export const UST = 0.19;
@@ -136,6 +154,9 @@ export interface ComputedResults {
   autarkiegrad: number;
   einheiten: number;
   wpAktiv: boolean;
+  wpOwnMeter: boolean;
+  wallboxOwnMeter: boolean;
+  pvWpWallboxAnzahl: number;
   kostenPV: number;
   kostenSpeicher: number;
   kostenMieterstrompaket: number;
@@ -157,6 +178,7 @@ export interface ComputedResults {
   zaehlerWENetto: number;
   zaehlerASNetto: number;
   zaehlerPVNetto: number;
+  zaehlerStueckpreis: number;
   gatewayNetto: number;
   einmaligNetto: number;
   einmaligUst: number;
@@ -206,8 +228,12 @@ export function computeResults(f: FormState): ComputedResults {
   const eigenverbrauchsquote = pvErtrag > 0 ? (eigenverbrauchGesamt / pvErtrag) * 100 : 0;
   const autarkiegrad = verbrauchGesamt > 0 ? (eigenverbrauchGesamt / verbrauchGesamt) * 100 : 0;
 
+  const wpOwnMeter = f.waermepumpeModus === "eigener_zaehler";
+  const wallboxOwnMeter = f.wallboxModus === "eigener_zaehler";
+  const pvWpWallboxAnzahl = 1 + (wpOwnMeter ? 1 : 0) + (wallboxOwnMeter ? 1 : 0);
+
   const zaehlerWEAnzahl = Math.max(1, einheiten);
-  const zaehlpunkte0 = zaehlerWEAnzahl + (f.allgemeinstrom ? 1 : 0) + (wpAktiv ? 2 : 1);
+  const zaehlpunkte0 = zaehlerWEAnzahl + (f.allgemeinstrom ? 1 : 0) + pvWpWallboxAnzahl;
 
   const kostenPV = num(f.pvGroesse) * 1400;
   const kostenSpeicher = num(f.speicher) * 700;
@@ -248,11 +274,13 @@ export function computeResults(f: FormState): ComputedResults {
   }
   const gewinn20 = cum;
 
-  const projektNetto = 1999;
-  const zaehlerWENetto = zaehlerWEAnzahl * 25;
-  const zaehlerASNetto = f.allgemeinstrom ? 25 : 0;
-  const zaehlerPVNetto = wpAktiv ? 100 : 50;
-  const gatewayNetto = 25;
+  const pricing = MODELL_PRICING[f.mieterstromModell] ?? MODELL_PRICING.ggv;
+  const zaehlerStueckpreis = pricing.preisProZaehler;
+  const projektNetto = pricing.projektpauschale;
+  const zaehlerWENetto = zaehlerWEAnzahl * zaehlerStueckpreis;
+  const zaehlerASNetto = (f.allgemeinstrom ? 1 : 0) * zaehlerStueckpreis;
+  const zaehlerPVNetto = pvWpWallboxAnzahl * zaehlerStueckpreis;
+  const gatewayNetto = pricing.gateway;
   const einmaligNetto = projektNetto + zaehlerWENetto + zaehlerASNetto + zaehlerPVNetto + gatewayNetto;
   const einmaligUst = einmaligNetto * UST;
   const einmaligBrutto = einmaligNetto + einmaligUst;
@@ -291,6 +319,9 @@ export function computeResults(f: FormState): ComputedResults {
     autarkiegrad,
     einheiten,
     wpAktiv,
+    wpOwnMeter,
+    wallboxOwnMeter,
+    pvWpWallboxAnzahl,
     kostenPV,
     kostenSpeicher,
     kostenMieterstrompaket,
@@ -312,6 +343,7 @@ export function computeResults(f: FormState): ComputedResults {
     zaehlerWENetto,
     zaehlerASNetto,
     zaehlerPVNetto,
+    zaehlerStueckpreis,
     gatewayNetto,
     einmaligNetto,
     einmaligUst,

@@ -36,6 +36,7 @@ export function useMieterstromCalculator() {
   const [showRechnungsadresse, setShowRechnungsadresse] = useState(false);
   const [messkonzeptExpanded, setMesskonzeptExpanded] = useState(false);
   const [messkonzeptLabels, setMesskonzeptLabels] = useState<string[]>(DEFAULT_MESSKONZEPT_LABELS);
+  const [messtechnikExpanded, setMesstechnikExpanded] = useState(false);
 
   const [box1Open, setBox1Open] = useState(true);
   const [box2Open, setBox2Open] = useState(true);
@@ -160,6 +161,8 @@ export function useMieterstromCalculator() {
     setMesskonzeptExpanded,
     messkonzeptSlots,
     setMesskonzeptLabel,
+    messtechnikExpanded,
+    setMesstechnikExpanded,
 
     box1Open,
     setBox1Open,
