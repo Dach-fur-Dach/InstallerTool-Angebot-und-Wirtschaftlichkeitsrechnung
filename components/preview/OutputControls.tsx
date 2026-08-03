@@ -7,7 +7,7 @@ export function OutputControls({ calc }: { calc: MieterstromCalculator }) {
   const anyOutput = outputs.wirtschaft || outputs.angebot;
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-4 rounded-[14px] border border-[#E5EAF1] bg-white px-5 py-3 shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
+    <div className="flex flex-wrap items-center justify-between gap-4 rounded-[14px] border border-[#E5EAF1] bg-[#FCFBF9] px-5 py-3 shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
       <div className="flex flex-wrap items-center gap-5">
         <label className="flex cursor-pointer items-center gap-2">
           <input

@@ -9,7 +9,7 @@ export function WirtschaftGate({ calc }: { calc: MieterstromCalculator }) {
   const inactive = "border border-[#D0D5DD] bg-white text-[#667085]";
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-4 rounded-[14px] border border-[#E5EAF1] bg-white px-6 py-[18px] shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
+    <div className="flex flex-wrap items-center justify-between gap-4 rounded-[14px] border border-[#E5EAF1] bg-[#FCFBF9] px-6 py-[18px] shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
       <span className="text-sm font-bold text-[#0A1628]">Wirtschaftlichkeitsrechnung benötigt?</span>
       <div className="flex gap-2">
         <button

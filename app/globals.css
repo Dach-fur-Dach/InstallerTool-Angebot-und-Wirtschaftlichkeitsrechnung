@@ -32,13 +32,13 @@ body {
   margin: 0;
   background: linear-gradient(
     160deg,
-    #ffd79b 0%,
+   #ffd79b 0%,
     #ffe1b0 14%,
     #fff2dc 30%,
     #e4f5f9 48%,
     #bee7f2 66%,
     #9cd9ec 82%,
-    #7fcbe8 100%
+    #7fcbe8 
   );
   background-attachment: fixed;
   background-size: 220% 320vh;
