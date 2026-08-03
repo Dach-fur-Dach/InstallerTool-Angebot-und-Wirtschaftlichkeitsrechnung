@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { ReactNode } from "react";
+import { Collapse } from "@/components/ui/Collapse";
 
 interface CollapsibleSectionProps {
   icon?: string;
@@ -42,7 +43,9 @@ export function CollapsibleSection({
           ⌄
         </span>
       </div>
-      {open && <div className="mt-3 flex flex-col text-[12.5px]">{children}</div>}
+      <Collapse open={open} innerClassName="mt-3 flex flex-col text-[12.5px]">
+        {children}
+      </Collapse>
     </>
   );
 }

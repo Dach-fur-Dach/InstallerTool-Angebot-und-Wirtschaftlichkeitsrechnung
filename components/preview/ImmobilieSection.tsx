@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { fmt1, fmtInt, num } from "@/lib/calculator";
 import type { MieterstromCalculator } from "@/hooks/useMieterstromCalculator";
+import { Collapse } from "@/components/ui/Collapse";
 
 const Row = ({ label, value }: { label: string; value: string }) => (
   <>
@@ -33,21 +34,19 @@ export function ImmobilieSection({ calc }: { calc: MieterstromCalculator }) {
         </span>
       </div>
 
-      {open && (
-        <div className="grid grid-cols-[1fr_auto] gap-x-4 gap-y-2 p-3.5 text-[12.5px]">
-          <Row label="Wohneinheiten" value={fmtInt(r.einheiten)} />
-          <Row label="Verbrauch Mieterstrom" value={`${fmtInt(r.verbrauchMieterstrom)} kWh`} />
-          <Row label="Verbrauch Wärmepumpe" value={r.wpAktiv ? `${fmtInt(r.wpVerbrauch)} kWh` : "–"} />
-          <Row label="PV-Anlage" value={`${fmt1(num(form.pvGroesse))} kWp`} />
-          <Row label="PV-Speicher" value={`${fmtInt(num(form.speicher))} kWh`} />
-          <Row label="PV-Erzeugung" value={`${fmtInt(r.pvErtrag)} kWh`} />
-          <Row label="Eigenverbrauch Mieterstrom" value={`${fmtInt(r.eigenverbrauchMieterstrom)} kWh`} />
-          <Row label="Netzstrombedarf (Wohnungen)" value={`${fmtInt(r.netzMieterstrom)} kWh`} />
-          <Row label="Eigenverbrauch (Wärmepumpe)" value={r.wpAktiv ? `${fmtInt(r.eigenverbrauchWP)} kWh` : "–"} />
-          <Row label="Netzstrombedarf (Wärmepumpe)" value={r.wpAktiv ? `${fmtInt(r.netzWP)} kWh` : "–"} />
-          <Row label="Überschusseinspeisung" value={`${fmtInt(r.ueberschusseinspeisung)} kWh`} />
-        </div>
-      )}
+      <Collapse open={open} innerClassName="grid grid-cols-[1fr_auto] gap-x-4 gap-y-2 p-3.5 text-[12.5px]">
+        <Row label="Wohneinheiten" value={fmtInt(r.einheiten)} />
+        <Row label="Verbrauch Mieterstrom" value={`${fmtInt(r.verbrauchMieterstrom)} kWh`} />
+        <Row label="Verbrauch Wärmepumpe" value={r.wpAktiv ? `${fmtInt(r.wpVerbrauch)} kWh` : "–"} />
+        <Row label="PV-Anlage" value={`${fmt1(num(form.pvGroesse))} kWp`} />
+        <Row label="PV-Speicher" value={`${fmtInt(num(form.speicher))} kWh`} />
+        <Row label="PV-Erzeugung" value={`${fmtInt(r.pvErtrag)} kWh`} />
+        <Row label="Eigenverbrauch Mieterstrom" value={`${fmtInt(r.eigenverbrauchMieterstrom)} kWh`} />
+        <Row label="Netzstrombedarf (Wohnungen)" value={`${fmtInt(r.netzMieterstrom)} kWh`} />
+        <Row label="Eigenverbrauch (Wärmepumpe)" value={r.wpAktiv ? `${fmtInt(r.eigenverbrauchWP)} kWh` : "–"} />
+        <Row label="Netzstrombedarf (Wärmepumpe)" value={r.wpAktiv ? `${fmtInt(r.netzWP)} kWh` : "–"} />
+        <Row label="Überschusseinspeisung" value={`${fmtInt(r.ueberschusseinspeisung)} kWh`} />
+      </Collapse>
 
       <div className="grid grid-cols-[1fr_auto] gap-x-4 gap-y-2 border-t border-[#EDF1F6] px-3.5 py-3 text-[12.5px]">
         <Row label="Eigenverbrauchsquote" value={`${fmt1(r.eigenverbrauchsquote)} %`} />
