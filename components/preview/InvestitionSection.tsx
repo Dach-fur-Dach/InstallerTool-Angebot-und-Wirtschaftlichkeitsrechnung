@@ -33,6 +33,7 @@ export function InvestitionSection({ calc }: { calc: MieterstromCalculator }) {
     >
       <Row label="PV-Anlage" value={`${fmtInt(r.kostenPV)} €`} />
       <Row label="Speicher" value={`${fmtInt(r.kostenSpeicher)} €`} />
+      <Row label="Zählerschrank/Wandlermessung" value={`${fmtInt(r.kostenZaehlerschrank)} €`} />
       <Row label="Mieterstrompaket" value={`${fmtInt(r.kostenMieterstrompaket)} €`} />
       <Row label="Gesamtinvestitionskosten" value={`${fmtInt(r.investition)} €`} highlight />
     </CollapsibleSection>

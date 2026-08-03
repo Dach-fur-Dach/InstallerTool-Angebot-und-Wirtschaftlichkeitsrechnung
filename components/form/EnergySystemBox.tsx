@@ -4,9 +4,52 @@ import { CollapsibleBox } from "@/components/ui/CollapsibleBox";
 import { FieldLabel, NumberInput, SelectInput } from "@/components/ui/Field";
 import type { MieterstromCalculator } from "@/hooks/useMieterstromCalculator";
 
+function CostOverrideField({
+  label,
+  value,
+  isManual,
+  onChange,
+  onReset,
+}: {
+  label: string;
+  value: number;
+  isManual: boolean;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onReset: () => void;
+}) {
+  return (
+    <div>
+      <label className="mb-1.5 flex items-center gap-1.5 text-[12.5px] font-semibold text-[#344054]">
+        {label}{" "}
+        <span className="rounded bg-[#EAF2FF] px-1.5 py-0.5 text-[9.5px] font-bold text-[#3AA8DC]">
+          {isManual ? "MANUELL" : "AUTO"}
+        </span>
+        {isManual && (
+          <a onClick={onReset} className="cursor-pointer text-[10px] font-bold text-[#3AA8DC]">
+            zurücksetzen
+          </a>
+        )}
+      </label>
+      <NumberInput min={0} value={Math.round(value)} onChange={onChange} />
+    </div>
+  );
+}
+
 export function EnergySystemBox({ calc }: { calc: MieterstromCalculator }) {
-  const { form, onNum, onText, box3Open, setBox3Open, tier2VisualOpacity, results, resetErtragManual, wpDisabled } =
-    calc;
+  const {
+    form,
+    onNum,
+    onText,
+    box3Open,
+    setBox3Open,
+    tier2VisualOpacity,
+    results,
+    resetErtragManual,
+    resetKostenPVManual,
+    resetKostenSpeicherManual,
+    resetKostenZaehlerschrankManual,
+    wpDisabled,
+  } = calc;
 
   return (
     <CollapsibleBox
@@ -58,6 +101,35 @@ export function EnergySystemBox({ calc }: { calc: MieterstromCalculator }) {
             <option value="ungesteuert">Ungesteuert (temperaturabhängig)</option>
             <option value="pv_optimiert">PV-optimiert</option>
           </SelectInput>
+        </div>
+      </div>
+
+      <div className="my-1 mb-[18px] h-px bg-[#EDF1F6]" />
+
+      <div className="mb-1.5 text-[11.5px] font-bold tracking-wide text-[#5B6472] uppercase">Investitionskosten</div>
+      <div className="grid grid-cols-2 gap-4">
+        <CostOverrideField
+          label="PV-Anlage (€)"
+          value={results.kostenPV}
+          isManual={results.kostenPVIsManual}
+          onChange={onNum("kostenPVManual")}
+          onReset={resetKostenPVManual}
+        />
+        <CostOverrideField
+          label="Speicher (€)"
+          value={results.kostenSpeicher}
+          isManual={results.kostenSpeicherIsManual}
+          onChange={onNum("kostenSpeicherManual")}
+          onReset={resetKostenSpeicherManual}
+        />
+        <div className="col-span-2">
+          <CostOverrideField
+            label="Zählerschrank / Wandlermessung (€)"
+            value={results.kostenZaehlerschrank}
+            isManual={results.kostenZaehlerschrankIsManual}
+            onChange={onNum("kostenZaehlerschrankManual")}
+            onReset={resetKostenZaehlerschrankManual}
+          />
         </div>
       </div>
     </CollapsibleBox>
