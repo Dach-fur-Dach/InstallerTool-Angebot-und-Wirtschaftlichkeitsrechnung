@@ -26,9 +26,71 @@ export function TextInput(props: InputHTMLAttributes<HTMLInputElement>) {
   return <input type="text" className={`${inputBase} ${className}`} {...rest} />;
 }
 
+function ChevronIcon({ direction }: { direction: "up" | "down" }) {
+  return (
+    <svg
+      width="12"
+      height="7"
+      viewBox="0 0 9 5"
+      fill="none"
+      className={direction === "up" ? "" : "rotate-180"}
+    >
+      <path d="M1 4L4.5 1L8 4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+const numberInputBase =
+  "w-full box-border rounded-lg border border-[#D0D5DD] py-[9px] pl-[11px] pr-7 text-[13.5px] text-[#0A1628] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none";
+
 export function NumberInput(props: InputHTMLAttributes<HTMLInputElement>) {
-  const { className = "", ...rest } = props;
-  return <input type="number" className={`${inputBase} disabled:border-[#E5EAF1] disabled:bg-[#F8FAFC] disabled:text-[#B0B8C4] ${className}`} {...rest} />;
+  const { className = "", value, onChange, min, max, step, disabled, ...rest } = props;
+  const stepNum = step ? parseFloat(String(step)) || 1 : 1;
+
+  const adjust = (delta: number) => {
+    if (disabled || !onChange) return;
+    const current = parseFloat(String(value ?? "")) || 0;
+    let next = current + delta;
+    if (min !== undefined && min !== "") next = Math.max(next, parseFloat(String(min)));
+    if (max !== undefined && max !== "") next = Math.min(next, parseFloat(String(max)));
+    onChange({ target: { value: String(next) } } as React.ChangeEvent<HTMLInputElement>);
+  };
+
+  return (
+    <div className="relative">
+      <input
+        type="number"
+        value={value}
+        onChange={onChange}
+        min={min}
+        max={max}
+        step={step}
+        disabled={disabled}
+        className={`${numberInputBase} disabled:border-[#E5EAF1] disabled:bg-[#F8FAFC] disabled:text-[#B0B8C4] ${className}`}
+        {...rest}
+      />
+      {!disabled && (
+        <div className="absolute inset-y-0 right-1.5 flex flex-col items-center justify-center gap-[3px]">
+          <button
+            type="button"
+            tabIndex={-1}
+            onClick={() => adjust(stepNum)}
+            className="flex cursor-pointer items-center justify-center text-[#98A2B3] hover:text-[#3AA8DC]"
+          >
+            <ChevronIcon direction="up" />
+          </button>
+          <button
+            type="button"
+            tabIndex={-1}
+            onClick={() => adjust(-stepNum)}
+            className="flex cursor-pointer items-center justify-center text-[#98A2B3] hover:text-[#3AA8DC]"
+          >
+            <ChevronIcon direction="down" />
+          </button>
+        </div>
+      )}
+    </div>
+  );
 }
 
 export function SelectInput(props: SelectHTMLAttributes<HTMLSelectElement>) {
