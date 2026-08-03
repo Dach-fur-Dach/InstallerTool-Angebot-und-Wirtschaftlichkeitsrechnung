@@ -5,7 +5,17 @@ import { FieldLabel, NumberInput } from "@/components/ui/Field";
 import type { MieterstromCalculator } from "@/hooks/useMieterstromCalculator";
 
 export function ConsumptionBox({ calc }: { calc: MieterstromCalculator }) {
-  const { form, onNum, box4Open, setBox4Open, tier2VisualOpacity, results, resetAllgemeinManual, wpDisabled } = calc;
+  const {
+    form,
+    onNum,
+    box4Open,
+    setBox4Open,
+    tier2VisualOpacity,
+    results,
+    resetAllgemeinManual,
+    resetWohnungenManual,
+    wpDisabled,
+  } = calc;
 
   return (
     <CollapsibleBox
@@ -17,8 +27,22 @@ export function ConsumptionBox({ calc }: { calc: MieterstromCalculator }) {
     >
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <FieldLabel label="Wohnungen (kWh)" />
-          <NumberInput min={0} value={form.verbrauchWohnungen} onChange={onNum("verbrauchWohnungen")} />
+          <label className="mb-1.5 flex items-center gap-1.5 text-[12.5px] font-semibold text-[#344054]">
+            Wohnungen (kWh){" "}
+            <span className="rounded bg-[#EAF2FF] px-1.5 py-0.5 text-[9.5px] font-bold text-[#3AA8DC]">
+              {results.wohnungenIsManual ? "MANUELL" : "AUTO"}
+            </span>
+            {results.wohnungenIsManual && (
+              <a onClick={resetWohnungenManual} className="cursor-pointer text-[10px] font-bold text-[#3AA8DC]">
+                zurücksetzen
+              </a>
+            )}
+          </label>
+          <NumberInput
+            min={0}
+            value={Math.round(results.verbrauchWohnungen)}
+            onChange={onNum("verbrauchWohnungenManual")}
+          />
         </div>
         <div>
           <label className="mb-1.5 flex items-center gap-1.5 text-[12.5px] font-semibold text-[#344054]">
@@ -44,7 +68,12 @@ export function ConsumptionBox({ calc }: { calc: MieterstromCalculator }) {
         </div>
         <div>
           <FieldLabel label="Wärmepumpe (kWh)" />
-          <NumberInput min={0} disabled={wpDisabled} value={form.verbrauchWaermepumpe} onChange={onNum("verbrauchWaermepumpe")} />
+          <NumberInput
+            min={0}
+            disabled={wpDisabled}
+            value={wpDisabled ? 0 : form.verbrauchWaermepumpe}
+            onChange={onNum("verbrauchWaermepumpe")}
+          />
         </div>
       </div>
     </CollapsibleBox>
