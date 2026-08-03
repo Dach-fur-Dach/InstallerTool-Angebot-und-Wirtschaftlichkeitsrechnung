@@ -2,13 +2,14 @@
 
 import { fmtInt } from "@/lib/calculator";
 import type { BetriebOpenState, MieterstromCalculator } from "@/hooks/useMieterstromCalculator";
+import { Collapse } from "@/components/ui/Collapse";
 import { CollapsibleSection } from "./CollapsibleSection";
 
 const DETAILS: Record<keyof BetriebOpenState, string> = {
   versicherung: "1,2% der Investition",
-  abrechnung: "60€ pro Einheit/Jahr",
+  abrechnung: "Wie im Angebot (Abrechnung Standard)",
   reststrom: "0,22€ pro kWh",
-  zaehler: "120€ pro Zähler/Jahr",
+  zaehler: "Wie im Angebot (Zählergebühren)",
 };
 
 function ToggleRow({
@@ -29,7 +30,9 @@ function ToggleRow({
         <span className="font-semibold text-[#1B2A3A]">{label} ⌄</span>
         <span className="font-bold text-[#1B2A3A]">{value}</span>
       </div>
-      {betriebOpen[detailKey] && <div className="mt-1 text-[10px] text-[#98A2B3]">{DETAILS[detailKey]}</div>}
+      <Collapse open={betriebOpen[detailKey]} innerClassName="mt-1 text-[10px] text-[#98A2B3]">
+        {DETAILS[detailKey]}
+      </Collapse>
     </div>
   );
 }
