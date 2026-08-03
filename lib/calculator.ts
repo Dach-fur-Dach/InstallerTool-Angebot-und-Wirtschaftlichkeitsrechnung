@@ -29,8 +29,11 @@ export interface FormState {
   wpSzenario: WpSzenario;
   ertragProKwpManual: number | "";
   verbrauchAllgemeinManual: number | "";
+  verbrauchWohnungenManual: number | "";
+  kostenPVManual: number | "";
+  kostenSpeicherManual: number | "";
+  kostenZaehlerschrankManual: number | "";
 
-  verbrauchWohnungen: number | "";
   verbrauchGewerbe: number | "";
   verbrauchWaermepumpe: number | "";
 
@@ -66,8 +69,11 @@ export const DEFAULTS: FormState = {
   wpSzenario: "pv_optimiert",
   ertragProKwpManual: "",
   verbrauchAllgemeinManual: "",
+  verbrauchWohnungenManual: "",
+  kostenPVManual: "",
+  kostenSpeicherManual: "",
+  kostenZaehlerschrankManual: "",
 
-  verbrauchWohnungen: 60000,
   verbrauchGewerbe: 15000,
   verbrauchWaermepumpe: 20000,
 
@@ -80,7 +86,13 @@ export const DEFAULTS: FormState = {
 
 const YIELD: Record<PvSzenario, number> = { steildach: 950, flachdach: 850 };
 const ALLGEMEIN_PRO_EINHEIT = 700;
+const WOHNUNG_PRO_EINHEIT = 2500;
 const FEED_IN_TARIF = 0.08;
+const PV_KOSTEN_PRO_KWP = 1300;
+const SPEICHER_KOSTEN_PRO_KWH = 450;
+const ZAEHLERSCHRANK_GRUNDKOSTEN = 800;
+const ZAEHLERSCHRANK_PRO_ZAEHLER = 180;
+const ZAEHLERSCHRANK_WANDLER_ZUSCHLAG = 1500;
 export const MODELL_LABEL: Record<MieterstromModell, string> = {
   ggv: "GGV",
   virtueller_sz: "Virtueller SZ",
@@ -139,6 +151,9 @@ export interface ComputedResults {
   ertragProKwp: number;
   allgemeinIsManual: boolean;
   ertragIsManual: boolean;
+  autoWohnungen: number;
+  wohnungenIsManual: boolean;
+  verbrauchWohnungen: number;
   verbrauchMieterstrom: number;
   verbrauchGesamt: number;
   wpVerbrauch: number;
@@ -158,7 +173,14 @@ export interface ComputedResults {
   wallboxOwnMeter: boolean;
   pvWpWallboxAnzahl: number;
   kostenPV: number;
+  kostenPVAuto: number;
+  kostenPVIsManual: boolean;
   kostenSpeicher: number;
+  kostenSpeicherAuto: number;
+  kostenSpeicherIsManual: boolean;
+  kostenZaehlerschrank: number;
+  kostenZaehlerschrankAuto: number;
+  kostenZaehlerschrankIsManual: boolean;
   kostenMieterstrompaket: number;
   betriebVersicherung: number;
   betriebAbrechnung: number;
@@ -174,6 +196,9 @@ export interface ComputedResults {
   seriesYearly: YearlySeriesEntry[];
   breakEvenYear: number | null;
   zaehlerWEAnzahl: number;
+  zaehlerASAnzahl: number;
+  funkadapterAnzahl: number;
+  funkadapterNetto: number;
   projektNetto: number;
   zaehlerWENetto: number;
   zaehlerASNetto: number;
@@ -189,26 +214,33 @@ export interface ComputedResults {
   jaehrlichNetto: number;
   jaehrlichUst: number;
   jaehrlichBrutto: number;
+  mieterKostenJahr1: number;
+  grundversorgerKostenJahr1: number;
+  ersparnisMieterJahr1: number;
+  ersparnisSeriesYearly: number[];
+  ersparnisSeriesKumuliert: number[];
+  ersparnisMieter20: number;
+}
+
+function isManualOverride(v: number | ""): boolean {
+  return v !== "" && v != null && isFinite(parseFloat(String(v)));
 }
 
 export function computeResults(f: FormState): ComputedResults {
   const einheiten = num(f.wohneinheiten) + num(f.gewerbeeinheiten);
   const autoAllgemeinCalc = f.allgemeinstrom ? einheiten * ALLGEMEIN_PRO_EINHEIT : 0;
-  const allgemeinIsManual =
-    f.verbrauchAllgemeinManual !== "" &&
-    f.verbrauchAllgemeinManual != null &&
-    isFinite(parseFloat(String(f.verbrauchAllgemeinManual)));
+  const allgemeinIsManual = isManualOverride(f.verbrauchAllgemeinManual);
   const autoAllgemein = allgemeinIsManual ? num(f.verbrauchAllgemeinManual) : autoAllgemeinCalc;
   const wpAktiv = waermepumpeAktiv(f);
   const wpVerbrauch = wpAktiv ? num(f.verbrauchWaermepumpe) : 0;
-  const verbrauchMieterstrom = num(f.verbrauchWohnungen) + autoAllgemein + num(f.verbrauchGewerbe);
+  const autoWohnungen = num(f.wohneinheiten) * WOHNUNG_PRO_EINHEIT;
+  const wohnungenIsManual = isManualOverride(f.verbrauchWohnungenManual);
+  const verbrauchWohnungen = wohnungenIsManual ? num(f.verbrauchWohnungenManual) : autoWohnungen;
+  const verbrauchMieterstrom = verbrauchWohnungen + autoAllgemein + num(f.verbrauchGewerbe);
   const verbrauchGesamt = verbrauchMieterstrom + wpVerbrauch;
 
   const ertragProKwpAuto = YIELD[f.pvSzenario] || YIELD.steildach;
-  const ertragIsManual =
-    f.ertragProKwpManual !== "" &&
-    f.ertragProKwpManual != null &&
-    isFinite(parseFloat(String(f.ertragProKwpManual)));
+  const ertragIsManual = isManualOverride(f.ertragProKwpManual);
   const ertragProKwp = ertragIsManual ? num(f.ertragProKwpManual) : ertragProKwpAuto;
   const pvErtrag = num(f.pvGroesse) * ertragProKwp;
 
@@ -234,17 +266,59 @@ export function computeResults(f: FormState): ComputedResults {
 
   const zaehlerWEAnzahl = Math.max(1, einheiten);
   const zaehlpunkte0 = zaehlerWEAnzahl + (f.allgemeinstrom ? 1 : 0) + pvWpWallboxAnzahl;
+  const istPhysischerSZ = f.mieterstromModell === "physischer_sz";
 
-  const kostenPV = num(f.pvGroesse) * 1400;
-  const kostenSpeicher = num(f.speicher) * 700;
-  const kostenMieterstrompaket =
-    3500 + (f.wandlermessung ? 1500 : 0) + num(f.durchlauferhitzerAnzahl) * 150;
-  const investition = kostenPV + kostenSpeicher + kostenMieterstrompaket;
+  // Angebot pricing (moved up so Wirtschaftlichkeit can reuse the same numbers)
+  const pricing = MODELL_PRICING[f.mieterstromModell] ?? MODELL_PRICING.ggv;
+  const zaehlerStueckpreis = pricing.preisProZaehler;
+  const projektNetto = pricing.projektpauschale;
+  const zaehlerWENetto = zaehlerWEAnzahl * zaehlerStueckpreis;
+  const zaehlerASAnzahl = f.allgemeinstrom ? 1 : 0;
+  const zaehlerASNetto = zaehlerASAnzahl * zaehlerStueckpreis;
+  const zaehlerPVNetto = pvWpWallboxAnzahl * zaehlerStueckpreis;
+  const gatewayNetto = pricing.gateway;
+  // Physischer Summenzähler benötigt keinen Mieterstromzuschlag-Zähler, dafür standardmäßig 1x Funkadapter.
+  const funkadapterAnzahl = istPhysischerSZ ? 1 : 0;
+  const funkadapterNetto = funkadapterAnzahl * zaehlerStueckpreis;
+  const einmaligNetto =
+    projektNetto + zaehlerWENetto + zaehlerASNetto + zaehlerPVNetto + gatewayNetto + funkadapterNetto;
+  const einmaligUst = einmaligNetto * UST;
+  const einmaligBrutto = einmaligNetto + einmaligUst;
+
+  const zaehlpunkte = zaehlpunkte0;
+  const abrechnungNetto = 649;
+  // Bei physischem Summenzähler entfallen die separaten Zählergebühren.
+  const zaehlgebuehrNetto = istPhysischerSZ ? 0 : zaehlpunkte * 71.37;
+  const jaehrlichNetto = abrechnungNetto + zaehlgebuehrNetto;
+  const jaehrlichUst = jaehrlichNetto * UST;
+  const jaehrlichBrutto = jaehrlichNetto + jaehrlichUst;
+
+  const kostenPVAuto = num(f.pvGroesse) * PV_KOSTEN_PRO_KWP;
+  const kostenPVIsManual = isManualOverride(f.kostenPVManual);
+  const kostenPV = kostenPVIsManual ? num(f.kostenPVManual) : kostenPVAuto;
+
+  const kostenSpeicherAuto = num(f.speicher) * SPEICHER_KOSTEN_PRO_KWH;
+  const kostenSpeicherIsManual = isManualOverride(f.kostenSpeicherManual);
+  const kostenSpeicher = kostenSpeicherIsManual ? num(f.kostenSpeicherManual) : kostenSpeicherAuto;
+
+  const kostenZaehlerschrankAuto =
+    ZAEHLERSCHRANK_GRUNDKOSTEN +
+    zaehlpunkte0 * ZAEHLERSCHRANK_PRO_ZAEHLER +
+    (f.wandlermessung ? ZAEHLERSCHRANK_WANDLER_ZUSCHLAG : 0);
+  const kostenZaehlerschrankIsManual = isManualOverride(f.kostenZaehlerschrankManual);
+  const kostenZaehlerschrank = kostenZaehlerschrankIsManual
+    ? num(f.kostenZaehlerschrankManual)
+    : kostenZaehlerschrankAuto;
+
+  // Mieterstrompaket entspricht den tatsächlichen einmaligen Kosten aus dem Angebot (Jahr 1).
+  const kostenMieterstrompaket = einmaligNetto;
+  const investition = kostenPV + kostenSpeicher + kostenZaehlerschrank + kostenMieterstrompaket;
 
   const betriebVersicherung = investition * 0.012;
-  const betriebAbrechnung = einheiten * 60;
+  // Abrechnung & Zähler-Jahresgebühr entsprechen den Werten aus dem Angebot.
+  const betriebAbrechnung = abrechnungNetto;
   const betriebReststrom = restbezug * WHOLESALE_RESTSTROM;
-  const betriebZaehler = zaehlpunkte0 * 120;
+  const betriebZaehler = zaehlgebuehrNetto;
   const betrieb = betriebVersicherung + betriebAbrechnung + betriebReststrom + betriebZaehler;
 
   const einnahmenGrundgebuehr = einheiten * num(f.grundgebuehr) * 12;
@@ -260,9 +334,18 @@ export function computeResults(f: FormState): ComputedResults {
   const amortisation = gewinnJahr1 > 0 ? investition / gewinnJahr1 : Infinity;
   const co2 = (pvErtrag * 0.366) / 1000;
 
+  // Was der Mieter tatsächlich zahlt (Grundgebühr + Solar- + Netzstrom) vs. Grundversorger-Tarif.
+  const mieterKostenJahr1 = einnahmenGrundgebuehr + einnahmenSolarstrom + einnahmenNetzstrom;
+  const grundversorgerKostenJahr1 =
+    einheiten * num(f.grundversorgerGrundgebuehr) * 12 + verbrauchMieterstrom * num(f.grundversorgerPreis);
+  const ersparnisMieterJahr1 = grundversorgerKostenJahr1 - mieterKostenJahr1;
+
   const series: number[] = [];
   const seriesYearly: YearlySeriesEntry[] = [];
+  const ersparnisSeriesYearly: number[] = [];
+  const ersparnisSeriesKumuliert: number[] = [];
   let cum = -investition;
+  let ersparnisCum = 0;
   let breakEvenYear: number | null = null;
   for (let t = 0; t < 20; t++) {
     const jahresEinnahmen = einnahmen * Math.pow(1.03, t);
@@ -271,26 +354,14 @@ export function computeResults(f: FormState): ComputedResults {
     series.push(cum);
     seriesYearly.push({ jahresEinnahmen, betrieb, jahresGewinn });
     if (breakEvenYear === null && cum >= 0) breakEvenYear = t + 1;
+
+    const jahresErsparnis = ersparnisMieterJahr1 * Math.pow(1.03, t);
+    ersparnisCum += jahresErsparnis;
+    ersparnisSeriesYearly.push(jahresErsparnis);
+    ersparnisSeriesKumuliert.push(ersparnisCum);
   }
   const gewinn20 = cum;
-
-  const pricing = MODELL_PRICING[f.mieterstromModell] ?? MODELL_PRICING.ggv;
-  const zaehlerStueckpreis = pricing.preisProZaehler;
-  const projektNetto = pricing.projektpauschale;
-  const zaehlerWENetto = zaehlerWEAnzahl * zaehlerStueckpreis;
-  const zaehlerASNetto = (f.allgemeinstrom ? 1 : 0) * zaehlerStueckpreis;
-  const zaehlerPVNetto = pvWpWallboxAnzahl * zaehlerStueckpreis;
-  const gatewayNetto = pricing.gateway;
-  const einmaligNetto = projektNetto + zaehlerWENetto + zaehlerASNetto + zaehlerPVNetto + gatewayNetto;
-  const einmaligUst = einmaligNetto * UST;
-  const einmaligBrutto = einmaligNetto + einmaligUst;
-
-  const zaehlpunkte = zaehlpunkte0;
-  const abrechnungNetto = 649;
-  const zaehlgebuehrNetto = zaehlpunkte * 71.37;
-  const jaehrlichNetto = abrechnungNetto + zaehlgebuehrNetto;
-  const jaehrlichUst = jaehrlichNetto * UST;
-  const jaehrlichBrutto = jaehrlichNetto + jaehrlichUst;
+  const ersparnisMieter20 = ersparnisCum;
 
   return {
     investition,
@@ -304,6 +375,9 @@ export function computeResults(f: FormState): ComputedResults {
     ertragProKwp,
     allgemeinIsManual,
     ertragIsManual,
+    autoWohnungen,
+    wohnungenIsManual,
+    verbrauchWohnungen,
     verbrauchMieterstrom,
     verbrauchGesamt,
     wpVerbrauch,
@@ -323,7 +397,14 @@ export function computeResults(f: FormState): ComputedResults {
     wallboxOwnMeter,
     pvWpWallboxAnzahl,
     kostenPV,
+    kostenPVAuto,
+    kostenPVIsManual,
     kostenSpeicher,
+    kostenSpeicherAuto,
+    kostenSpeicherIsManual,
+    kostenZaehlerschrank,
+    kostenZaehlerschrankAuto,
+    kostenZaehlerschrankIsManual,
     kostenMieterstrompaket,
     betriebVersicherung,
     betriebAbrechnung,
@@ -339,6 +420,9 @@ export function computeResults(f: FormState): ComputedResults {
     seriesYearly,
     breakEvenYear,
     zaehlerWEAnzahl,
+    zaehlerASAnzahl,
+    funkadapterAnzahl,
+    funkadapterNetto,
     projektNetto,
     zaehlerWENetto,
     zaehlerASNetto,
@@ -354,6 +438,12 @@ export function computeResults(f: FormState): ComputedResults {
     jaehrlichNetto,
     jaehrlichUst,
     jaehrlichBrutto,
+    mieterKostenJahr1,
+    grundversorgerKostenJahr1,
+    ersparnisMieterJahr1,
+    ersparnisSeriesYearly,
+    ersparnisSeriesKumuliert,
+    ersparnisMieter20,
   };
 }
 

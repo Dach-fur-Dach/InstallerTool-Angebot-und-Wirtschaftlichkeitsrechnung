@@ -1,9 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ComputedResults, DEFAULTS, FormState, computeResults } from "@/lib/calculator";
+import { useCallback, useMemo, useState } from "react";
+import { DEFAULTS, FormState, computeResults } from "@/lib/calculator";
 
-export type ChartMode = "kumuliert" | "jaehrlich" | "verlauf" | "verteilung";
 export type WirtschaftBenoetigt = "ja" | "nein" | null;
 
 export interface BetriebOpenState {
@@ -25,13 +24,12 @@ export interface OutputsState {
   angebot: boolean;
 }
 
-const DEBOUNCE_MS = 500;
 const DEFAULT_MESSKONZEPT_LABELS = ["SZ", "PV", "AS", "WP", "WE1"];
 
 export function useMieterstromCalculator() {
   const [form, setForm] = useState<FormState>(DEFAULTS);
-  const [results, setResults] = useState<ComputedResults>(() => computeResults(DEFAULTS));
-  const [loading, setLoading] = useState(false);
+  const results = useMemo(() => computeResults(form), [form]);
+  const loading = false;
 
   const [showRechnungsadresse, setShowRechnungsadresse] = useState(false);
   const [messkonzeptExpanded, setMesskonzeptExpanded] = useState(false);
@@ -60,22 +58,6 @@ export function useMieterstromCalculator() {
     betriebskosten: false,
     einnahmen: false,
   });
-  const [chartMode, setChartMode] = useState<ChartMode>("kumuliert");
-
-  const isFirstRender = useRef(true);
-  useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
-    setLoading(true);
-    const timer = setTimeout(() => {
-      setResults(computeResults(form));
-      setLoading(false);
-    }, DEBOUNCE_MS);
-    return () => clearTimeout(timer);
-  }, [form]);
-
   const update = useCallback(<K extends keyof FormState>(field: K, value: FormState[K]) => {
     setForm((prev) => ({ ...prev, [field]: value }));
   }, []);
@@ -131,6 +113,10 @@ export function useMieterstromCalculator() {
 
   const resetAllgemeinManual = useCallback(() => update("verbrauchAllgemeinManual", ""), [update]);
   const resetErtragManual = useCallback(() => update("ertragProKwpManual", ""), [update]);
+  const resetWohnungenManual = useCallback(() => update("verbrauchWohnungenManual", ""), [update]);
+  const resetKostenPVManual = useCallback(() => update("kostenPVManual", ""), [update]);
+  const resetKostenSpeicherManual = useCallback(() => update("kostenSpeicherManual", ""), [update]);
+  const resetKostenZaehlerschrankManual = useCallback(() => update("kostenZaehlerschrankManual", ""), [update]);
 
   const wpDisabled = form.waermepumpeModus === "nein";
   const wandlerWarning = form.mieterstromModell === "physischer_sz" && !form.wandlermessung;
@@ -186,11 +172,13 @@ export function useMieterstromCalculator() {
     toggleBetrieb,
     sectionOpen,
     toggleSection,
-    chartMode,
-    setChartMode,
 
     resetAllgemeinManual,
     resetErtragManual,
+    resetWohnungenManual,
+    resetKostenPVManual,
+    resetKostenSpeicherManual,
+    resetKostenZaehlerschrankManual,
 
     wpDisabled,
     wandlerWarning,
