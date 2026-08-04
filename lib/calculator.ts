@@ -30,15 +30,16 @@ export interface FormState {
   ertragProKwpManual: number | "";
   verbrauchAllgemeinManual: number | "";
   verbrauchWohnungenManual: number | "";
+  verbrauchGewerbeManual: number | "";
   kostenPVManual: number | "";
   kostenSpeicherManual: number | "";
   kostenZaehlerschrankManual: number | "";
 
-  verbrauchGewerbe: number | "";
   verbrauchWaermepumpe: number | "";
 
   pvPreis: number | "";
   netzPreis: number | "";
+  netzPreisEinkauf: number | "";
   grundgebuehr: number | "";
   grundversorgerPreis: number | "";
   grundversorgerGrundgebuehr: number | "";
@@ -70,23 +71,25 @@ export const DEFAULTS: FormState = {
   ertragProKwpManual: "",
   verbrauchAllgemeinManual: "",
   verbrauchWohnungenManual: "",
+  verbrauchGewerbeManual: "",
   kostenPVManual: "",
   kostenSpeicherManual: "",
   kostenZaehlerschrankManual: "",
 
-  verbrauchGewerbe: 15000,
   verbrauchWaermepumpe: 20000,
 
   pvPreis: 0.27,
   netzPreis: 0.3,
+  netzPreisEinkauf: 0.3,
   grundgebuehr: 10.0,
   grundversorgerPreis: 0.35,
   grundversorgerGrundgebuehr: 15.0,
 };
 
 const YIELD: Record<PvSzenario, number> = { steildach: 950, flachdach: 850 };
-const ALLGEMEIN_PRO_EINHEIT = 700;
+const ALLGEMEIN_PRO_EINHEIT = 100;
 const WOHNUNG_PRO_EINHEIT = 2500;
+const GEWERBE_PRO_EINHEIT = 9000;
 const FEED_IN_TARIF = 0.08;
 const PV_KOSTEN_PRO_KWP = 1300;
 const SPEICHER_KOSTEN_PRO_KWH = 450;
@@ -94,9 +97,9 @@ const ZAEHLERSCHRANK_GRUNDKOSTEN = 800;
 const ZAEHLERSCHRANK_PRO_ZAEHLER = 180;
 const ZAEHLERSCHRANK_WANDLER_ZUSCHLAG = 1500;
 export const MODELL_LABEL: Record<MieterstromModell, string> = {
-  ggv: "GGV",
-  virtueller_sz: "Virtueller SZ",
-  physischer_sz: "Physischer SZ",
+  ggv: "Gemeinschaftliche Gebäudeversorgung (GGV)",
+  virtueller_sz: "Virtueller Summenzähler",
+  physischer_sz: "Physischer Summenzähler",
 };
 
 interface ModellPricing {
@@ -111,7 +114,6 @@ const MODELL_PRICING: Record<MieterstromModell, ModellPricing> = {
   ggv: { projektpauschale: 1999, preisProZaehler: 25, gateway: 25 },
 };
 
-const WHOLESALE_RESTSTROM = 0.22;
 const MIETERSTROMZUSCHLAG = 0.021;
 export const UST = 0.19;
 
@@ -154,6 +156,9 @@ export interface ComputedResults {
   autoWohnungen: number;
   wohnungenIsManual: boolean;
   verbrauchWohnungen: number;
+  autoGewerbe: number;
+  gewerbeIsManual: boolean;
+  verbrauchGewerbe: number;
   verbrauchMieterstrom: number;
   verbrauchGesamt: number;
   wpVerbrauch: number;
@@ -184,7 +189,7 @@ export interface ComputedResults {
   kostenMieterstrompaket: number;
   betriebVersicherung: number;
   betriebAbrechnung: number;
-  betriebReststrom: number;
+  betriebNetzstrom: number;
   betriebZaehler: number;
   einnahmenGrundgebuehr: number;
   einnahmenSolarstrom: number;
@@ -220,6 +225,13 @@ export interface ComputedResults {
   ersparnisSeriesYearly: number[];
   ersparnisSeriesKumuliert: number[];
   ersparnisMieter20: number;
+  flyerVerbrauchProWohnung: number;
+  flyerSolarAnteil: number;
+  flyerSolarKwh: number;
+  flyerNetzKwh: number;
+  flyerMieterstromJahr: number;
+  flyerGrundversorgerJahr: number;
+  flyerErsparnisJahr: number;
 }
 
 function isManualOverride(v: number | ""): boolean {
@@ -228,7 +240,7 @@ function isManualOverride(v: number | ""): boolean {
 
 export function computeResults(f: FormState): ComputedResults {
   const einheiten = num(f.wohneinheiten) + num(f.gewerbeeinheiten);
-  const autoAllgemeinCalc = f.allgemeinstrom ? einheiten * ALLGEMEIN_PRO_EINHEIT : 0;
+  const autoAllgemeinCalc = f.allgemeinstrom ? num(f.wohneinheiten) * ALLGEMEIN_PRO_EINHEIT : 0;
   const allgemeinIsManual = isManualOverride(f.verbrauchAllgemeinManual);
   const autoAllgemein = allgemeinIsManual ? num(f.verbrauchAllgemeinManual) : autoAllgemeinCalc;
   const wpAktiv = waermepumpeAktiv(f);
@@ -236,7 +248,10 @@ export function computeResults(f: FormState): ComputedResults {
   const autoWohnungen = num(f.wohneinheiten) * WOHNUNG_PRO_EINHEIT;
   const wohnungenIsManual = isManualOverride(f.verbrauchWohnungenManual);
   const verbrauchWohnungen = wohnungenIsManual ? num(f.verbrauchWohnungenManual) : autoWohnungen;
-  const verbrauchMieterstrom = verbrauchWohnungen + autoAllgemein + num(f.verbrauchGewerbe);
+  const autoGewerbe = num(f.gewerbeeinheiten) * GEWERBE_PRO_EINHEIT;
+  const gewerbeIsManual = isManualOverride(f.verbrauchGewerbeManual);
+  const verbrauchGewerbe = gewerbeIsManual ? num(f.verbrauchGewerbeManual) : autoGewerbe;
+  const verbrauchMieterstrom = verbrauchWohnungen + autoAllgemein + verbrauchGewerbe;
   const verbrauchGesamt = verbrauchMieterstrom + wpVerbrauch;
 
   const ertragProKwpAuto = YIELD[f.pvSzenario] || YIELD.steildach;
@@ -317,9 +332,9 @@ export function computeResults(f: FormState): ComputedResults {
   const betriebVersicherung = investition * 0.012;
   // Abrechnung & Zähler-Jahresgebühr entsprechen den Werten aus dem Angebot.
   const betriebAbrechnung = abrechnungNetto;
-  const betriebReststrom = restbezug * WHOLESALE_RESTSTROM;
+  const betriebNetzstrom = restbezug * num(f.netzPreisEinkauf);
   const betriebZaehler = zaehlgebuehrNetto;
-  const betrieb = betriebVersicherung + betriebAbrechnung + betriebReststrom + betriebZaehler;
+  const betrieb = betriebVersicherung + betriebAbrechnung + betriebNetzstrom + betriebZaehler;
 
   const einnahmenGrundgebuehr = einheiten * num(f.grundgebuehr) * 12;
   const einnahmenSolarstrom = eigenverbrauchGesamt * num(f.pvPreis);
@@ -339,6 +354,15 @@ export function computeResults(f: FormState): ComputedResults {
   const grundversorgerKostenJahr1 =
     einheiten * num(f.grundversorgerGrundgebuehr) * 12 + verbrauchMieterstrom * num(f.grundversorgerPreis);
   const ersparnisMieterJahr1 = grundversorgerKostenJahr1 - mieterKostenJahr1;
+
+  // Beispielrechnung für eine durchschnittliche Wohnung (für den Mieter-Ersparnis-Flyer).
+  const flyerVerbrauchProWohnung = verbrauchWohnungen / Math.max(1, num(f.wohneinheiten));
+  const flyerSolarAnteil = verbrauchMieterstrom > 0 ? eigenverbrauchMieterstrom / verbrauchMieterstrom : 0;
+  const flyerSolarKwh = flyerVerbrauchProWohnung * flyerSolarAnteil;
+  const flyerNetzKwh = flyerVerbrauchProWohnung - flyerSolarKwh;
+  const flyerMieterstromJahr = flyerSolarKwh * num(f.pvPreis) + flyerNetzKwh * num(f.netzPreis) + num(f.grundgebuehr) * 12;
+  const flyerGrundversorgerJahr = flyerVerbrauchProWohnung * num(f.grundversorgerPreis) + num(f.grundversorgerGrundgebuehr) * 12;
+  const flyerErsparnisJahr = flyerGrundversorgerJahr - flyerMieterstromJahr;
 
   const series: number[] = [];
   const seriesYearly: YearlySeriesEntry[] = [];
@@ -378,6 +402,9 @@ export function computeResults(f: FormState): ComputedResults {
     autoWohnungen,
     wohnungenIsManual,
     verbrauchWohnungen,
+    autoGewerbe,
+    gewerbeIsManual,
+    verbrauchGewerbe,
     verbrauchMieterstrom,
     verbrauchGesamt,
     wpVerbrauch,
@@ -408,7 +435,7 @@ export function computeResults(f: FormState): ComputedResults {
     kostenMieterstrompaket,
     betriebVersicherung,
     betriebAbrechnung,
-    betriebReststrom,
+    betriebNetzstrom,
     betriebZaehler,
     einnahmenGrundgebuehr,
     einnahmenSolarstrom,
@@ -444,6 +471,13 @@ export function computeResults(f: FormState): ComputedResults {
     ersparnisSeriesYearly,
     ersparnisSeriesKumuliert,
     ersparnisMieter20,
+    flyerVerbrauchProWohnung,
+    flyerSolarAnteil,
+    flyerSolarKwh,
+    flyerNetzKwh,
+    flyerMieterstromJahr,
+    flyerGrundversorgerJahr,
+    flyerErsparnisJahr,
   };
 }
 

@@ -3,6 +3,7 @@
 import { Collapse } from "@/components/ui/Collapse";
 import { CollapsibleBox } from "@/components/ui/CollapsibleBox";
 import { FieldLabel, NumberInput, SelectInput, YesNoToggle } from "@/components/ui/Field";
+import { ArrowRightIcon, WarningIcon } from "@/components/ui/Icons";
 import type { MieterstromCalculator } from "@/hooks/useMieterstromCalculator";
 
 export function MieterstromModelBox({ calc }: { calc: MieterstromCalculator }) {
@@ -23,7 +24,7 @@ export function MieterstromModelBox({ calc }: { calc: MieterstromCalculator }) {
   return (
     <CollapsibleBox
       number={2}
-      title="Mieterstrom-Modell, Messkonzept & Energiesystem"
+      title="Mieterstrom-Modell & Messkonzept"
       open={box2Open}
       onToggle={() => setBox2Open(!box2Open)}
     >
@@ -32,8 +33,8 @@ export function MieterstromModelBox({ calc }: { calc: MieterstromCalculator }) {
           <FieldLabel label="Mieterstrom-Modell" />
           <SelectInput value={form.mieterstromModell} onChange={onText("mieterstromModell")}>
             <option value="physischer_sz">Physischer Summenzähler</option>
-            <option value="ggv">GGV</option>
-            <option value="virtueller_sz">Virtueller SZ</option>
+            <option value="virtueller_sz">Virtueller Summenzähler</option>
+            <option value="ggv">Gemeinschaftliche Gebäudeversorgung (GGV)</option>
           </SelectInput>
         </div>
         <div>
@@ -95,7 +96,7 @@ export function MieterstromModelBox({ calc }: { calc: MieterstromCalculator }) {
       </div>
 
       <Collapse open={wandlerWarning} innerClassName="mb-4 flex items-start gap-2.5 rounded-[10px] border border-[#F0D3AE] bg-[#FDF0E3] px-3.5 py-3">
-        <span className="text-[15px] leading-none">⚠</span>
+        <WarningIcon className="mt-0.5 shrink-0 text-[#B57A2E]" />
         <span className="text-[12.5px] font-semibold text-[#8A5A24]">Wandlermessung für Summenzähler prüfen</span>
       </Collapse>
 
@@ -120,7 +121,7 @@ export function MieterstromModelBox({ calc }: { calc: MieterstromCalculator }) {
                 onChange={(e) => setMesskonzeptLabel(i, e.target.value)}
                 className="w-[76px] rounded-lg border border-[#D0D5DD] bg-[#F8FAFC] px-1.5 py-2 text-center text-xs font-bold text-[#0A1628]"
               />
-              {slot.hasArrow && <span className="text-sm text-[#B0B8C4]">→</span>}
+              {slot.hasArrow && <ArrowRightIcon className="text-[#B0B8C4]" />}
             </div>
           ))}
         </div>

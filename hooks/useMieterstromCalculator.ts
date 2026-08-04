@@ -8,7 +8,7 @@ export type WirtschaftBenoetigt = "ja" | "nein" | null;
 export interface BetriebOpenState {
   versicherung: boolean;
   abrechnung: boolean;
-  reststrom: boolean;
+  netzstrom: boolean;
   zaehler: boolean;
 }
 
@@ -22,6 +22,7 @@ export interface SectionOpenState {
 export interface OutputsState {
   wirtschaft: boolean;
   angebot: boolean;
+  flyer: boolean;
 }
 
 const DEFAULT_MESSKONZEPT_LABELS = ["SZ", "PV", "AS", "WP", "WE1"];
@@ -45,13 +46,15 @@ export function useMieterstromCalculator() {
   const [wirtschaftBenoetigt, setWirtschaftBenoetigtState] = useState<WirtschaftBenoetigt>(null);
   const [wirtschaftPanelOpen, setWirtschaftPanelOpen] = useState(false);
 
-  const [outputs, setOutputs] = useState<OutputsState>({ wirtschaft: true, angebot: true });
+  const [outputs, setOutputs] = useState<OutputsState>({ wirtschaft: true, angebot: true, flyer: false });
   const [betriebOpen, setBetriebOpen] = useState<BetriebOpenState>({
     versicherung: false,
     abrechnung: false,
-    reststrom: false,
+    netzstrom: false,
     zaehler: false,
   });
+  const [pdfEmailModalOpen, setPdfEmailModalOpen] = useState(false);
+  const [installerEmail, setInstallerEmail] = useState("");
   const [sectionOpen, setSectionOpen] = useState<SectionOpenState>({
     immobilie: false,
     investition: false,
@@ -114,6 +117,7 @@ export function useMieterstromCalculator() {
   const resetAllgemeinManual = useCallback(() => update("verbrauchAllgemeinManual", ""), [update]);
   const resetErtragManual = useCallback(() => update("ertragProKwpManual", ""), [update]);
   const resetWohnungenManual = useCallback(() => update("verbrauchWohnungenManual", ""), [update]);
+  const resetGewerbeManual = useCallback(() => update("verbrauchGewerbeManual", ""), [update]);
   const resetKostenPVManual = useCallback(() => update("kostenPVManual", ""), [update]);
   const resetKostenSpeicherManual = useCallback(() => update("kostenSpeicherManual", ""), [update]);
   const resetKostenZaehlerschrankManual = useCallback(() => update("kostenZaehlerschrankManual", ""), [update]);
@@ -176,6 +180,7 @@ export function useMieterstromCalculator() {
     resetAllgemeinManual,
     resetErtragManual,
     resetWohnungenManual,
+    resetGewerbeManual,
     resetKostenPVManual,
     resetKostenSpeicherManual,
     resetKostenZaehlerschrankManual,
@@ -184,6 +189,11 @@ export function useMieterstromCalculator() {
     wandlerWarning,
     angebotReady,
     tier2VisualOpacity,
+
+    pdfEmailModalOpen,
+    setPdfEmailModalOpen,
+    installerEmail,
+    setInstallerEmail,
   };
 }
 

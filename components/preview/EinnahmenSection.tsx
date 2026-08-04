@@ -28,7 +28,7 @@ export function EinnahmenSection({ calc }: { calc: MieterstromCalculator }) {
     >
       <Row label="Grundgebühr" detail={`${fmt(Number(form.grundgebuehr) || 0)}€ pro Einheit/Monat`} value={`${fmtInt(r.einnahmenGrundgebuehr)} €`} />
       <Row label="Solarstrom" detail={`${fmt(Number(form.pvPreis) || 0)}€ pro kWh`} value={`${fmtInt(r.einnahmenSolarstrom)} €`} />
-      <Row label="Netzstrom" detail={`${fmt(Number(form.netzPreis) || 0)}€ pro kWh`} value={`${fmtInt(r.einnahmenNetzstrom)} €`} />
+      <Row label="Einnahmen Netzstrom" detail={`${fmt(Number(form.netzPreis) || 0)}€ Verkaufspreis pro kWh`} value={`${fmtInt(r.einnahmenNetzstrom)} €`} />
       <Row label="Einspeisevergütung" detail="0,08€ pro kWh" value={`${fmtInt(r.einnahmenEinspeisung)} €`} />
       <Row label="Mieterstromzuschlag" detail="0,021€ pro kWh (EEG)" value={`${fmtInt(r.einnahmenZuschlag)} €`} />
       <div className="mt-1.5 flex items-center justify-between rounded-lg bg-[#D6EAF5] px-3 py-2.5">

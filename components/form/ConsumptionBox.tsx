@@ -14,6 +14,7 @@ export function ConsumptionBox({ calc }: { calc: MieterstromCalculator }) {
     results,
     resetAllgemeinManual,
     resetWohnungenManual,
+    resetGewerbeManual,
     wpDisabled,
   } = calc;
 
@@ -63,8 +64,22 @@ export function ConsumptionBox({ calc }: { calc: MieterstromCalculator }) {
           />
         </div>
         <div>
-          <FieldLabel label="Gewerbe (kWh)" />
-          <NumberInput min={0} value={form.verbrauchGewerbe} onChange={onNum("verbrauchGewerbe")} />
+          <label className="mb-1.5 flex items-center gap-1.5 text-[12.5px] font-semibold text-[#344054]">
+            Gewerbe (kWh){" "}
+            <span className="rounded bg-[#EAF2FF] px-1.5 py-0.5 text-[9.5px] font-bold text-[#3AA8DC]">
+              {results.gewerbeIsManual ? "MANUELL" : "AUTO"}
+            </span>
+            {results.gewerbeIsManual && (
+              <a onClick={resetGewerbeManual} className="cursor-pointer text-[10px] font-bold text-[#3AA8DC]">
+                zurücksetzen
+              </a>
+            )}
+          </label>
+          <NumberInput
+            min={0}
+            value={Math.round(results.verbrauchGewerbe)}
+            onChange={onNum("verbrauchGewerbeManual")}
+          />
         </div>
         <div>
           <FieldLabel label="Wärmepumpe (kWh)" />
