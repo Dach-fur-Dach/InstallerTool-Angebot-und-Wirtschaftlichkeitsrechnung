@@ -3,8 +3,8 @@
 import type { MieterstromCalculator } from "@/hooks/useMieterstromCalculator";
 
 export function OutputControls({ calc }: { calc: MieterstromCalculator }) {
-  const { outputs, toggleOutput } = calc;
-  const anyOutput = outputs.wirtschaft || outputs.angebot;
+  const { outputs, toggleOutput, setPdfEmailModalOpen } = calc;
+  const anyOutput = outputs.wirtschaft || outputs.angebot || outputs.flyer;
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-4 rounded-[14px] border border-[#E5EAF1] bg-[#FCFBF9] px-5 py-3 shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
@@ -27,10 +27,20 @@ export function OutputControls({ calc }: { calc: MieterstromCalculator }) {
           />
           <span className="text-[13.5px] font-semibold text-[#0A1628]">Wirtschaftlichkeit</span>
         </label>
+        <label className="flex cursor-pointer items-center gap-2">
+          <input
+            type="checkbox"
+            checked={outputs.flyer}
+            onChange={() => toggleOutput("flyer")}
+            className="h-[17px] w-[17px] accent-[#3AA8DC]"
+          />
+          <span className="text-[13.5px] font-semibold text-[#0A1628]">Mieter-Flyer</span>
+        </label>
       </div>
       <button
         type="button"
         disabled={!anyOutput}
+        onClick={() => setPdfEmailModalOpen(true)}
         title={anyOutput ? "PDF mit den ausgewählten Inhalten erstellen" : "Bitte mindestens einen Inhalt auswählen"}
         className={
           anyOutput

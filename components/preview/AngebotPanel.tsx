@@ -4,6 +4,7 @@ import { Fragment } from "react";
 import Image from "next/image";
 import { MODELL_LABEL, UST, fmt2 } from "@/lib/calculator";
 import type { MieterstromCalculator } from "@/hooks/useMieterstromCalculator";
+import { ChevronIcon } from "@/components/ui/Icons";
 
 const money = (n: number) => `${fmt2(n)} €`;
 const brutto = (n: number) => n * (1 + UST);
@@ -63,14 +64,12 @@ export function AngebotPanel({ calc }: { calc: MieterstromCalculator }) {
 
             <div
               onClick={() => setMesstechnikExpanded(!messtechnikExpanded)}
-              className="flex cursor-pointer items-center gap-1.5 pl-1 text-[#5B6472] select-none"
+              className="relative cursor-pointer pl-1 text-[#5B6472] select-none"
             >
-              <span
-                className="inline-block text-[9px] font-bold text-[#3AA8DC] transition-transform"
-                style={{ transform: messtechnikExpanded ? "rotate(180deg)" : "rotate(0deg)" }}
-              >
-                ⌄
-              </span>
+              <ChevronIcon
+                className="absolute top-1/2 -left-3.5 text-[#C2C9D3] transition-transform"
+                style={{ transform: `translateY(-50%) rotate(${messtechnikExpanded ? 180 : 0}deg)` }}
+              />
               {r.pvWpWallboxAnzahl}x Zähler {messtechnikLabel}
             </div>
             <div className="text-right">{money(r.zaehlerPVNetto)}</div>

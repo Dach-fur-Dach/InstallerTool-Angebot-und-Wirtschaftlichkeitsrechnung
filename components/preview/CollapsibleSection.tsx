@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { ReactNode } from "react";
 import { Collapse } from "@/components/ui/Collapse";
+import { ChevronIcon } from "@/components/ui/Icons";
 
 interface CollapsibleSectionProps {
   icon?: string;
@@ -36,11 +37,8 @@ export function CollapsibleSection({
             {valueLabel}
           </span>
         )}
-        <span
-          className="flex h-6 w-6 items-center justify-center rounded-full bg-[#EAF2FF] text-[11px] font-extrabold text-[#3AA8DC] transition-transform"
-          style={{ transform: open ? "rotate(180deg)" : "rotate(0deg)" }}
-        >
-          ⌄
+        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#EAF2FF] text-[#3AA8DC]">
+          <ChevronIcon style={{ transform: open ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s ease" }} />
         </span>
       </div>
       <Collapse open={open} innerClassName="mt-3 flex flex-col text-[12.5px]">
