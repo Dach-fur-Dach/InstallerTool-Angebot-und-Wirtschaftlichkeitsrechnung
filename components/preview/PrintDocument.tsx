@@ -4,6 +4,7 @@ import type { MieterstromCalculator, OutputKey } from "@/hooks/useMieterstromCal
 import { AngebotPanel } from "./AngebotPanel";
 import { WirtschaftPanel } from "./WirtschaftPanel";
 import { FlyerPanel } from "./FlyerPanel";
+import { ProcessStepsPanel } from "./ProcessStepsPanel";
 
 const PAGE_PADDING = { padding: "14mm 12mm" };
 
@@ -17,6 +18,9 @@ export function PrintDocument({ calc }: { calc: MieterstromCalculator }) {
           <PrintPanel outputKey={key} calc={calc} />
         </div>
       ))}
+      <div style={PAGE_PADDING}>
+        <ProcessStepsPanel />
+      </div>
     </div>
   );
 }
