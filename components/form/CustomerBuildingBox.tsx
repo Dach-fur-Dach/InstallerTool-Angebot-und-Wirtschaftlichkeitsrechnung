@@ -4,7 +4,6 @@ import { CollapsibleBox } from "@/components/ui/CollapsibleBox";
 import { FieldLabel, TextInput } from "@/components/ui/Field";
 import type { MieterstromCalculator } from "@/hooks/useMieterstromCalculator";
 
-//testtestst
 
 export function CustomerBuildingBox({ calc }: { calc: MieterstromCalculator }) {
   const { form, onText, box1Open, setBox1Open, showRechnungsadresse, setShowRechnungsadresse } = calc;
