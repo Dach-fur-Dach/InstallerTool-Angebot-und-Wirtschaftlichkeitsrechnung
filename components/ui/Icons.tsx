@@ -37,6 +37,19 @@ export function WarningIcon({ className = "", style }: IconProps) {
   );
 }
 
+export function DragHandleIcon({ className = "", style }: IconProps) {
+  return (
+    <svg width="8" height="14" viewBox="0 0 8 14" fill="none" className={className} style={style}>
+      <circle cx="1.5" cy="1.5" r="1.3" fill="currentColor" />
+      <circle cx="6.5" cy="1.5" r="1.3" fill="currentColor" />
+      <circle cx="1.5" cy="7" r="1.3" fill="currentColor" />
+      <circle cx="6.5" cy="7" r="1.3" fill="currentColor" />
+      <circle cx="1.5" cy="12.5" r="1.3" fill="currentColor" />
+      <circle cx="6.5" cy="12.5" r="1.3" fill="currentColor" />
+    </svg>
+  );
+}
+
 export function ArrowRightIcon({ className = "", style }: IconProps) {
   return (
     <svg width="12" height="9" viewBox="0 0 12 9" fill="none" className={className} style={style}>

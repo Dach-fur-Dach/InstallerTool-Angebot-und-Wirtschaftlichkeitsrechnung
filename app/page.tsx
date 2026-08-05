@@ -13,6 +13,7 @@ import { AngebotPanel } from "@/components/preview/AngebotPanel";
 import { WirtschaftPanel } from "@/components/preview/WirtschaftPanel";
 import { FlyerPanel } from "@/components/preview/FlyerPanel";
 import { PdfEmailModal } from "@/components/preview/PdfEmailModal";
+import { PrintDocument } from "@/components/preview/PrintDocument";
 import { useMieterstromCalculator } from "@/hooks/useMieterstromCalculator";
 
 export default function Home() {
@@ -30,7 +31,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen box-border px-6 pt-7 pb-20">
-      <div className="mx-auto max-w-[1560px]">
+      <div className="mx-auto max-w-[1560px] print:hidden">
         <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3.5">
             <Image src="/logo.png" alt="Dach für Dach" height={34} width={140} className="h-[34px] w-auto" priority />
@@ -60,6 +61,7 @@ export default function Home() {
       </div>
 
       <PdfEmailModal calc={calc} />
+      <PrintDocument calc={calc} />
     </div>
   );
 }

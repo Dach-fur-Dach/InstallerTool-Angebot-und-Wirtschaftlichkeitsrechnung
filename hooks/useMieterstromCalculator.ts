@@ -25,6 +25,16 @@ export interface OutputsState {
   flyer: boolean;
 }
 
+export type OutputKey = keyof OutputsState;
+
+export const OUTPUT_LABELS: Record<OutputKey, string> = {
+  angebot: "Angebot",
+  wirtschaft: "Wirtschaftlichkeit",
+  flyer: "Mieter-Flyer",
+};
+
+const DEFAULT_OUTPUT_ORDER: OutputKey[] = ["angebot", "wirtschaft", "flyer"];
+
 const DEFAULT_MESSKONZEPT_LABELS = ["SZ", "PV", "AS", "WP", "WE1"];
 
 export function useMieterstromCalculator() {
@@ -47,6 +57,7 @@ export function useMieterstromCalculator() {
   const [wirtschaftPanelOpen, setWirtschaftPanelOpen] = useState(false);
 
   const [outputs, setOutputs] = useState<OutputsState>({ wirtschaft: true, angebot: true, flyer: false });
+  const [outputOrder, setOutputOrder] = useState<OutputKey[]>(DEFAULT_OUTPUT_ORDER);
   const [betriebOpen, setBetriebOpen] = useState<BetriebOpenState>({
     versicherung: false,
     abrechnung: false,
@@ -114,6 +125,27 @@ export function useMieterstromCalculator() {
     setOutputs((prev) => ({ ...prev, [key]: !prev[key] }));
   }, []);
 
+  const reorderOutputs = useCallback((draggedKey: OutputKey, targetKey: OutputKey) => {
+    if (draggedKey === targetKey) return;
+    setOutputOrder((prev) => {
+      const next = prev.filter((k) => k !== draggedKey);
+      const targetIndex = next.indexOf(targetKey);
+      next.splice(targetIndex, 0, draggedKey);
+      return next;
+    });
+  }, []);
+
+  const moveOutput = useCallback((key: OutputKey, direction: -1 | 1) => {
+    setOutputOrder((prev) => {
+      const index = prev.indexOf(key);
+      const swapWith = index + direction;
+      if (swapWith < 0 || swapWith >= prev.length) return prev;
+      const next = [...prev];
+      [next[index], next[swapWith]] = [next[swapWith], next[index]];
+      return next;
+    });
+  }, []);
+
   const resetAllgemeinManual = useCallback(() => update("verbrauchAllgemeinManual", ""), [update]);
   const resetErtragManual = useCallback(() => update("ertragProKwpManual", ""), [update]);
   const resetWohnungenManual = useCallback(() => update("verbrauchWohnungenManual", ""), [update]);
@@ -135,6 +167,8 @@ export function useMieterstromCalculator() {
       })),
     [messkonzeptLabels]
   );
+
+  const activeOutputOrder = useMemo(() => outputOrder.filter((key) => outputs[key]), [outputOrder, outputs]);
 
   return {
     form,
@@ -172,6 +206,10 @@ export function useMieterstromCalculator() {
 
     outputs,
     toggleOutput,
+    outputOrder,
+    activeOutputOrder,
+    reorderOutputs,
+    moveOutput,
     betriebOpen,
     toggleBetrieb,
     sectionOpen,
