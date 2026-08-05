@@ -13,26 +13,28 @@ const Row = ({ label, value }: { label: string; value: string }) => (
   </>
 );
 
-export function ImmobilieSection({ calc }: { calc: MieterstromCalculator }) {
+export function ImmobilieSection({ calc, printMode = false }: { calc: MieterstromCalculator; printMode?: boolean }) {
   const { form, results: r, sectionOpen, toggleSection } = calc;
-  const open = sectionOpen.immobilie;
+  const open = printMode || sectionOpen.immobilie;
 
   return (
-    <div className="mb-5 overflow-hidden rounded-[10px] border border-[#EDF1F6]">
+    <div className="mb-5 overflow-hidden rounded-[10px] border border-[#EDF1F6] break-inside-avoid">
       <div
-        onClick={() => toggleSection("immobilie")}
-        className="flex cursor-pointer items-center gap-2.5 bg-[#F7FAFC] px-3.5 py-2.5 select-none"
+        onClick={printMode ? undefined : () => toggleSection("immobilie")}
+        className={`flex items-center gap-2.5 bg-[#F7FAFC] px-3.5 py-2.5 select-none ${printMode ? "" : "cursor-pointer"}`}
       >
         <Image src="/icon-house-solar.png" alt="" width={22} height={22} className="h-[22px] w-[22px]" />
         <h3 className="m-0 flex-1 text-[13px] font-bold tracking-wide text-[#1B2A3A] uppercase">
           Angaben zur Immobilie
         </h3>
-        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#EAF2FF] text-[#3AA8DC]">
-          <ChevronIcon style={{ transform: open ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s ease" }} />
-        </span>
+        {!printMode && (
+          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#EAF2FF] text-[#3AA8DC]">
+            <ChevronIcon style={{ transform: open ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s ease" }} />
+          </span>
+        )}
       </div>
 
-      <Collapse open={open} innerClassName="grid grid-cols-[1fr_auto] gap-x-4 gap-y-2 p-3.5 text-[12.5px]">
+      <Collapse open={open} printMode={printMode} innerClassName="grid grid-cols-[1fr_auto] gap-x-4 gap-y-2 p-3.5 text-[12.5px]">
         <Row label="Wohneinheiten" value={fmtInt(r.einheiten)} />
         <Row label="Verbrauch Mieterstrom" value={`${fmtInt(r.verbrauchMieterstrom)} kWh`} />
         <Row label="Verbrauch Wärmepumpe" value={r.wpAktiv ? `${fmtInt(r.wpVerbrauch)} kWh` : "–"} />

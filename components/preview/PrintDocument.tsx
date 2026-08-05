@@ -5,13 +5,15 @@ import { AngebotPanel } from "./AngebotPanel";
 import { WirtschaftPanel } from "./WirtschaftPanel";
 import { FlyerPanel } from "./FlyerPanel";
 
+const PAGE_PADDING = { padding: "14mm 12mm" };
+
 export function PrintDocument({ calc }: { calc: MieterstromCalculator }) {
   const { activeOutputOrder } = calc;
 
   return (
     <div className="hidden print:block print:bg-white">
       {activeOutputOrder.map((key) => (
-        <div key={key} className="break-after-page">
+        <div key={key} className="break-after-page" style={PAGE_PADDING}>
           <PrintPanel outputKey={key} calc={calc} />
         </div>
       ))}
@@ -24,7 +26,7 @@ function PrintPanel({ outputKey, calc }: { outputKey: OutputKey; calc: Mieterstr
     case "angebot":
       return <AngebotPanel calc={calc} />;
     case "wirtschaft":
-      return <WirtschaftPanel calc={calc} />;
+      return <WirtschaftPanel calc={calc} printMode />;
     case "flyer":
       return <FlyerPanel calc={calc} />;
   }

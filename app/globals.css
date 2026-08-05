@@ -70,3 +70,27 @@ a {
 a:hover {
   color: #2e86b8;
 }
+
+@media print {
+  @page {
+    size: A4;
+    /* Zero page margin removes the space Chrome draws its default header/footer
+       (title, URL, date, page number) into — the print dialog's "Headers and
+       footers" toggle can't be controlled from CSS, so this is the reliable way
+       to suppress it. Each printed section restores the visual margin itself via
+       padding (see PrintDocument). */
+    margin: 0;
+  }
+
+  html,
+  body {
+    background: #ffffff !important;
+    animation: none !important;
+  }
+
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    box-shadow: none !important;
+  }
+}

@@ -13,6 +13,7 @@ interface CollapsibleSectionProps {
   open: boolean;
   onToggle: () => void;
   children: ReactNode;
+  printMode?: boolean;
 }
 
 export function CollapsibleSection({
@@ -23,12 +24,14 @@ export function CollapsibleSection({
   open,
   onToggle,
   children,
+  printMode = false,
 }: CollapsibleSectionProps) {
+  const effectiveOpen = printMode || open;
   return (
-    <>
+    <div className="break-inside-avoid">
       <div
-        onClick={onToggle}
-        className="mt-[22px] flex cursor-pointer items-center gap-2.5 rounded-[10px] border border-[#EDF1F6] bg-[#F7FAFC] px-3.5 py-2.5 select-none"
+        onClick={printMode ? undefined : onToggle}
+        className={`mt-[22px] flex items-center gap-2.5 rounded-[10px] border border-[#EDF1F6] bg-[#F7FAFC] px-3.5 py-2.5 select-none ${printMode ? "" : "cursor-pointer"}`}
       >
         {icon && <Image src={icon} alt="" width={20} height={20} className="h-5 w-5" />}
         <h3 className="m-0 flex-1 text-[13px] font-bold tracking-wide text-[#1B2A3A] uppercase">{title}</h3>
@@ -37,13 +40,17 @@ export function CollapsibleSection({
             {valueLabel}
           </span>
         )}
-        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#EAF2FF] text-[#3AA8DC]">
-          <ChevronIcon style={{ transform: open ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s ease" }} />
-        </span>
+        {!printMode && (
+          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#EAF2FF] text-[#3AA8DC]">
+            <ChevronIcon
+              style={{ transform: effectiveOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s ease" }}
+            />
+          </span>
+        )}
       </div>
-      <Collapse open={open} innerClassName="mt-3 flex flex-col text-[12.5px]">
+      <Collapse open={effectiveOpen} printMode={printMode} innerClassName="mt-3 flex flex-col text-[12.5px]">
         {children}
       </Collapse>
-    </>
+    </div>
   );
 }

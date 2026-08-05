@@ -20,7 +20,7 @@ const Row = ({ label, value, highlight }: { label: string; value: string; highli
   </div>
 );
 
-export function InvestitionSection({ calc }: { calc: MieterstromCalculator }) {
+export function InvestitionSection({ calc, printMode = false }: { calc: MieterstromCalculator; printMode?: boolean }) {
   const { results: r, sectionOpen, toggleSection } = calc;
 
   return (
@@ -30,6 +30,7 @@ export function InvestitionSection({ calc }: { calc: MieterstromCalculator }) {
       valueLabel={`${fmtInt(r.investition)} €`}
       open={sectionOpen.investition}
       onToggle={() => toggleSection("investition")}
+      printMode={printMode}
     >
       <Row label="PV-Anlage" value={`${fmtInt(r.kostenPV)} €`} />
       <Row label="Speicher" value={`${fmtInt(r.kostenSpeicher)} €`} />

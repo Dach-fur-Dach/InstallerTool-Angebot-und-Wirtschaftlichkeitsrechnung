@@ -14,7 +14,7 @@ const Row = ({ label, detail, value }: { label: string; detail: string; value: s
   </div>
 );
 
-export function EinnahmenSection({ calc }: { calc: MieterstromCalculator }) {
+export function EinnahmenSection({ calc, printMode = false }: { calc: MieterstromCalculator; printMode?: boolean }) {
   const { form, results: r, sectionOpen, toggleSection } = calc;
   const fmt = (n: number) => n.toLocaleString("de-DE", { minimumFractionDigits: 2 });
 
@@ -25,6 +25,7 @@ export function EinnahmenSection({ calc }: { calc: MieterstromCalculator }) {
       valueColor="#1B6FA8"
       open={sectionOpen.einnahmen}
       onToggle={() => toggleSection("einnahmen")}
+      printMode={printMode}
     >
       <Row label="Grundgebühr" detail={`${fmt(Number(form.grundgebuehr) || 0)}€ pro Einheit/Monat`} value={`${fmtInt(r.einnahmenGrundgebuehr)} €`} />
       <Row label="Solarstrom" detail={`${fmt(Number(form.pvPreis) || 0)}€ pro kWh`} value={`${fmtInt(r.einnahmenSolarstrom)} €`} />

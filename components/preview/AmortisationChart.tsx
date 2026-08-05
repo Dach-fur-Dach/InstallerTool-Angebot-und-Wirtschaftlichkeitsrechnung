@@ -21,7 +21,7 @@ export function AmortisationChart({ calc }: { calc: MieterstromCalculator }) {
   const tabInactive = "text-[#98A2B3]";
 
   return (
-    <div className="mt-3.5">
+    <div className="mt-3.5 break-inside-avoid">
       <div className="mb-2.5 flex flex-wrap items-center justify-between gap-2">
         <div className="flex gap-1">
           <button

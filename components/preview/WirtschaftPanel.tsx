@@ -11,28 +11,29 @@ import { ImmobilieSection } from "./ImmobilieSection";
 import { InvestitionSection } from "./InvestitionSection";
 import { StatTiles } from "./StatTiles";
 
-export function WirtschaftPanel({ calc }: { calc: MieterstromCalculator }) {
+export function WirtschaftPanel({ calc, printMode = false }: { calc: MieterstromCalculator; printMode?: boolean }) {
   const { form, results: r, loading, wirtschaftPanelOpen, setWirtschaftPanelOpen } = calc;
   const messkonzeptLabel = MODELL_LABEL[form.mieterstromModell] ?? "GGV";
   const dashboardOpacity = loading ? 0.55 : 1;
   const kundeDisplay = form.kunde ? form.kunde : "Kunde noch nicht angegeben";
+  const isOpen = printMode ? true : wirtschaftPanelOpen;
 
   return (
     <div className="overflow-hidden rounded-2xl border border-[#E5EAF1] bg-[#FCFBF9] shadow-[0_1px_3px_rgba(16,24,40,0.06)]">
       <div
-        onClick={() => setWirtschaftPanelOpen(!wirtschaftPanelOpen)}
-        className="flex cursor-pointer items-center justify-between px-6 py-[18px]"
+        onClick={printMode ? undefined : () => setWirtschaftPanelOpen(!wirtschaftPanelOpen)}
+        className={`flex items-center justify-between px-6 py-[18px] ${printMode ? "" : "cursor-pointer"}`}
       >
         <div>
           <h1 className="m-0 text-[15px] font-extrabold text-[#1B2A3A]">Ihre individuelle Wirtschaftlichkeitsrechnung</h1>
-          {wirtschaftPanelOpen && (
+          {isOpen && (
             <div className="mt-[3px] text-xs font-medium text-[#5B6472]">Messkonzept: Mieterstrom ({messkonzeptLabel})</div>
           )}
         </div>
-        <span className="text-[13px] font-bold text-[#98A2B3]">{wirtschaftPanelOpen ? "−" : "+"}</span>
+        {!printMode && <span className="text-[13px] font-bold text-[#98A2B3]">{wirtschaftPanelOpen ? "−" : "+"}</span>}
       </div>
 
-      <Collapse open={wirtschaftPanelOpen} innerClassName="px-7 pb-7">
+      <Collapse open={isOpen} printMode={printMode} innerClassName="px-7 pb-7">
         <div className="mb-1.5 flex items-start justify-end">
           <Image src="/logo.png" alt="Dach für Dach" height={20} width={83} className="h-5 w-auto" />
         </div>
@@ -51,16 +52,16 @@ export function WirtschaftPanel({ calc }: { calc: MieterstromCalculator }) {
         </div>
 
         <div style={{ opacity: dashboardOpacity, transition: "opacity 0.25s ease" }}>
-          <ImmobilieSection calc={calc} />
+          <ImmobilieSection calc={calc} printMode={printMode} />
           <StatTiles calc={calc} />
           <AmortisationChart calc={calc} />
-          <InvestitionSection calc={calc} />
-          <BetriebskostenSection calc={calc} />
-          <EinnahmenSection calc={calc} />
+          <InvestitionSection calc={calc} printMode={printMode} />
+          <BetriebskostenSection calc={calc} printMode={printMode} />
+          <EinnahmenSection calc={calc} printMode={printMode} />
         </div>
 
         <div
-          className="mt-[22px] rounded-[14px] bg-[#3AA8DC] px-[22px] py-5"
+          className="mt-[22px] rounded-[14px] bg-[#3AA8DC] px-[22px] py-5 break-inside-avoid"
           style={{ opacity: dashboardOpacity, transition: "opacity 0.25s ease" }}
         >
           <div className="mb-1.5 text-[12.5px] font-semibold text-white/85">Gewinn nach 20 Jahren</div>

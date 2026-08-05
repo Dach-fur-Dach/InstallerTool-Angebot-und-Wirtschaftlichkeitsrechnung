@@ -8,7 +8,7 @@ export function StatTiles({ calc }: { calc: MieterstromCalculator }) {
 
   return (
     <>
-      <div className="grid grid-cols-3 gap-2.5">
+      <div className="grid grid-cols-3 gap-2.5 break-inside-avoid">
         <div className="rounded-xl bg-[#3AA8DC] p-3.5">
           <div className="mb-1.5 text-[10.5px] font-semibold text-white/85">Rendite p.a.</div>
           <div className="text-xl font-extrabold tracking-tight text-white">{fmt1(r.rendite)}%</div>
@@ -25,7 +25,7 @@ export function StatTiles({ calc }: { calc: MieterstromCalculator }) {
         </div>
       </div>
 
-      <div className="mt-2.5 flex items-center justify-between rounded-xl bg-[#F2D9A6] p-3.5">
+      <div className="mt-2.5 flex items-center justify-between rounded-xl bg-[#F2D9A6] p-3.5 break-inside-avoid">
         <div>
           <div className="mb-1 text-[10.5px] font-bold text-[#5C4A24]">CO2-Ersparnis pro Jahr</div>
           <div className="text-xl font-extrabold text-[#1B2A3A]">{fmt1(r.co2)} t</div>
