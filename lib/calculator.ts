@@ -96,6 +96,10 @@ const SPEICHER_KOSTEN_PRO_KWH = 450;
 const ZAEHLERSCHRANK_GRUNDKOSTEN = 800;
 const ZAEHLERSCHRANK_PRO_ZAEHLER = 180;
 const ZAEHLERSCHRANK_WANDLER_ZUSCHLAG = 1500;
+// Platzhalter-Sätze, bis das tatsächliche Preismodell für die Abrechnung bestätigt ist —
+// bisher war abrechnungNetto ein fixer Wert (649 €), unabhängig von der Anzahl Zählpunkte.
+const ABRECHNUNG_GRUNDPAUSCHALE = 199;
+const ABRECHNUNG_PRO_ZUSAETZLICHEM_ZAEHLPUNKT = 15;
 export const MODELL_LABEL: Record<MieterstromModell, string> = {
   ggv: "Gemeinschaftliche Gebäudeversorgung (GGV)",
   virtueller_sz: "Virtueller Summenzähler",
@@ -301,7 +305,9 @@ export function computeResults(f: FormState): ComputedResults {
   const einmaligBrutto = einmaligNetto + einmaligUst;
 
   const zaehlpunkte = zaehlpunkte0;
-  const abrechnungNetto = 649;
+  // Skaliert mit der Anzahl Zählpunkte (inkl. +1 für Allgemeinstrom, siehe zaehlpunkte0 oben) statt eines fixen Betrags.
+  const abrechnungNetto =
+    ABRECHNUNG_GRUNDPAUSCHALE + Math.max(0, zaehlpunkte - 1) * ABRECHNUNG_PRO_ZUSAETZLICHEM_ZAEHLPUNKT;
   // Bei physischem Summenzähler entfallen die separaten Zählergebühren.
   const zaehlgebuehrNetto = istPhysischerSZ ? 0 : zaehlpunkte * 71.37;
   const jaehrlichNetto = abrechnungNetto + zaehlgebuehrNetto;
