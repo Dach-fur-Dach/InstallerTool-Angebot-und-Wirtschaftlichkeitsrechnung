@@ -57,25 +57,3 @@ export function chartYearLabels(r: ComputedResults) {
   return r.series.map((_v, i) => ({ yearLabel: i === 0 || (i + 1) % 5 === 0 ? String(i + 1) : "" }));
 }
 
-export interface PositiveBar {
-  height: number;
-  tooltip: string;
-}
-
-function buildPositiveGridLines(yMax: number): GridLine[] {
-  return [
-    { top: GRID_TOPS[0], label: `${fmtInt(yMax)} €`, lineStyle: "1px dashed #E5EAF1" },
-    { top: (GRID_TOPS[0] + GRID_TOPS[2]) / 2, label: `${fmtInt(yMax / 2)} €`, lineStyle: "1px dashed #E5EAF1" },
-    { top: GRID_TOPS[2], label: "0 €", lineStyle: "1.5px solid #98A2B3" },
-  ];
-}
-
-export function chartBarsErsparnis(r: ComputedResults): { bars: PositiveBar[]; gridLines: GridLine[] } {
-  const maxAbs = Math.max(...r.ersparnisSeriesYearly.map((v) => Math.abs(v)), 1);
-  const yMax = niceCeil(maxAbs);
-  const bars = r.ersparnisSeriesYearly.map((v, i) => ({
-    height: round2((Math.max(0, v) / yMax) * 70),
-    tooltip: `Jahr ${i + 1}: ${fmtInt(v)} € Ersparnis`,
-  }));
-  return { bars, gridLines: buildPositiveGridLines(yMax) };
-}

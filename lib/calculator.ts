@@ -223,12 +223,6 @@ export interface ComputedResults {
   jaehrlichNetto: number;
   jaehrlichUst: number;
   jaehrlichBrutto: number;
-  mieterKostenJahr1: number;
-  grundversorgerKostenJahr1: number;
-  ersparnisMieterJahr1: number;
-  ersparnisSeriesYearly: number[];
-  ersparnisSeriesKumuliert: number[];
-  ersparnisMieter20: number;
   flyerVerbrauchProWohnung: number;
   flyerSolarAnteil: number;
   flyerSolarKwh: number;
@@ -355,12 +349,6 @@ export function computeResults(f: FormState): ComputedResults {
   const amortisation = gewinnJahr1 > 0 ? investition / gewinnJahr1 : Infinity;
   const co2 = (pvErtrag * 0.366) / 1000;
 
-  // Was der Mieter tatsächlich zahlt (Grundgebühr + Solar- + Netzstrom) vs. Grundversorger-Tarif.
-  const mieterKostenJahr1 = einnahmenGrundgebuehr + einnahmenSolarstrom + einnahmenNetzstrom;
-  const grundversorgerKostenJahr1 =
-    einheiten * num(f.grundversorgerGrundgebuehr) * 12 + verbrauchMieterstrom * num(f.grundversorgerPreis);
-  const ersparnisMieterJahr1 = grundversorgerKostenJahr1 - mieterKostenJahr1;
-
   // Beispielrechnung für eine durchschnittliche Wohnung (für den Mieter-Ersparnis-Flyer).
   const flyerVerbrauchProWohnung = verbrauchWohnungen / Math.max(1, num(f.wohneinheiten));
   const flyerSolarAnteil = verbrauchMieterstrom > 0 ? eigenverbrauchMieterstrom / verbrauchMieterstrom : 0;
@@ -372,10 +360,7 @@ export function computeResults(f: FormState): ComputedResults {
 
   const series: number[] = [];
   const seriesYearly: YearlySeriesEntry[] = [];
-  const ersparnisSeriesYearly: number[] = [];
-  const ersparnisSeriesKumuliert: number[] = [];
   let cum = -investition;
-  let ersparnisCum = 0;
   let breakEvenYear: number | null = null;
   for (let t = 0; t < 20; t++) {
     const jahresEinnahmen = einnahmen * Math.pow(1.03, t);
@@ -384,14 +369,8 @@ export function computeResults(f: FormState): ComputedResults {
     series.push(cum);
     seriesYearly.push({ jahresEinnahmen, betrieb, jahresGewinn });
     if (breakEvenYear === null && cum >= 0) breakEvenYear = t + 1;
-
-    const jahresErsparnis = ersparnisMieterJahr1 * Math.pow(1.03, t);
-    ersparnisCum += jahresErsparnis;
-    ersparnisSeriesYearly.push(jahresErsparnis);
-    ersparnisSeriesKumuliert.push(ersparnisCum);
   }
   const gewinn20 = cum;
-  const ersparnisMieter20 = ersparnisCum;
 
   return {
     investition,
@@ -471,12 +450,6 @@ export function computeResults(f: FormState): ComputedResults {
     jaehrlichNetto,
     jaehrlichUst,
     jaehrlichBrutto,
-    mieterKostenJahr1,
-    grundversorgerKostenJahr1,
-    ersparnisMieterJahr1,
-    ersparnisSeriesYearly,
-    ersparnisSeriesKumuliert,
-    ersparnisMieter20,
     flyerVerbrauchProWohnung,
     flyerSolarAnteil,
     flyerSolarKwh,
