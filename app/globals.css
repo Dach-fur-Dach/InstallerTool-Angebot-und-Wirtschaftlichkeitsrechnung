@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme inline {
-  --font-sans: var(--font-inter);
+  --font-sans: var(--font-dm-sans);
 }
 
 @keyframes gradient-shift {
@@ -43,13 +43,13 @@ body {
   background-attachment: fixed;
   background-size: 220% 320vh;
   animation: gradient-shift 14s ease-in-out infinite;
-  font-family: var(--font-inter), -apple-system, sans-serif;
+  font-family: var(--font-dm-sans), -apple-system, sans-serif;
 }
 
 input,
 select,
 button {
-  font-family: var(--font-inter), -apple-system, sans-serif;
+  font-family: var(--font-dm-sans), -apple-system, sans-serif;
 }
 
 input:focus,
