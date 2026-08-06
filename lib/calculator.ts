@@ -47,11 +47,11 @@ export interface FormState {
 
 export const DEFAULTS: FormState = {
   mieterstromModell: "physischer_sz",
-  wohneinheiten: 24,
-  gewerbeeinheiten: 2,
+  wohneinheiten: 0,
+  gewerbeeinheiten: 0,
   allgemeinstrom: true,
-  waermepumpeModus: "eigener_zaehler",
-  wandlermessung: true,
+  waermepumpeModus: "nein",
+  wandlermessung: false,
   durchlauferhitzer: false,
   durchlauferhitzerAnzahl: 0,
   wallboxModus: "nein",
@@ -61,8 +61,8 @@ export const DEFAULTS: FormState = {
   installer: "",
   rechnungStrasse: "",
   rechnungPlzStadt: "",
-  objektStrasse: "Musterstraße 12",
-  objektPlzStadt: "10115 Berlin",
+  objektStrasse: "",
+  objektPlzStadt: "",
 
   pvGroesse: 75,
   speicher: 30,
@@ -76,7 +76,7 @@ export const DEFAULTS: FormState = {
   kostenSpeicherManual: "",
   kostenZaehlerschrankManual: "",
 
-  verbrauchWaermepumpe: 20000,
+  verbrauchWaermepumpe: 0,
 
   pvPreis: 0.27,
   netzPreis: 0.3,
