@@ -28,6 +28,144 @@
   }
 }
 
+.dfd-loading-backdrop {
+  background: linear-gradient(
+    160deg,
+    #ffd79b 0%,
+    #ffe1b0 14%,
+    #fff2dc 30%,
+    #e4f5f9 48%,
+    #bee7f2 66%,
+    #9cd9ec 82%,
+    #7fcbe8
+  );
+  background-attachment: fixed;
+  background-size: 220% 320vh;
+  animation: gradient-shift 14s ease-in-out infinite;
+}
+
+@keyframes dfd-sun-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes dfd-dot-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.3);
+  }
+  80% {
+    transform: scale(1);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes dfd-band-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes dfd-tile-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0);
+  }
+  55% {
+    opacity: 1;
+    transform: scale(1.45);
+  }
+  75% {
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.dfd-loading-svg .dfd-dot {
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  animation: dfd-dot-pop 0.5s 0.05s ease-in-out forwards;
+}
+
+.dfd-loading-svg .dfd-left-band {
+  transform-box: fill-box;
+  transform-origin: 100% 34%;
+  opacity: 0;
+  animation: dfd-band-pop 0.5s 0.3s ease-out forwards;
+}
+
+.dfd-loading-svg .dfd-tile-b {
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  animation: dfd-tile-pop 0.5s 0.55s ease-out forwards;
+}
+
+.dfd-loading-svg .dfd-tile-d {
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  animation: dfd-tile-pop 0.5s 0.75s ease-out forwards;
+}
+
+.dfd-loading-svg .dfd-tile-c {
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  animation: dfd-tile-pop 0.5s 0.95s ease-out forwards;
+}
+
+.dfd-loading-svg .dfd-tile-e {
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  animation: dfd-tile-pop 0.5s 1.15s ease-out forwards;
+}
+
+.dfd-loading-svg .dfd-tile-g {
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  animation: dfd-tile-pop 0.5s 1.35s ease-out forwards;
+}
+
+.dfd-loading-svg .dfd-sun {
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  animation: dfd-sun-pop 0.5s 1.55s ease-in-out forwards;
+}
+
 body {
   margin: 0;
   background: linear-gradient(

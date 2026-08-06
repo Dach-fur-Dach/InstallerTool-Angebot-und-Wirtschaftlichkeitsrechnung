@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { DM_Sans } from "next/font/google";
 import "./globals.css";
+import { LoadingScreen } from "@/components/ui/LoadingScreen";
 
 const dmSans = DM_Sans({
   variable: "--font-dm-sans",
@@ -20,7 +21,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="de" className={`${dmSans.variable} h-full antialiased`}>
-      <body className="min-h-full">{children}</body>
+      <body className="min-h-full">
+        <LoadingScreen />
+        {children}
+      </body>
     </html>
   );
 }
