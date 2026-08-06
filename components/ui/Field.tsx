@@ -44,8 +44,13 @@ const numberInputBase =
   "w-full box-border rounded-lg border border-[#D0D5DD] py-[9px] pl-[11px] pr-7 text-[13.5px] text-[#0A1628] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none";
 
 export function NumberInput(props: InputHTMLAttributes<HTMLInputElement>) {
-  const { className = "", value, onChange, min, max, step, disabled, ...rest } = props;
+  const { className = "", value, onChange, min, max, step, disabled, placeholder, ...rest } = props;
   const stepNum = step ? parseFloat(String(step)) || 1 : 1;
+
+  const numericValue = parseFloat(String(value));
+  const showAsPlaceholder = !disabled && value !== "" && isFinite(numericValue) && numericValue === 0;
+  const displayValue = showAsPlaceholder ? "" : value;
+  const displayPlaceholder = showAsPlaceholder ? (placeholder ?? "0") : placeholder;
 
   const adjust = (delta: number) => {
     if (disabled || !onChange) return;
@@ -60,7 +65,8 @@ export function NumberInput(props: InputHTMLAttributes<HTMLInputElement>) {
     <div className="relative">
       <input
         type="number"
-        value={value}
+        value={displayValue}
+        placeholder={displayPlaceholder}
         onChange={onChange}
         min={min}
         max={max}
