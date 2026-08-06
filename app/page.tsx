@@ -9,6 +9,7 @@ import { EnergySystemBox } from "@/components/form/EnergySystemBox";
 import { ConsumptionBox } from "@/components/form/ConsumptionBox";
 import { PricingBox } from "@/components/form/PricingBox";
 import { OutputControls } from "@/components/preview/OutputControls";
+import { AddressMapCard } from "@/components/preview/AddressMapCard";
 import { AngebotPanel } from "@/components/preview/AngebotPanel";
 import { WirtschaftPanel } from "@/components/preview/WirtschaftPanel";
 import { FlyerPanel } from "@/components/preview/FlyerPanel";
@@ -57,9 +58,17 @@ export default function Home() {
           </div>
         </div>
 
+        <div className="mb-4 grid grid-cols-1 items-stretch gap-6 lg:grid-cols-2">
+          <div className="min-w-[400px]">
+            <CustomerBuildingBox calc={calc} />
+          </div>
+          <div className="min-w-[400px]">
+            <AddressMapCard calc={calc} />
+          </div>
+        </div>
+
         <div className="flex flex-wrap items-start gap-6">
           <div className="flex min-w-[400px] flex-1 basis-[460px] flex-col gap-4">
-            <CustomerBuildingBox calc={calc} />
             <MieterstromModelBox calc={calc} />
             <WirtschaftGate calc={calc} />
             <EnergySystemBox calc={calc} />
