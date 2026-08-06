@@ -1,7 +1,6 @@
 "use client";
 
 import { Fragment } from "react";
-import Image from "next/image";
 import { MODELL_LABEL, UST, fmt2 } from "@/lib/calculator";
 import type { MieterstromCalculator } from "@/hooks/useMieterstromCalculator";
 import { ChevronIcon } from "@/components/ui/Icons";
@@ -24,19 +23,26 @@ export function AngebotPanel({ calc }: { calc: MieterstromCalculator }) {
   if (r.wpOwnMeter) messtechnikRows.push({ label: "Zähler Wärmepumpe", price: r.zaehlerStueckpreis });
   if (r.wallboxOwnMeter) messtechnikRows.push({ label: "Zähler Wallbox / Ladeinfrastruktur", price: r.zaehlerStueckpreis });
 
+  if (!angebotReady) {
+    return (
+      <div className="relative rounded-2xl border border-[#E5EAF1] bg-[#FCFBF9] px-7 py-[18px] shadow-[0_1px_3px_rgba(16,24,40,0.06)]">
+        <h3 className="m-0 mb-3 text-base font-extrabold text-[#1B2A3A]">Leistungsübersicht: Mieterstrom</h3>
+        <div className="rounded-[10px] border border-dashed border-[#D0D5DD] bg-white/50 px-4 py-3.5 text-center text-[12.5px] font-medium text-[#667085] backdrop-blur-sm">
+          Das Angebot wird angezeigt, sobald Wohneinheiten oder Gewerbeeinheiten angegeben wurden.
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="relative rounded-2xl border border-[#E5EAF1] bg-[#FCFBF9] px-7 py-[26px] shadow-[0_1px_3px_rgba(16,24,40,0.06)]">
-      <div className="relative mb-5 flex items-start justify-between">
-        <div className="text-[12.5px] font-medium text-[#5B6472]">{todayFmt}</div>
-        <Image src="/logo.png" alt="Dach für Dach" height={22} width={92} className="h-[22px] w-auto" />
-      </div>
+      <div className="relative mb-5 text-[12.5px] font-medium text-[#5B6472]">{todayFmt}</div>
 
       <h3 className="mb-4 text-base font-extrabold text-[#1B2A3A]">
         Leistungsübersicht: Mieterstrom ({messkonzeptLabel})
       </h3>
 
-      {angebotReady ? (
-        <div style={{ opacity: dashboardOpacity, transition: "opacity 0.25s ease" }}>
+      <div style={{ opacity: dashboardOpacity, transition: "opacity 0.25s ease" }}>
           <div className="mb-2 grid grid-cols-[1.6fr_0.8fr_0.7fr_0.8fr] gap-x-2 gap-y-1 border-b border-[#E5EAF1] pb-2 text-[11.5px] font-bold tracking-wide text-[#5B6472] uppercase">
             <div>Position</div>
             <div className="text-right">Preis (netto)</div>
@@ -133,18 +139,7 @@ export function AngebotPanel({ calc }: { calc: MieterstromCalculator }) {
             Hinweis: Einmalige und jährliche Kosten werden mit Beauftragung in Rechnung gestellt. Einbaukosten für die
             Installation sowie Zählergebühren des Partner-Messstellenbetreibers werden ggf. separat abgerechnet.
           </div>
-        </div>
-      ) : (
-        <div>
-          <div className="mb-3 h-3.5 w-[70%] rounded-md bg-[#F1F4F8]" />
-          <div className="mb-3 h-3.5 w-[90%] rounded-md bg-[#F1F4F8]" />
-          <div className="mb-3 h-3.5 w-[60%] rounded-md bg-[#F1F4F8]" />
-          <div className="mb-[30px] h-3.5 w-[80%] rounded-md bg-[#F1F4F8]" />
-          <div className="text-center text-[12.5px] text-[#98A2B3]">
-            Bitte Objektadresse (Box 1) angeben, um das Angebot zu erstellen.
-          </div>
-        </div>
-      )}
+      </div>
     </div>
   );
 }
