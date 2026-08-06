@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { MODELL_LABEL, fmtInt } from "@/lib/calculator";
 import type { MieterstromCalculator } from "@/hooks/useMieterstromCalculator";
 import { Collapse } from "@/components/ui/Collapse";
@@ -34,10 +33,6 @@ export function WirtschaftPanel({ calc, printMode = false }: { calc: Mieterstrom
       </div>
 
       <Collapse open={isOpen} printMode={printMode} innerClassName="px-7 pb-7">
-        <div className="mb-1.5 flex items-start justify-end">
-          <Image src="/logo.png" alt="Dach für Dach" height={20} width={83} className="h-5 w-auto" />
-        </div>
-
         {loading && (
           <div className="mb-2 flex items-center gap-2 text-[11.5px] font-semibold text-[#3AA8DC]">
             <span className="h-3 w-3 animate-spin rounded-full border-2 border-[rgba(46,155,214,0.25)] border-t-[#3AA8DC]" />

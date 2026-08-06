@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { forwardRef } from "react";
 import { fmt1, fmt2, fmtInt, num } from "@/lib/calculator";
 import type { MieterstromCalculator } from "@/hooks/useMieterstromCalculator";
@@ -40,10 +39,7 @@ export const FlyerPanel = forwardRef<HTMLDivElement, { calc: MieterstromCalculat
       ref={ref}
       className="overflow-hidden rounded-2xl border border-[#E5EAF1] bg-white px-7 py-[26px] shadow-[0_1px_3px_rgba(16,24,40,0.06)]"
     >
-      <div className="mb-5 flex items-start justify-between">
-        <div className="text-[11.5px] font-semibold tracking-wide text-[#98A2B3] uppercase">Mieter-Flyer Vorschau</div>
-        <Image src="/logo.png" alt="Dach für Dach" height={22} width={92} className="h-[22px] w-auto" />
-      </div>
+      <div className="mb-5 text-[11.5px] font-semibold tracking-wide text-[#98A2B3] uppercase">Mieter-Flyer Vorschau</div>
 
       <h2 className="m-0 mb-3 text-[22px] leading-[1.25] font-extrabold text-[#0A1628]">
         Geringere Stromkosten durch Solarstrom vom eigenen Dach
