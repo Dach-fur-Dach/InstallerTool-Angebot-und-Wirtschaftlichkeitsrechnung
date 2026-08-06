@@ -23,8 +23,8 @@ export interface FormState {
   objektStrasse: string;
   objektPlzStadt: string;
 
-  pvGroesse: number | "";
-  speicher: number | "";
+  pvGroesseManual: number | "";
+  speicherManual: number | "";
   pvSzenario: PvSzenario;
   wpSzenario: WpSzenario;
   ertragProKwpManual: number | "";
@@ -64,8 +64,8 @@ export const DEFAULTS: FormState = {
   objektStrasse: "",
   objektPlzStadt: "",
 
-  pvGroesse: 75,
-  speicher: 30,
+  pvGroesseManual: "",
+  speicherManual: "",
   pvSzenario: "steildach",
   wpSzenario: "pv_optimiert",
   ertragProKwpManual: "",
@@ -90,16 +90,17 @@ const YIELD: Record<PvSzenario, number> = { steildach: 950, flachdach: 850 };
 const ALLGEMEIN_PRO_EINHEIT = 100;
 const WOHNUNG_PRO_EINHEIT = 2500;
 const GEWERBE_PRO_EINHEIT = 9000;
+const PV_KWP_PRO_EINHEIT = 3;
+const SPEICHER_KWH_PRO_EINHEIT = 1.2;
 const FEED_IN_TARIF = 0.08;
 const PV_KOSTEN_PRO_KWP = 1300;
 const SPEICHER_KOSTEN_PRO_KWH = 450;
 const ZAEHLERSCHRANK_GRUNDKOSTEN = 800;
 const ZAEHLERSCHRANK_PRO_ZAEHLER = 180;
 const ZAEHLERSCHRANK_WANDLER_ZUSCHLAG = 1500;
-// Platzhalter-Sätze, bis das tatsächliche Preismodell für die Abrechnung bestätigt ist —
-// bisher war abrechnungNetto ein fixer Wert (649 €), unabhängig von der Anzahl Zählpunkte.
-const ABRECHNUNG_GRUNDPAUSCHALE = 199;
-const ABRECHNUNG_PRO_ZUSAETZLICHEM_ZAEHLPUNKT = 15;
+// Abrechnung wird pro abgerechnetem Zählpunkt berechnet (59 € je Zähler),
+// nicht mehr als fixer Wert unabhängig von der Anzahl Zählpunkte.
+const ABRECHNUNG_PRO_ZAEHLPUNKT = 59;
 export const MODELL_LABEL: Record<MieterstromModell, string> = {
   ggv: "Gemeinschaftliche Gebäudeversorgung (GGV)",
   virtueller_sz: "Virtueller Summenzähler",
@@ -157,6 +158,12 @@ export interface ComputedResults {
   ertragProKwp: number;
   allgemeinIsManual: boolean;
   ertragIsManual: boolean;
+  pvGroesse: number;
+  autoPvGroesse: number;
+  pvGroesseIsManual: boolean;
+  speicher: number;
+  autoSpeicher: number;
+  speicherIsManual: boolean;
   autoWohnungen: number;
   wohnungenIsManual: boolean;
   verbrauchWohnungen: number;
@@ -255,10 +262,21 @@ export function computeResults(f: FormState): ComputedResults {
   const ertragProKwpAuto = YIELD[f.pvSzenario] || YIELD.steildach;
   const ertragIsManual = isManualOverride(f.ertragProKwpManual);
   const ertragProKwp = ertragIsManual ? num(f.ertragProKwpManual) : ertragProKwpAuto;
-  const pvErtrag = num(f.pvGroesse) * ertragProKwp;
+
+  // PV-Anlage und Speicher werden anhand der Anzahl Wohn-/Gewerbeeinheiten überschlägig dimensioniert,
+  // solange kein manueller Wert eingegeben wurde.
+  const autoPvGroesse = einheiten * PV_KWP_PRO_EINHEIT;
+  const pvGroesseIsManual = isManualOverride(f.pvGroesseManual);
+  const pvGroesse = pvGroesseIsManual ? num(f.pvGroesseManual) : autoPvGroesse;
+
+  const autoSpeicher = einheiten * SPEICHER_KWH_PRO_EINHEIT;
+  const speicherIsManual = isManualOverride(f.speicherManual);
+  const speicher = speicherIsManual ? num(f.speicherManual) : autoSpeicher;
+
+  const pvErtrag = pvGroesse * ertragProKwp;
 
   let quote = 0.3;
-  if (verbrauchGesamt > 0) quote += Math.min(0.3, (num(f.speicher) * 1.6) / verbrauchGesamt);
+  if (verbrauchGesamt > 0) quote += Math.min(0.3, (speicher * 1.6) / verbrauchGesamt);
   if (wpAktiv && f.wpSzenario === "pv_optimiert") quote += 0.06;
   quote = Math.min(0.85, quote);
 
@@ -300,19 +318,18 @@ export function computeResults(f: FormState): ComputedResults {
 
   const zaehlpunkte = zaehlpunkte0;
   // Skaliert mit der Anzahl Zählpunkte (inkl. +1 für Allgemeinstrom, siehe zaehlpunkte0 oben) statt eines fixen Betrags.
-  const abrechnungNetto =
-    ABRECHNUNG_GRUNDPAUSCHALE + Math.max(0, zaehlpunkte - 1) * ABRECHNUNG_PRO_ZUSAETZLICHEM_ZAEHLPUNKT;
+  const abrechnungNetto = zaehlpunkte * ABRECHNUNG_PRO_ZAEHLPUNKT;
   // Bei physischem Summenzähler entfallen die separaten Zählergebühren.
   const zaehlgebuehrNetto = istPhysischerSZ ? 0 : zaehlpunkte * 71.37;
   const jaehrlichNetto = abrechnungNetto + zaehlgebuehrNetto;
   const jaehrlichUst = jaehrlichNetto * UST;
   const jaehrlichBrutto = jaehrlichNetto + jaehrlichUst;
 
-  const kostenPVAuto = num(f.pvGroesse) * PV_KOSTEN_PRO_KWP;
+  const kostenPVAuto = pvGroesse * PV_KOSTEN_PRO_KWP;
   const kostenPVIsManual = isManualOverride(f.kostenPVManual);
   const kostenPV = kostenPVIsManual ? num(f.kostenPVManual) : kostenPVAuto;
 
-  const kostenSpeicherAuto = num(f.speicher) * SPEICHER_KOSTEN_PRO_KWH;
+  const kostenSpeicherAuto = speicher * SPEICHER_KOSTEN_PRO_KWH;
   const kostenSpeicherIsManual = isManualOverride(f.kostenSpeicherManual);
   const kostenSpeicher = kostenSpeicherIsManual ? num(f.kostenSpeicherManual) : kostenSpeicherAuto;
 
@@ -384,6 +401,12 @@ export function computeResults(f: FormState): ComputedResults {
     ertragProKwp,
     allgemeinIsManual,
     ertragIsManual,
+    pvGroesse,
+    autoPvGroesse,
+    pvGroesseIsManual,
+    speicher,
+    autoSpeicher,
+    speicherIsManual,
     autoWohnungen,
     wohnungenIsManual,
     verbrauchWohnungen,

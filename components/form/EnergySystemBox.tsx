@@ -45,6 +45,8 @@ export function EnergySystemBox({ calc }: { calc: MieterstromCalculator }) {
     tier2VisualOpacity,
     results,
     resetErtragManual,
+    resetPvGroesseManual,
+    resetSpeicherManual,
     resetKostenPVManual,
     resetKostenSpeicherManual,
     resetKostenZaehlerschrankManual,
@@ -61,9 +63,24 @@ export function EnergySystemBox({ calc }: { calc: MieterstromCalculator }) {
     >
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <FieldLabel label="PV-Anlage (kWp)" />
+          <label className="mb-1.5 flex items-center gap-1.5 text-[12.5px] font-semibold text-[#344054]">
+            PV-Anlage (kWp){" "}
+            <span className="rounded bg-[#EAF2FF] px-1.5 py-0.5 text-[9.5px] font-bold text-[#3AA8DC]">
+              {results.pvGroesseIsManual ? "MANUELL" : "AUTO"}
+            </span>
+            {results.pvGroesseIsManual && (
+              <a onClick={resetPvGroesseManual} className="cursor-pointer text-[10px] font-bold text-[#3AA8DC]">
+                zurücksetzen
+              </a>
+            )}
+          </label>
           <div className="flex items-center gap-2.5">
-            <NumberInput min={0} step={0.5} value={form.pvGroesse} onChange={onNum("pvGroesse")} />
+            <NumberInput
+              min={0}
+              step={0.5}
+              value={Math.round(results.pvGroesse * 10) / 10}
+              onChange={onNum("pvGroesseManual")}
+            />
             <span className="text-[11px] font-semibold whitespace-nowrap text-[#667085]">Ø</span>
             <input
               type="number"
@@ -85,8 +102,18 @@ export function EnergySystemBox({ calc }: { calc: MieterstromCalculator }) {
           </div>
         </div>
         <div>
-          <FieldLabel label="Speicher (kWh)" />
-          <NumberInput min={0} value={form.speicher} onChange={onNum("speicher")} />
+          <label className="mb-1.5 flex items-center gap-1.5 text-[12.5px] font-semibold text-[#344054]">
+            Speicher (kWh){" "}
+            <span className="rounded bg-[#EAF2FF] px-1.5 py-0.5 text-[9.5px] font-bold text-[#3AA8DC]">
+              {results.speicherIsManual ? "MANUELL" : "AUTO"}
+            </span>
+            {results.speicherIsManual && (
+              <a onClick={resetSpeicherManual} className="cursor-pointer text-[10px] font-bold text-[#3AA8DC]">
+                zurücksetzen
+              </a>
+            )}
+          </label>
+          <NumberInput min={0} value={Math.round(results.speicher)} onChange={onNum("speicherManual")} />
         </div>
         <div>
           <FieldLabel label="PV-Szenario" />

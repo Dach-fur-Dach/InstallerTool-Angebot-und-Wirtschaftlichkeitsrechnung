@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-import { DEFAULTS, FormState, computeResults } from "@/lib/calculator";
+import { DEFAULTS, FormState, computeResults, num } from "@/lib/calculator";
 
 export type WirtschaftBenoetigt = "ja" | "nein" | null;
 
@@ -150,13 +150,15 @@ export function useMieterstromCalculator() {
   const resetErtragManual = useCallback(() => update("ertragProKwpManual", ""), [update]);
   const resetWohnungenManual = useCallback(() => update("verbrauchWohnungenManual", ""), [update]);
   const resetGewerbeManual = useCallback(() => update("verbrauchGewerbeManual", ""), [update]);
+  const resetPvGroesseManual = useCallback(() => update("pvGroesseManual", ""), [update]);
+  const resetSpeicherManual = useCallback(() => update("speicherManual", ""), [update]);
   const resetKostenPVManual = useCallback(() => update("kostenPVManual", ""), [update]);
   const resetKostenSpeicherManual = useCallback(() => update("kostenSpeicherManual", ""), [update]);
   const resetKostenZaehlerschrankManual = useCallback(() => update("kostenZaehlerschrankManual", ""), [update]);
 
   const wpDisabled = form.waermepumpeModus === "nein";
   const wandlerWarning = form.mieterstromModell === "physischer_sz" && !form.wandlermessung;
-  const angebotReady = !!(form.objektStrasse && form.objektPlzStadt);
+  const angebotReady = num(form.wohneinheiten) > 0 || num(form.gewerbeeinheiten) > 0;
   const tier2VisualOpacity = wirtschaftBenoetigt === "nein" ? 0.5 : 1;
 
   const messkonzeptSlots = useMemo(
@@ -219,6 +221,8 @@ export function useMieterstromCalculator() {
     resetErtragManual,
     resetWohnungenManual,
     resetGewerbeManual,
+    resetPvGroesseManual,
+    resetSpeicherManual,
     resetKostenPVManual,
     resetKostenSpeicherManual,
     resetKostenZaehlerschrankManual,
