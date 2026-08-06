@@ -19,6 +19,7 @@ import { useMieterstromCalculator } from "@/hooks/useMieterstromCalculator";
 export default function Home() {
   const calc = useMieterstromCalculator();
   const flyerRef = useRef<HTMLDivElement>(null);
+  const anyOutput = calc.outputs.wirtschaft || calc.outputs.angebot || calc.outputs.flyer;
 
   useEffect(() => {
     if (calc.outputs.flyer) {
@@ -34,11 +35,26 @@ export default function Home() {
       <div className="mx-auto max-w-[1560px] print:hidden">
         <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3.5">
-            <Image src="/logo.png" alt="Dach für Dach" height={34} width={140} className="h-[34px] w-auto" priority />
+            <Image src="/logo.png" alt="Dach für Dach" height={64} width={264} className="h-16 w-auto" priority />
             <div className="h-[26px] w-px bg-[rgba(10,22,40,0.12)]" />
             <div className="text-[12.5px] font-semibold text-[#5B6472]">Mieterstrom-Rechner</div>
           </div>
-          <div className="text-[13px] font-medium text-[#5B6472]">Für den Einsatz beim Kundentermin</div>
+          <div className="flex items-center gap-5">
+            <OutputControls calc={calc} />
+            <button
+              type="button"
+              disabled={!anyOutput}
+              onClick={() => calc.setPdfEmailModalOpen(true)}
+              title={anyOutput ? "PDF mit den ausgewählten Inhalten erstellen" : "Bitte mindestens einen Inhalt auswählen"}
+              className={
+                anyOutput
+                  ? "whitespace-nowrap rounded-[10px] border-none bg-[#3AA8DC] px-[22px] py-[11px] text-sm font-bold text-white shadow-[0_2px_6px_rgba(46,155,214,0.3)] cursor-pointer"
+                  : "whitespace-nowrap rounded-[10px] border-none bg-[#E5EAF1] px-[22px] py-[11px] text-sm font-bold text-[#98A2B3] cursor-not-allowed"
+              }
+            >
+              PDF erstellen
+            </button>
+          </div>
         </div>
 
         <div className="flex flex-wrap items-start gap-6">
@@ -52,7 +68,6 @@ export default function Home() {
           </div>
 
           <div className="flex min-w-[400px] flex-1 basis-[460px] flex-col gap-4">
-            <OutputControls calc={calc} />
             <AngebotPanel calc={calc} />
             <WirtschaftPanel calc={calc} />
             {calc.outputs.flyer && <FlyerPanel ref={flyerRef} calc={calc} />}
