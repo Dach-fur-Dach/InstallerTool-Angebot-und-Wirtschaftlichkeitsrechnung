@@ -95,9 +95,9 @@ export function MieterstromModelBox({ calc }: { calc: MieterstromCalculator }) {
         </div>
       </div>
 
-      <Collapse open={wandlerWarning} innerClassName="mb-4 flex items-start gap-2.5 rounded-[10px] border border-[#F0D3AE] bg-[#FDF0E3] px-3.5 py-3">
-        <WarningIcon className="mt-0.5 shrink-0 text-[#B57A2E]" />
-        <span className="text-[12.5px] font-semibold text-[#8A5A24]">Wandlermessung für Summenzähler prüfen</span>
+      <Collapse open={wandlerWarning} innerClassName="mb-4 flex items-start gap-2.5 rounded-[10px] border border-[#CFE3F0] bg-[#EAF6FC] px-3.5 py-3">
+        <WarningIcon className="mt-0.5 shrink-0 text-[#3AA8DC]" />
+        <span className="text-[12.5px] font-semibold text-[#1B2A3A]">Wandlermessung für Summenzähler prüfen</span>
       </Collapse>
 
       <div
