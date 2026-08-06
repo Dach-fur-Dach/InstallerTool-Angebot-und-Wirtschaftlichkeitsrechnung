@@ -21,7 +21,7 @@ export function LoadingScreen() {
 
   return (
     <div
-      className={`dfd-loading-backdrop fixed inset-0 z-[9999] flex items-center justify-center transition-opacity duration-500 ease-in-out ${
+      className={`dfd-wave-bg fixed inset-0 z-[9999] flex items-center justify-center transition-opacity duration-500 ease-in-out ${
         fading ? "opacity-0" : "opacity-100"
       }`}
       style={{ pointerEvents: fading ? "none" : "auto" }}

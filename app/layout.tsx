@@ -21,7 +21,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="de" className={`${dmSans.variable} h-full antialiased`}>
-      <body className="min-h-full">
+      <body className="dfd-wave-bg min-h-full">
         <LoadingScreen />
         {children}
       </body>
