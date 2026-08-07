@@ -3,23 +3,11 @@
 import { Collapse } from "@/components/ui/Collapse";
 import { CollapsibleBox } from "@/components/ui/CollapsibleBox";
 import { FieldLabel, NumberInput, SelectInput, YesNoToggle } from "@/components/ui/Field";
-import { ArrowRightIcon, WarningIcon } from "@/components/ui/Icons";
+import { WarningIcon } from "@/components/ui/Icons";
 import type { MieterstromCalculator } from "@/hooks/useMieterstromCalculator";
 
 export function MieterstromModelBox({ calc }: { calc: MieterstromCalculator }) {
-  const {
-    form,
-    onNum,
-    onText,
-    setBool,
-    box2Open,
-    setBox2Open,
-    wandlerWarning,
-    messkonzeptExpanded,
-    setMesskonzeptExpanded,
-    messkonzeptSlots,
-    setMesskonzeptLabel,
-  } = calc;
+  const { form, onNum, onText, setBool, box2Open, setBox2Open, wandlerWarning } = calc;
 
   return (
     <CollapsibleBox
@@ -100,7 +88,9 @@ export function MieterstromModelBox({ calc }: { calc: MieterstromCalculator }) {
         <span className="text-[12.5px] font-semibold text-[#1B2A3A]">Wandlermessung für Summenzähler prüfen</span>
       </Collapse>
 
-      <div
+      {/* Messkonzept (erweitert) is disabled for now per team feedback ("kein Nutzen aktuell").
+          Left in place, commented out, in case it's needed again later. */}
+      {/* <div
         onClick={() => setMesskonzeptExpanded(!messkonzeptExpanded)}
         className="mt-[18px] flex cursor-pointer items-center justify-between border-t border-[#EDF1F6] pt-3.5"
       >
@@ -125,7 +115,7 @@ export function MieterstromModelBox({ calc }: { calc: MieterstromCalculator }) {
             </div>
           ))}
         </div>
-      </Collapse>
+      </Collapse> */}
     </CollapsibleBox>
   );
 }
