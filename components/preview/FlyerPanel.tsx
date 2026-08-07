@@ -45,7 +45,7 @@ export const FlyerPanel = forwardRef<HTMLDivElement, { calc: MieterstromCalculat
         Geringere Stromkosten durch Solarstrom vom eigenen Dach
       </h2>
       <p className="m-0 mb-6 text-[13.5px] leading-relaxed text-[#344054]">
-        Einfaches Mieterstrommodell für kleine Mehrfamilienhäuser – Sie erhalten einfach &amp; günstig Solarstrom vom
+        Einfaches Mieterstrommodell für Mehrfamilienhäuser – Sie erhalten einfach &amp; günstig Solarstrom vom
         eigenen Dach.
       </p>
 
