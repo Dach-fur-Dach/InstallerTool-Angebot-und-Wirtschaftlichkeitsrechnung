@@ -88,19 +88,28 @@ export const DEFAULTS: FormState = {
 
 const YIELD: Record<PvSzenario, number> = { steildach: 950, flachdach: 850 };
 const ALLGEMEIN_PRO_EINHEIT = 100;
-const WOHNUNG_PRO_EINHEIT = 2500;
-const GEWERBE_PRO_EINHEIT = 9000;
+// Referenzwerte laut Engineering-Kalkulator (Google Sheet) / Team-Abstimmung 2026-08:
+// Wohnung 2.100 kWh/Jahr, Gewerbe 6.000 kWh/Jahr.
+const WOHNUNG_PRO_EINHEIT = 2100;
+const GEWERBE_PRO_EINHEIT = 6000;
 const PV_KWP_PRO_EINHEIT = 3;
 const SPEICHER_KWH_PRO_EINHEIT = 1.2;
 const FEED_IN_TARIF = 0.08;
 const PV_KOSTEN_PRO_KWP = 1300;
 const SPEICHER_KOSTEN_PRO_KWH = 450;
-const ZAEHLERSCHRANK_GRUNDKOSTEN = 800;
-const ZAEHLERSCHRANK_PRO_ZAEHLER = 180;
-const ZAEHLERSCHRANK_WANDLER_ZUSCHLAG = 1500;
+// Zählerschrank/Wandlermessung wird im Referenz-Kalkulator als einfacher Pauschalwert
+// geführt (kein Zählpunkt-Faktor): 0 € ohne Wandlermessung, 5.000 € mit.
+const ZAEHLERSCHRANK_WANDLER_PAUSCHALE = 5000;
 // Abrechnung wird pro abgerechnetem Zählpunkt berechnet (59 € je Zähler),
 // nicht mehr als fixer Wert unabhängig von der Anzahl Zählpunkte.
 const ABRECHNUNG_PRO_ZAEHLPUNKT = 59;
+// Jährliche MSB-Zählergebühr pro abgerechnetem Zählpunkt (71,37 € je Zähler),
+// kalibriert auf das Referenzbeispiel im Engineering-Kalkulator (785,06 € bei 11 Zählpunkten).
+const ZAEHLGEBUEHR_PRO_ZAEHLPUNKT = 71.37;
+// Netzstrom-Grundgebühr, die der Betreiber unabhängig vom Verbrauch an den Netzbetreiber
+// zahlt (laut Engineering-Kalkulator: "Reststrom Grundgebühr", pauschal 120 €/Jahr).
+const NETZSTROM_GRUNDGEBUEHR_JAHR = 120;
+const VERSICHERUNG_QUOTE = 0.0125;
 export const MODELL_LABEL: Record<MieterstromModell, string> = {
   ggv: "Gemeinschaftliche Gebäudeversorgung (GGV)",
   virtueller_sz: "Virtueller Summenzähler",
@@ -201,6 +210,7 @@ export interface ComputedResults {
   betriebVersicherung: number;
   betriebAbrechnung: number;
   betriebNetzstrom: number;
+  betriebNetzstromGrundgebuehr: number;
   betriebZaehler: number;
   einnahmenGrundgebuehr: number;
   einnahmenSolarstrom: number;
@@ -275,15 +285,51 @@ export function computeResults(f: FormState): ComputedResults {
 
   const pvErtrag = pvGroesse * ertragProKwp;
 
-  let quote = 0.3;
-  if (verbrauchGesamt > 0) quote += Math.min(0.3, (speicher * 1.6) / verbrauchGesamt);
-  if (wpAktiv && f.wpSzenario === "pv_optimiert") quote += 0.06;
+  // Vereinfachtes Eigenverbrauchs-/Autarkiemodell (kalibrierte Näherung).
+  // Der Referenz-Engineering-Kalkulator ermittelt Eigenverbrauch/Autarkie über eine stündliche
+  // 8.760h-Simulation (BDEW-Lastprofile H25/G25 je Stunde, 16 standortspezifische PVGIS-Ertragskurven,
+  // Speicher-Ladezustandssimulation mit Wirkungsgrad/Standby-Verlusten). Das ist hier bewusst NICHT
+  // 1:1 nachgebaut (würde große Lastprofil-/Ertragskurven-Datensätze + eine Simulation pro Eingabe
+  // erfordern), sondern als deutlich besser kalibrierte Formel angenähert, die auf dem Referenzbeispiel
+  // des Kalkulators (7 WE, 31 kWp, 5 kWh Speicher, WP ungesteuert → Eigenverbrauchsquote 46,71%,
+  // Autarkiegrad Gesamt 36,17%, Mieter 48,30%, WP 25,55%) kalibriert wurde.
+
+  // Basis-Eigenverbrauchsquote (ohne Speicher) sinkt mit steigendem Verhältnis PV-Ertrag/Verbrauch:
+  // großzügiger dimensionierte Anlagen erzeugen mehr Überschuss. MFH mit vielen, zeitlich diversen
+  // Verbrauchsprofilen erreichen dabei eine höhere Grundquote als Einfamilienhäuser.
+  const pvLoadRatio = verbrauchGesamt > 0 ? pvErtrag / verbrauchGesamt : 0;
+  const BASISQUOTE_FAKTOR = 0.405;
+  const baseQuote = pvLoadRatio > 0 ? Math.min(0.65, Math.max(0.25, BASISQUOTE_FAKTOR / Math.sqrt(pvLoadRatio))) : 0.65;
+
+  // Speicher erhöht die Eigenverbrauchsquote spürbar, skaliert mit kWh Speicher je MWh
+  // Jahresverbrauch (zuvor hatte der Speicher praktisch keinen sichtbaren Effekt).
+  const speicherProMwh = verbrauchGesamt > 0 ? (speicher * 1000) / verbrauchGesamt : 0;
+  const speicherBonus = Math.min(0.25, speicherProMwh * 0.05);
+
+  let quote = baseQuote + speicherBonus;
+  // PV-optimierte Wärmepumpensteuerung verschiebt Verbrauch in sonnenreiche Stunden und erhöht
+  // dadurch die Gesamt-Eigenverbrauchsquote zusätzlich.
+  if (wpAktiv && f.wpSzenario === "pv_optimiert") quote += 0.04;
   quote = Math.min(0.85, quote);
 
   const eigenverbrauchGesamt = Math.min(pvErtrag, verbrauchGesamt) * quote;
+
+  // Die Eigenverbrauchsmenge wird nicht linear proportional zum Verbrauch auf Mieterstrom und
+  // Wärmepumpe verteilt: Wärmepumpen-Lasten korrelieren zeitlich schlechter mit der PV-Erzeugung
+  // (Heizbedarf v.a. nachts/im Winter) als die Mieterstrom-Grundlast. Der Referenz-Kalkulator bildet
+  // das über eine stundenweise pro-rata-Zuteilung ab; hier wird das mit einem Korrelationsfaktor
+  // angenähert (kalibriert auf Autarkiegrad Mieter 48,3% vs. WP 25,55% im Referenzbeispiel).
+  const WP_KORRELATION_UNGESTEUERT = 0.55;
+  const WP_KORRELATION_PV_OPTIMIERT = 0.72;
+  const wpKorrelation = f.wpSzenario === "pv_optimiert" ? WP_KORRELATION_PV_OPTIMIERT : WP_KORRELATION_UNGESTEUERT;
+  const gewichtMieterstrom = verbrauchMieterstrom;
+  const gewichtWP = wpVerbrauch * wpKorrelation;
+  const gewichtGesamt = gewichtMieterstrom + gewichtWP;
   const eigenverbrauchMieterstrom =
-    verbrauchGesamt > 0 ? eigenverbrauchGesamt * (verbrauchMieterstrom / verbrauchGesamt) : 0;
-  const eigenverbrauchWP = eigenverbrauchGesamt - eigenverbrauchMieterstrom;
+    gewichtGesamt > 0
+      ? Math.min(verbrauchMieterstrom, eigenverbrauchGesamt * (gewichtMieterstrom / gewichtGesamt))
+      : 0;
+  const eigenverbrauchWP = Math.max(0, eigenverbrauchGesamt - eigenverbrauchMieterstrom);
   const netzMieterstrom = Math.max(0, verbrauchMieterstrom - eigenverbrauchMieterstrom);
   const netzWP = Math.max(0, wpVerbrauch - eigenverbrauchWP);
   const restbezug = netzMieterstrom + netzWP;
@@ -316,11 +362,14 @@ export function computeResults(f: FormState): ComputedResults {
   const einmaligUst = einmaligNetto * UST;
   const einmaligBrutto = einmaligNetto + einmaligUst;
 
-  const zaehlpunkte = zaehlpunkte0;
-  // Skaliert mit der Anzahl Zählpunkte (inkl. +1 für Allgemeinstrom, siehe zaehlpunkte0 oben) statt eines fixen Betrags.
+  // Abrechnung und Zählergebühren werden für einen Zählpunkt mehr berechnet als die reine
+  // Messtechnik: der Summenzähler (SZ) selbst wird ebenfalls abgerechnet (bei pSZ und vSZ/GGV
+  // gleichermaßen). Referenz: Engineering-Kalkulator zeigt "Nötige Zählerplätze" = 10 aber
+  // "Abzurechnende Zähler" = 11 für dasselbe Beispiel (59 €×11 = 649 €, 71,37 €×11 = 785,06 €).
+  const zaehlpunkte = zaehlpunkte0 + 1;
   const abrechnungNetto = zaehlpunkte * ABRECHNUNG_PRO_ZAEHLPUNKT;
   // Bei physischem Summenzähler entfallen die separaten Zählergebühren.
-  const zaehlgebuehrNetto = istPhysischerSZ ? 0 : zaehlpunkte * 71.37;
+  const zaehlgebuehrNetto = istPhysischerSZ ? 0 : zaehlpunkte * ZAEHLGEBUEHR_PRO_ZAEHLPUNKT;
   const jaehrlichNetto = abrechnungNetto + zaehlgebuehrNetto;
   const jaehrlichUst = jaehrlichNetto * UST;
   const jaehrlichBrutto = jaehrlichNetto + jaehrlichUst;
@@ -333,10 +382,7 @@ export function computeResults(f: FormState): ComputedResults {
   const kostenSpeicherIsManual = isManualOverride(f.kostenSpeicherManual);
   const kostenSpeicher = kostenSpeicherIsManual ? num(f.kostenSpeicherManual) : kostenSpeicherAuto;
 
-  const kostenZaehlerschrankAuto =
-    ZAEHLERSCHRANK_GRUNDKOSTEN +
-    zaehlpunkte0 * ZAEHLERSCHRANK_PRO_ZAEHLER +
-    (f.wandlermessung ? ZAEHLERSCHRANK_WANDLER_ZUSCHLAG : 0);
+  const kostenZaehlerschrankAuto = f.wandlermessung ? ZAEHLERSCHRANK_WANDLER_PAUSCHALE : 0;
   const kostenZaehlerschrankIsManual = isManualOverride(f.kostenZaehlerschrankManual);
   const kostenZaehlerschrank = kostenZaehlerschrankIsManual
     ? num(f.kostenZaehlerschrankManual)
@@ -346,12 +392,15 @@ export function computeResults(f: FormState): ComputedResults {
   const kostenMieterstrompaket = einmaligNetto;
   const investition = kostenPV + kostenSpeicher + kostenZaehlerschrank + kostenMieterstrompaket;
 
-  const betriebVersicherung = investition * 0.012;
+  const betriebVersicherung = investition * VERSICHERUNG_QUOTE;
   // Abrechnung & Zähler-Jahresgebühr entsprechen den Werten aus dem Angebot.
   const betriebAbrechnung = abrechnungNetto;
   const betriebNetzstrom = restbezug * num(f.netzPreisEinkauf);
+  // Pauschale Grundgebühr des Netzbetreibers für den Reststrombezug (unabhängig vom Verbrauch).
+  const betriebNetzstromGrundgebuehr = NETZSTROM_GRUNDGEBUEHR_JAHR;
   const betriebZaehler = zaehlgebuehrNetto;
-  const betrieb = betriebVersicherung + betriebAbrechnung + betriebNetzstrom + betriebZaehler;
+  const betrieb =
+    betriebVersicherung + betriebAbrechnung + betriebNetzstrom + betriebNetzstromGrundgebuehr + betriebZaehler;
 
   const einnahmenGrundgebuehr = einheiten * num(f.grundgebuehr) * 12;
   const einnahmenSolarstrom = eigenverbrauchGesamt * num(f.pvPreis);
@@ -444,6 +493,7 @@ export function computeResults(f: FormState): ComputedResults {
     betriebVersicherung,
     betriebAbrechnung,
     betriebNetzstrom,
+    betriebNetzstromGrundgebuehr,
     betriebZaehler,
     einnahmenGrundgebuehr,
     einnahmenSolarstrom,

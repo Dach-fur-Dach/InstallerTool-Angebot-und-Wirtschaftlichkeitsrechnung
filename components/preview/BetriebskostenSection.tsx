@@ -9,9 +9,9 @@ import { CollapsibleSection } from "./CollapsibleSection";
 function useDetails(calc: MieterstromCalculator): Record<keyof BetriebOpenState, string> {
   const { form } = calc;
   return {
-    versicherung: "1,2% der Investition",
+    versicherung: "1,25% der Investition",
     abrechnung: "Wie im Angebot (Abrechnung Standard)",
-    netzstrom: `${fmt2(Number(form.netzPreisEinkauf) || 0)}€ Einkaufspreis pro kWh`,
+    netzstrom: `${fmt2(Number(form.netzPreisEinkauf) || 0)}€ Einkaufspreis pro kWh + 120€/Jahr Grundgebühr`,
     zaehler: "Wie im Angebot (Zählergebühren)",
   };
 }
@@ -69,7 +69,13 @@ export function BetriebskostenSection({ calc, printMode = false }: { calc: Miete
     >
       <ToggleRow label="Versicherung & Wartung" value={`${fmtInt(r.betriebVersicherung)} €`} detailKey="versicherung" calc={calc} printMode={printMode} />
       <ToggleRow label="Abrechnungskosten" value={`${fmtInt(r.betriebAbrechnung)} €`} detailKey="abrechnung" calc={calc} printMode={printMode} />
-      <ToggleRow label="Kosten Netzstrom" value={`${fmtInt(r.betriebNetzstrom)} €`} detailKey="netzstrom" calc={calc} printMode={printMode} />
+      <ToggleRow
+        label="Kosten Netzstrom"
+        value={`${fmtInt(r.betriebNetzstrom + r.betriebNetzstromGrundgebuehr)} €`}
+        detailKey="netzstrom"
+        calc={calc}
+        printMode={printMode}
+      />
       <ToggleRow label="Zähler (Jahresgebühr)" value={`${fmtInt(r.betriebZaehler)} €`} detailKey="zaehler" calc={calc} printMode={printMode} />
       <div className="mt-1.5 flex items-center justify-between rounded-lg bg-[#FFE9BF] px-3 py-2.5">
         <div className="font-bold text-[#1B2A3A]">Gesamtbetriebskosten</div>
