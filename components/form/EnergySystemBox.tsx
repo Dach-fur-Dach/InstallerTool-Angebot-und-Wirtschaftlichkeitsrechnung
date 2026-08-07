@@ -82,14 +82,15 @@ export function EnergySystemBox({ calc }: { calc: MieterstromCalculator }) {
               onChange={onNum("pvGroesseManual")}
             />
             <span className="text-[11px] font-semibold whitespace-nowrap text-[#667085]">Ø</span>
-            <input
-              type="number"
-              min={0}
-              value={Math.round(results.ertragProKwp)}
-              onChange={onNum("ertragProKwpManual")}
-              title="Ertrag pro kWp überschreiben"
-              className="w-[60px] box-border rounded-md border border-[#D0D5DD] px-[7px] py-1.5 text-right text-xs font-semibold text-[#344054]"
-            />
+            <div className="w-[76px] shrink-0">
+              <NumberInput
+                min={0}
+                value={Math.round(results.ertragProKwp)}
+                onChange={onNum("ertragProKwpManual")}
+                title="Ertrag pro kWp überschreiben"
+                className="text-right text-xs font-semibold"
+              />
+            </div>
             <span className="text-[11px] font-semibold whitespace-nowrap text-[#667085]">kWh/kWp</span>
             {results.ertragIsManual && (
               <a

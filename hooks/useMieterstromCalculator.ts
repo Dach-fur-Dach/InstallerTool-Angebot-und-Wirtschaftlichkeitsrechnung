@@ -78,7 +78,16 @@ export function useMieterstromCalculator() {
 
   const onNum = useCallback(
     (field: keyof FormState) => (e: React.ChangeEvent<HTMLInputElement>) => {
-      update(field, (e.target.value === "" ? "" : parseFloat(e.target.value)) as FormState[typeof field]);
+      const raw = e.target.value;
+      // Incomplete numeric input while typing (e.g. "-", ".", "-.") is treated as unset rather
+      // than stored as NaN, which would otherwise corrupt downstream calculations/display.
+      if (raw === "" || raw === "-" || raw === "." || raw === "-.") {
+        update(field, "" as FormState[typeof field]);
+        return;
+      }
+      const parsed = parseFloat(raw);
+      if (!isFinite(parsed)) return;
+      update(field, parsed as FormState[typeof field]);
     },
     [update]
   );
