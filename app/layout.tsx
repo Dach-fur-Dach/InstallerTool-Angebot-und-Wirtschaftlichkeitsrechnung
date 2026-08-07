@@ -10,7 +10,7 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Mieterstrom-Feasibility-Rechner",
+  title: "Mieterstrom-Rechner",
   description: "Für den Einsatz beim Kundentermin",
 };
 
