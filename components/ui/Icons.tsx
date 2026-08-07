@@ -63,3 +63,33 @@ export function ArrowRightIcon({ className = "", style }: IconProps) {
     </svg>
   );
 }
+
+export function PlusIcon({ className = "", style }: IconProps) {
+  return (
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className={className} style={style}>
+      <path d="M7 1.5V12.5M1.5 7H12.5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+export function MinusIcon({ className = "", style }: IconProps) {
+  return (
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className={className} style={style}>
+      <path d="M1.5 7H12.5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+export function ExternalLinkIcon({ className = "", style }: IconProps) {
+  return (
+    <svg width="11" height="11" viewBox="0 0 11 11" fill="none" className={className} style={style}>
+      <path
+        d="M4.5 1.5H9.5V6.5M9.5 1.5L1.5 9.5"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
