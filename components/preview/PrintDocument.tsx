@@ -6,24 +6,36 @@ import { WirtschaftPanel } from "./WirtschaftPanel";
 import { FlyerPanel } from "./FlyerPanel";
 import { ProcessStepsPanel } from "./ProcessStepsPanel";
 import { PrintPageHeader, PrintPageFooter } from "./PrintPageChrome";
+import { PrintCoverPage } from "./PrintCoverPage";
 
 const PAGE_PADDING = { padding: "14mm 12mm" };
 
 export function PrintDocument({ calc }: { calc: MieterstromCalculator }) {
-  const { activeOutputOrder } = calc;
+  const { activeOutputOrder, outputs } = calc;
 
   return (
     <div className="hidden print:block print:bg-white">
+      <PrintCoverPage outputs={outputs} />
       {activeOutputOrder.map((key) => (
-        <div key={key} className="break-after-page" style={PAGE_PADDING}>
+        <div
+          key={key}
+          className="break-after-page isolate relative flex min-h-[296mm] flex-col"
+          style={PAGE_PADDING}
+        >
+          <div className="dfd-print-gradient dfd-print-bleed" aria-hidden="true" />
           <PrintPageHeader />
-          <PrintPanel outputKey={key} calc={calc} />
+          <div className="flex-1">
+            <PrintPanel outputKey={key} calc={calc} />
+          </div>
           <PrintPageFooter />
         </div>
       ))}
-      <div style={PAGE_PADDING}>
+      <div className="isolate relative flex min-h-[296mm] flex-col" style={PAGE_PADDING}>
+        <div className="dfd-print-gradient dfd-print-bleed" aria-hidden="true" />
         <PrintPageHeader />
-        <ProcessStepsPanel />
+        <div className="flex-1">
+          <ProcessStepsPanel />
+        </div>
         <PrintPageFooter />
       </div>
     </div>
