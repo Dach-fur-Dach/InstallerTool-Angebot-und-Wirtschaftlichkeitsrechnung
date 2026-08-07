@@ -218,4 +218,9 @@ a:hover {
     print-color-adjust: exact !important;
     box-shadow: none !important;
   }
+
+  .dfd-print-card {
+    border-width: 0.5px !important;
+    border-color: #eef2f6 !important;
+  }
 }

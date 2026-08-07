@@ -18,7 +18,7 @@ export function WirtschaftPanel({ calc, printMode = false }: { calc: Mieterstrom
   const isOpen = printMode ? true : wirtschaftPanelOpen;
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-[#E5EAF1] bg-[#FCFBF9] shadow-[0_1px_3px_rgba(16,24,40,0.06)]">
+    <div className="dfd-print-card overflow-hidden rounded-2xl border border-[#E5EAF1] bg-[#FCFBF9] shadow-[0_1px_3px_rgba(16,24,40,0.06)]">
       <div
         onClick={printMode ? undefined : () => setWirtschaftPanelOpen(!wirtschaftPanelOpen)}
         className={`flex items-center justify-between px-6 py-[18px] ${printMode ? "" : "cursor-pointer"}`}

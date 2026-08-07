@@ -25,7 +25,7 @@ export function AngebotPanel({ calc }: { calc: MieterstromCalculator }) {
 
   if (!angebotReady) {
     return (
-      <div className="relative rounded-2xl border border-[#E5EAF1] bg-[#FCFBF9] px-7 py-[18px] shadow-[0_1px_3px_rgba(16,24,40,0.06)]">
+      <div className="dfd-print-card relative rounded-2xl border border-[#E5EAF1] bg-[#FCFBF9] px-7 py-[18px] shadow-[0_1px_3px_rgba(16,24,40,0.06)]">
         <h3 className="m-0 mb-3 text-base font-extrabold text-[#1B2A3A]">Leistungsübersicht: Mieterstrom</h3>
         <div className="rounded-[10px] border border-dashed border-[#D0D5DD] bg-white/50 px-4 py-3.5 text-center text-[12.5px] font-medium text-[#667085] backdrop-blur-sm">
           Das Angebot wird angezeigt, sobald Wohneinheiten oder Gewerbeeinheiten angegeben wurden.
@@ -35,7 +35,7 @@ export function AngebotPanel({ calc }: { calc: MieterstromCalculator }) {
   }
 
   return (
-    <div className="relative rounded-2xl border border-[#E5EAF1] bg-[#FCFBF9] px-7 py-[26px] shadow-[0_1px_3px_rgba(16,24,40,0.06)]">
+    <div className="dfd-print-card relative rounded-2xl border border-[#E5EAF1] bg-[#FCFBF9] px-7 py-[26px] shadow-[0_1px_3px_rgba(16,24,40,0.06)]">
       <div className="relative mb-5 text-[12.5px] font-medium text-[#5B6472]">{todayFmt}</div>
 
       <h3 className="mb-4 text-base font-extrabold text-[#1B2A3A]">
