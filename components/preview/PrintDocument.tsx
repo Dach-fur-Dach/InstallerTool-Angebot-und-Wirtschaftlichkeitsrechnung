@@ -1,40 +1,51 @@
 "use client";
 
+import Image from "next/image";
+import type { ReactNode } from "react";
 import type { MieterstromCalculator, OutputKey } from "@/hooks/useMieterstromCalculator";
 import { AngebotPanel } from "./AngebotPanel";
-import { WirtschaftPanel } from "./WirtschaftPanel";
 import { FlyerPanel } from "./FlyerPanel";
-import { ProcessStepsPanel } from "./ProcessStepsPanel";
 import { PrintPageHeader, PrintPageFooter } from "./PrintPageChrome";
 import { PrintCoverPage } from "./PrintCoverPage";
+import { ProcessStepsPanel } from "./ProcessStepsPanel";
+import { wirtschaftPrintPages } from "./WirtschaftPrintPages";
 
 const PAGE_PADDING = { padding: "14mm 12mm" };
 
 export function PrintDocument({ calc }: { calc: MieterstromCalculator }) {
   const { activeOutputOrder, outputs } = calc;
 
+  const pages = activeOutputOrder.flatMap((key) =>
+    getPrintPages(key, calc).map((content, i) => ({ pageKey: `${key}-${i}`, content }))
+  );
+
   return (
-    <div className="hidden print:block print:bg-white">
+    <div id="print-document" className="hidden print:block print:bg-white">
       <PrintCoverPage outputs={outputs} />
-      {activeOutputOrder.map((key) => (
+      {pages.map(({ pageKey, content }) => (
         <div
-          key={key}
-          className="break-after-page isolate relative flex min-h-[296mm] flex-col"
+          key={pageKey}
+          className="break-after-page isolate relative flex h-[296mm] flex-col"
           style={PAGE_PADDING}
         >
           <div className="dfd-print-gradient dfd-print-bleed" aria-hidden="true" />
           <PrintPageHeader />
-          <div className="flex-1">
-            <PrintPanel outputKey={key} calc={calc} />
-          </div>
+          <div className="flex flex-1 flex-col">{content}</div>
           <PrintPageFooter />
         </div>
       ))}
-      <div className="isolate relative flex min-h-[296mm] flex-col" style={PAGE_PADDING}>
+      <div className="isolate relative flex h-[296mm] flex-col" style={PAGE_PADDING}>
         <div className="dfd-print-gradient dfd-print-bleed" aria-hidden="true" />
         <PrintPageHeader />
         <div className="flex-1">
           <ProcessStepsPanel />
+          <Image
+            src="/contact-band.png"
+            alt="Wir sind für Sie jederzeit verfügbar"
+            width={1414}
+            height={260}
+            className="mt-6 h-auto w-full rounded-2xl"
+          />
         </div>
         <PrintPageFooter />
       </div>
@@ -42,13 +53,13 @@ export function PrintDocument({ calc }: { calc: MieterstromCalculator }) {
   );
 }
 
-function PrintPanel({ outputKey, calc }: { outputKey: OutputKey; calc: MieterstromCalculator }) {
+function getPrintPages(outputKey: OutputKey, calc: MieterstromCalculator): ReactNode[] {
   switch (outputKey) {
     case "angebot":
-      return <AngebotPanel calc={calc} />;
+      return [<AngebotPanel key="angebot" calc={calc} />];
     case "wirtschaft":
-      return <WirtschaftPanel calc={calc} printMode />;
+      return wirtschaftPrintPages(calc);
     case "flyer":
-      return <FlyerPanel calc={calc} />;
+      return [<FlyerPanel key="flyer" calc={calc} />];
   }
 }

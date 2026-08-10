@@ -38,26 +38,11 @@
   animation: gradient-shift 14s ease-in-out infinite;
 }
 
-/* Static, print-safe version of .dfd-wave-bg: print engines render each page
-   as its own box, so a fixed-attachment, viewport-sized, animated background
-   can end up cropped to a single frame/position per page. This variant is
-   fixed to one frame and sized to the page itself. `position: fixed`
-   backgrounds are not reliably repainted per page across print/PDF engines
-   (notably Safari), so each printed page div carries this class directly
-   rather than sharing one fixed layer. */
+/* Plain white print background. Each printed page div carries this class so
+   the page box's own bleed layer (below) still covers the mm-rounding buffer
+   with matching white, rather than leaving a gap. */
 .dfd-print-gradient {
-  background: linear-gradient(
-    160deg,
-    #ffd79b 0%,
-    #ffe1b0 14%,
-    #fff2dc 30%,
-    #e4f5f9 48%,
-    #bee7f2 66%,
-    #9cd9ec 82%,
-    #7fcbe8
-  );
-  background-size: 100% 100%;
-  background-position: center;
+  background: #ffffff;
 }
 
 /* mm-to-px conversion isn't an integer (297mm = 1122.52px), so a page box
@@ -66,7 +51,7 @@
    leaving a hairline gap at the edge. Page boxes are sized slightly under one
    physical page as a rounding buffer; this layer bleeds a few mm past the
    box's own edges (into that buffer, and off-page where clipped) so the
-   gradient still reaches every true page edge despite the smaller box. */
+   background still reaches every true page edge despite the smaller box. */
 .dfd-print-bleed {
   position: absolute;
   inset: -3mm;
