@@ -9,7 +9,7 @@ import { CollapsibleSection } from "./CollapsibleSection";
 function useDetails(calc: MieterstromCalculator): Record<keyof BetriebOpenState, string> {
   const { form } = calc;
   return {
-    versicherung: "1,25% der Investition",
+    versicherung: "0,5% der Investition",
     abrechnung: "Wie im Angebot (Abrechnung Standard)",
     netzstrom: `${fmt2(Number(form.netzPreisEinkauf) || 0)}€ Einkaufspreis pro kWh + 120€/Jahr Grundgebühr`,
     zaehler: "Wie im Angebot (Zählergebühren)",

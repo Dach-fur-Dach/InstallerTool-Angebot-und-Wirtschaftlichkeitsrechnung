@@ -109,7 +109,7 @@ const ZAEHLGEBUEHR_PRO_ZAEHLPUNKT = 71.37;
 // Netzstrom-Grundgebühr, die der Betreiber unabhängig vom Verbrauch an den Netzbetreiber
 // zahlt (laut Engineering-Kalkulator: "Reststrom Grundgebühr", pauschal 120 €/Jahr).
 const NETZSTROM_GRUNDGEBUEHR_JAHR = 120;
-const VERSICHERUNG_QUOTE = 0.0125;
+const VERSICHERUNG_QUOTE = 0.005;
 export const MODELL_LABEL: Record<MieterstromModell, string> = {
   ggv: "Gemeinschaftliche Gebäudeversorgung (GGV)",
   virtueller_sz: "Virtueller Summenzähler",
