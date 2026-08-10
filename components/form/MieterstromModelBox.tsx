@@ -50,7 +50,7 @@ export function MieterstromModelBox({ calc }: { calc: MieterstromCalculator }) {
           <div>
             <FieldLabel label="Wallbox / Ladeinfrastruktur" />
             <SelectInput value={form.wallboxModus} onChange={onText("wallboxModus")}>
-              <option value="nein">Nein (Standard)</option>
+              <option value="nein">Nein </option>
               <option value="hinter_zaehler">Ja, hinter Mieter-/Allgemeinstromzähler</option>
               <option value="eigener_zaehler">Ja mit eigenem Zähler für Ladeinfrastruktur</option>
             </SelectInput>
