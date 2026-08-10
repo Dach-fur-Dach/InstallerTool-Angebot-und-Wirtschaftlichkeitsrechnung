@@ -4,12 +4,14 @@ import { useState } from "react";
 import type { MieterstromCalculator } from "@/hooks/useMieterstromCalculator";
 import { OUTPUT_LABELS, type OutputKey } from "@/hooks/useMieterstromCalculator";
 import { CheckIcon, ChevronIcon, DragHandleIcon } from "@/components/ui/Icons";
-import { downloadPrintDocumentAsPdf, buildPdfFilename } from "@/lib/generatePdf";
+import { downloadPrintDocumentAsPdf, getPrintDocumentPdfBase64, buildPdfFilename } from "@/lib/generatePdf";
 
 export function PdfEmailModal({ calc }: { calc: MieterstromCalculator }) {
   const { pdfEmailModalOpen, setPdfEmailModalOpen, installerEmail, setInstallerEmail, activeOutputOrder, reorderOutputs, moveOutput, form } =
     calc;
-  const [sent, setSent] = useState(false);
+  const [sendCopyToInstaller, setSendCopyToInstaller] = useState(false);
+  const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
+  const [errorMessage, setErrorMessage] = useState("");
   const [draggedKey, setDraggedKey] = useState<OutputKey | null>(null);
   const [dragOverKey, setDragOverKey] = useState<OutputKey | null>(null);
 
@@ -17,17 +19,43 @@ export function PdfEmailModal({ calc }: { calc: MieterstromCalculator }) {
 
   const close = () => {
     setPdfEmailModalOpen(false);
-    setSent(false);
+    setStatus("idle");
+    setErrorMessage("");
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSent(true);
+    setStatus("sending");
+    setErrorMessage("");
+
     const filename = buildPdfFilename(form);
-    setTimeout(() => {
-      close();
-      downloadPrintDocumentAsPdf(filename);
-    }, 700);
+
+    try {
+      const pdfBase64 = await getPrintDocumentPdfBase64();
+      if (!pdfBase64) throw new Error("PDF konnte nicht erstellt werden.");
+
+      const res = await fetch("/api/send-pdf", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          pdfBase64,
+          filename,
+          installerEmail: sendCopyToInstaller ? installerEmail : undefined,
+          sendCopyToInstaller,
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "E-Mail-Versand fehlgeschlagen.");
+      }
+
+      setStatus("sent");
+      await downloadPrintDocumentAsPdf(filename);
+    } catch (err) {
+      setStatus("error");
+      setErrorMessage(err instanceof Error ? err.message : "Unbekannter Fehler.");
+    }
   };
 
   return (
@@ -39,32 +67,57 @@ export function PdfEmailModal({ calc }: { calc: MieterstromCalculator }) {
         onClick={(e) => e.stopPropagation()}
         className="w-full max-w-[420px] rounded-2xl border border-[#E5EAF1] bg-white p-7 shadow-[0_8px_30px_rgba(16,24,40,0.2)]"
       >
-        {sent ? (
+        {status === "sent" ? (
           <div className="text-center">
             <div className="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-[#EAF2FF] text-[#3AA8DC]">
               <CheckIcon className="h-3.5 w-3.5" />
             </div>
-            <h3 className="m-0 mb-1.5 text-base font-extrabold text-[#0A1628]">PDF wird erstellt</h3>
+            <h3 className="m-0 mb-1.5 text-base font-extrabold text-[#0A1628]">PDF wurde versendet</h3>
             <p className="m-0 text-[13px] text-[#5B6472]">
-              Der Versand an <span className="font-semibold text-[#1B2A3A]">{installerEmail}</span> ist eine
-              Demo-Funktion und erfolgt hier nicht wirklich. Der PDF-Download startet gleich.
+              {sendCopyToInstaller ? (
+                <>
+                  Eine Kopie wurde an <span className="font-semibold text-[#1B2A3A]">{installerEmail}</span> gesendet.
+                </>
+              ) : (
+                "Eine Kopie wurde per E-Mail versendet."
+              )}{" "}
+              Der PDF-Download startet gleich.
             </p>
           </div>
         ) : (
           <form onSubmit={handleSubmit}>
-            <h3 className="m-0 mb-1.5 text-base font-extrabold text-[#0A1628]">E-Mail des Installateurs</h3>
+            <h3 className="m-0 mb-1.5 text-base font-extrabold text-[#0A1628]">PDF erstellen</h3>
             <p className="m-0 mb-4 text-[13px] text-[#5B6472]">
-              Bitte E-Mail-Adresse angeben, an die das PDF gesendet werden soll.
+              Beim Download wird automatisch eine Kopie des PDFs per E-Mail versendet.
             </p>
-            <input
-              type="email"
-              required
-              autoFocus
-              value={installerEmail}
-              onChange={(e) => setInstallerEmail(e.target.value)}
-              placeholder="installateur@beispiel.de"
-              className="mb-5 w-full box-border rounded-lg border border-[#D0D5DD] px-[11px] py-[9px] text-[13.5px] text-[#0A1628]"
-            />
+
+            <label className="mb-4 flex cursor-pointer items-start gap-2.5">
+              <input
+                type="checkbox"
+                checked={sendCopyToInstaller}
+                onChange={(e) => setSendCopyToInstaller(e.target.checked)}
+                className="mt-0.5 h-[17px] w-[17px] shrink-0 accent-[#3AA8DC]"
+              />
+              <span className="text-[13.5px] font-semibold text-[#0A1628]">
+                Installateur soll ebenfalls eine Kopie per E-Mail erhalten
+              </span>
+            </label>
+
+            {sendCopyToInstaller && (
+              <input
+                type="email"
+                required
+                autoFocus
+                value={installerEmail}
+                onChange={(e) => setInstallerEmail(e.target.value)}
+                placeholder="installateur@beispiel.de"
+                className="mb-5 w-full box-border rounded-lg border border-[#D0D5DD] px-[11px] py-[9px] text-[13.5px] text-[#0A1628]"
+              />
+            )}
+
+            {status === "error" && (
+              <p className="mb-4 text-[13px] font-semibold text-[#D92D20]">{errorMessage}</p>
+            )}
 
             {activeOutputOrder.length > 1 && (
               <div className="mb-5">
@@ -138,9 +191,10 @@ export function PdfEmailModal({ calc }: { calc: MieterstromCalculator }) {
               </button>
               <button
                 type="submit"
-                className="flex-1 cursor-pointer rounded-[10px] border-none bg-[#3AA8DC] px-[22px] py-[11px] text-sm font-bold text-white"
+                disabled={status === "sending"}
+                className="flex-1 cursor-pointer rounded-[10px] border-none bg-[#3AA8DC] px-[22px] py-[11px] text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-60"
               >
-                PDF erstellen
+                {status === "sending" ? "Wird gesendet…" : "PDF erstellen"}
               </button>
             </div>
           </form>

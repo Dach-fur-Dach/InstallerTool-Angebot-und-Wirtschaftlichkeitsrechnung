@@ -43,7 +43,9 @@ function ChevronIcon({ direction }: { direction: "up" | "down" }) {
 const numberInputBase =
   "w-full box-border rounded-lg border border-[#D0D5DD] bg-white py-[9px] pl-[11px] pr-7 text-[13.5px] text-[#0A1628] [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none";
 
-const toText = (v: unknown) => (v === "" || v === undefined || v === null ? "" : String(v));
+// German numbers use "," as the decimal separator, but JS always stringifies with ".";
+// swap it so a value synced back in from state (e.g. after blur) still reads as typed.
+const toText = (v: unknown) => (v === "" || v === undefined || v === null ? "" : String(v).replace(".", ","));
 
 // Renders as a text input (with a numeric mobile keypad via inputMode) instead of
 // type="number": native number inputs silently discard invalid keystrokes/pastes without
@@ -55,7 +57,9 @@ export function NumberInput(props: InputHTMLAttributes<HTMLInputElement>) {
   const { className = "", value, onChange, min, max, step, disabled, placeholder, ...rest } = props;
   const stepNum = step ? parseFloat(String(step)) || 1 : 1;
   const allowNegative = min !== undefined && min !== "" && parseFloat(String(min)) < 0;
-  const pattern = allowNegative ? /^-?\d*\.?\d*$/ : /^\d*\.?\d*$/;
+  // Accepts "," as well as "." for the decimal separator so German installers can type
+  // values the way they're used to (e.g. "0,27"); only one separator is allowed either way.
+  const pattern = allowNegative ? /^-?\d*[.,]?\d*$/ : /^\d*[.,]?\d*$/;
 
   const [text, setText] = useState(() => toText(value));
   const [focused, setFocused] = useState(false);
@@ -74,13 +78,13 @@ export function NumberInput(props: InputHTMLAttributes<HTMLInputElement>) {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const raw = e.target.value;
     if (raw !== "" && !pattern.test(raw)) return; // reject invalid characters (typed or pasted)
-    setText(raw);
-    emit(raw);
+    setText(raw); // keep the comma on screen as typed
+    emit(raw.replace(",", ".")); // normalize for parseFloat consumers downstream
   };
 
   const adjust = (delta: number) => {
     if (disabled || !onChange) return;
-    const current = parseFloat(text) || 0;
+    const current = parseFloat(text.replace(",", ".")) || 0;
     let next = current + delta;
     if (min !== undefined && min !== "") next = Math.max(next, parseFloat(String(min)));
     if (max !== undefined && max !== "") next = Math.min(next, parseFloat(String(max)));

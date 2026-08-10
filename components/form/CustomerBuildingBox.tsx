@@ -24,7 +24,7 @@ export function CustomerBuildingBox({ calc }: { calc: MieterstromCalculator }) {
           <TextInput value={form.kunde} onChange={onText("kunde")} placeholder="optional" />
         </div>
         <div>
-          <FieldLabel label="Installer" />
+          <FieldLabel label="Installateur " />
           <TextInput value={form.installer} onChange={onText("installer")} placeholder="optional" />
         </div>
         <div className="col-span-2">

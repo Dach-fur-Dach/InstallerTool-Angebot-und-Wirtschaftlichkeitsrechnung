@@ -33,13 +33,11 @@ export function buildPdfFilename(form: {
   return `${sanitizeFilenamePart(`${parts} - ${buildReferenceNumber()}`)}.pdf`;
 }
 
-// Renders the hidden print document (id="print-document") to a real PDF and
-// triggers a direct file download. Replaces window.print(): that route opens
-// the browser's print dialog, which requires the user to manually choose
-// "Save as PDF" rather than downloading a file outright.
-export async function downloadPrintDocumentAsPdf(filename: string) {
+// Renders the hidden print document (id="print-document") into a jsPDF instance.
+// Shared by the direct-download and email-sending flows so both produce identical output.
+async function renderPrintDocumentToPdf() {
   const container = document.getElementById("print-document");
-  if (!container) return;
+  if (!container) return null;
 
   const [{ default: html2canvas }, { jsPDF }] = await Promise.all([import("html2canvas-pro"), import("jspdf")]);
 
@@ -70,7 +68,7 @@ export async function downloadPrintDocumentAsPdf(filename: string) {
       pdf.addImage(imgData, "JPEG", 0, 0, A4_WIDTH_MM, A4_HEIGHT_MM);
     }
 
-    pdf.save(filename);
+    return pdf;
   } finally {
     container.style.display = prevStyle.display;
     container.style.position = prevStyle.position;
@@ -79,4 +77,22 @@ export async function downloadPrintDocumentAsPdf(filename: string) {
     container.style.width = prevStyle.width;
     container.style.background = prevStyle.background;
   }
+}
+
+// Renders the hidden print document (id="print-document") to a real PDF and
+// triggers a direct file download. Replaces window.print(): that route opens
+// the browser's print dialog, which requires the user to manually choose
+// "Save as PDF" rather than downloading a file outright.
+export async function downloadPrintDocumentAsPdf(filename: string) {
+  const pdf = await renderPrintDocumentToPdf();
+  if (!pdf) return;
+  pdf.save(filename);
+}
+
+// Renders the print document and returns it as a base64 string (no data: URI
+// prefix) so it can be sent as an email attachment via the send-pdf API route.
+export async function getPrintDocumentPdfBase64(): Promise<string | null> {
+  const pdf = await renderPrintDocumentToPdf();
+  if (!pdf) return null;
+  return pdf.output("datauristring").split(",")[1];
 }
