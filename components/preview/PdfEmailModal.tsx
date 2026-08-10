@@ -4,9 +4,10 @@ import { useState } from "react";
 import type { MieterstromCalculator } from "@/hooks/useMieterstromCalculator";
 import { OUTPUT_LABELS, type OutputKey } from "@/hooks/useMieterstromCalculator";
 import { CheckIcon, ChevronIcon, DragHandleIcon } from "@/components/ui/Icons";
+import { downloadPrintDocumentAsPdf, buildPdfFilename } from "@/lib/generatePdf";
 
 export function PdfEmailModal({ calc }: { calc: MieterstromCalculator }) {
-  const { pdfEmailModalOpen, setPdfEmailModalOpen, installerEmail, setInstallerEmail, activeOutputOrder, reorderOutputs, moveOutput } =
+  const { pdfEmailModalOpen, setPdfEmailModalOpen, installerEmail, setInstallerEmail, activeOutputOrder, reorderOutputs, moveOutput, form } =
     calc;
   const [sent, setSent] = useState(false);
   const [draggedKey, setDraggedKey] = useState<OutputKey | null>(null);
@@ -22,9 +23,10 @@ export function PdfEmailModal({ calc }: { calc: MieterstromCalculator }) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setSent(true);
+    const filename = buildPdfFilename(form);
     setTimeout(() => {
       close();
-      setTimeout(() => window.print(), 60);
+      downloadPrintDocumentAsPdf(filename);
     }, 700);
   };
 
@@ -45,8 +47,7 @@ export function PdfEmailModal({ calc }: { calc: MieterstromCalculator }) {
             <h3 className="m-0 mb-1.5 text-base font-extrabold text-[#0A1628]">PDF wird erstellt</h3>
             <p className="m-0 text-[13px] text-[#5B6472]">
               Der Versand an <span className="font-semibold text-[#1B2A3A]">{installerEmail}</span> ist eine
-              Demo-Funktion und erfolgt hier nicht wirklich. Der Druckdialog zum Speichern als PDF öffnet sich
-              gleich.
+              Demo-Funktion und erfolgt hier nicht wirklich. Der PDF-Download startet gleich.
             </p>
           </div>
         ) : (
