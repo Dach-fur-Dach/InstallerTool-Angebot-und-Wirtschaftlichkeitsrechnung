@@ -424,16 +424,30 @@ export function computeResults(f: FormState): ComputedResults {
   const flyerGrundversorgerJahr = flyerVerbrauchProWohnung * num(f.grundversorgerPreis) + num(f.grundversorgerGrundgebuehr) * 12;
   const flyerErsparnisJahr = flyerGrundversorgerJahr - flyerMieterstromJahr;
 
+  // Die 3%ige Strompreissteigerung p.a. betrifft nur die strompreisgekoppelten Positionen
+  // (Arbeitspreise für Solar-/Netzstrom-Einnahmen und den Reststrom-Einkauf). Pauschale
+  // Jahresgebühren (Grundgebühr, Versicherung, Abrechnung, Zählergebühr, Netz-Grundgebühr)
+  // sowie der gesetzlich fixierte Mieterstromzuschlag bleiben nominal konstant. Zuvor wurden
+  // hier sämtliche Einnahmen eskaliert, während die Betriebskosten komplett konstant blieben –
+  // das hat den kumulierten Gewinn nach 20 Jahren gegenüber dem Referenz-Kalkulator (Google
+  // Sheet) fast verdoppelt.
+  const einnahmenVariabel = einnahmenSolarstrom + einnahmenNetzstrom + einnahmenEinspeisung;
+  const einnahmenFix = einnahmenGrundgebuehr + einnahmenZuschlag;
+  const betriebVariabel = betriebNetzstrom;
+  const betriebFix = betriebVersicherung + betriebAbrechnung + betriebNetzstromGrundgebuehr + betriebZaehler;
+
   const series: number[] = [];
   const seriesYearly: YearlySeriesEntry[] = [];
   let cum = -investition;
   let breakEvenYear: number | null = null;
   for (let t = 0; t < 20; t++) {
-    const jahresEinnahmen = einnahmen * Math.pow(1.03, t);
-    const jahresGewinn = jahresEinnahmen - betrieb;
+    const eskalation = Math.pow(1.03, t);
+    const jahresEinnahmen = einnahmenVariabel * eskalation + einnahmenFix;
+    const jahresBetrieb = betriebVariabel * eskalation + betriebFix;
+    const jahresGewinn = jahresEinnahmen - jahresBetrieb;
     cum += jahresGewinn;
     series.push(cum);
-    seriesYearly.push({ jahresEinnahmen, betrieb, jahresGewinn });
+    seriesYearly.push({ jahresEinnahmen, betrieb: jahresBetrieb, jahresGewinn });
     if (breakEvenYear === null && cum >= 0) breakEvenYear = t + 1;
   }
   const gewinn20 = cum;
