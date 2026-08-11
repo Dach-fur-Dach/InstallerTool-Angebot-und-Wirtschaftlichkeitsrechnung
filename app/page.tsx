@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef } from "react";
+import { Suspense, useEffect, useRef } from "react";
+import { useSearchParams } from "next/navigation";
 import { CustomerBuildingBox } from "@/components/form/CustomerBuildingBox";
 import { MieterstromModelBox } from "@/components/form/MieterstromModelBox";
 import { WirtschaftGate } from "@/components/form/WirtschaftGate";
@@ -17,10 +18,11 @@ import { PdfEmailModal } from "@/components/preview/PdfEmailModal";
 import { PrintDocument } from "@/components/preview/PrintDocument";
 import { useMieterstromCalculator } from "@/hooks/useMieterstromCalculator";
 
-export default function Home() {
+function HomeContent() {
   const calc = useMieterstromCalculator();
   const flyerRef = useRef<HTMLDivElement>(null);
   const anyOutput = calc.outputs.wirtschaft || calc.outputs.angebot || calc.outputs.flyer;
+  const isEmbedded = useSearchParams().get("embed") === "1";
 
   useEffect(() => {
     if (calc.outputs.flyer) {
@@ -32,14 +34,18 @@ export default function Home() {
   }, [calc.outputs.flyer]);
 
   return (
-    <div className="min-h-screen box-border px-6 pt-7 pb-20">
+    <div className={`min-h-screen box-border px-6 pb-20 ${isEmbedded ? "bg-white pt-4" : "pt-7"}`}>
       <div className="mx-auto max-w-[1560px] print:hidden">
         <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-3.5">
-            <Image src="/logo.png" alt="Dach für Dach" height={64} width={264} className="h-16 w-auto" priority />
-            <div className="h-[26px] w-px bg-[rgba(10,22,40,0.12)]" />
-            <div className="text-[12.5px] font-semibold text-[#5B6472]">Mieterstrom-Rechner</div>
-          </div>
+          {isEmbedded ? (
+            <div />
+          ) : (
+            <div className="flex items-center gap-3.5">
+              <Image src="/logo.png" alt="Dach für Dach" height={64} width={264} className="h-16 w-auto" priority />
+              <div className="h-[26px] w-px bg-[rgba(10,22,40,0.12)]" />
+              <div className="text-[12.5px] font-semibold text-[#5B6472]">Mieterstrom-Rechner</div>
+            </div>
+          )}
           <div className="flex items-center gap-5">
             <OutputControls calc={calc} />
             <button
@@ -87,5 +93,13 @@ export default function Home() {
       <PdfEmailModal calc={calc} />
       <PrintDocument calc={calc} />
     </div>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={null}>
+      <HomeContent />
+    </Suspense>
   );
 }
