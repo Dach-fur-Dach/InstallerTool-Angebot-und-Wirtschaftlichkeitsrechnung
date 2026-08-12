@@ -71,8 +71,8 @@ export const FlyerPanel = forwardRef<HTMLDivElement, { calc: MieterstromCalculat
 
         <div className="grid grid-cols-[1.3fr_1fr_1fr] border-t border-[#EDF1F6] text-[12.5px] text-[#1B2A3A]">
           <div className="px-3.5 py-2.5 text-[#5B6472]">Strombedarf Wohnung</div>
-          <div className="px-3 py-2.5 text-center font-semibold">{fmtInt(r.flyerVerbrauchProWohnung)} kWh</div>
-          <div className="bg-[#F5FBFE] px-3 py-2.5 text-center font-semibold">{fmtInt(r.flyerVerbrauchProWohnung)} kWh</div>
+          <div className="px-3 py-2.5 text-center font-semibold">{fmt2(r.flyerVerbrauchProWohnung)} kWh</div>
+          <div className="bg-[#F5FBFE] px-3 py-2.5 text-center font-semibold">{fmt2(r.flyerVerbrauchProWohnung)} kWh</div>
         </div>
 
         <div className="grid grid-cols-[1.3fr_1fr_1fr] border-t border-[#EDF1F6] text-[12.5px] text-[#1B2A3A]">
@@ -107,7 +107,8 @@ export const FlyerPanel = forwardRef<HTMLDivElement, { calc: MieterstromCalculat
         *Berechnung basierend auf {fmt1(solarAnteilPct)}% Solarstromanteil ({fmt2(solarPreis)} €/kWh) und{" "}
         {fmt1(netzAnteilPct)}% Reststromanteil ({fmt2(netzPreis)} €/kWh)
         <br />
-        Kein Risiko – Selbst bei 100% Reststromanteil sparen Sie in diesem Modell noch.
+        
+        Kein Risiko - Selbst bei 100% Reststromanteil zahlen Sie in diesem Modell nicht mehr als in der Grundversorgung.
       </div>
     </div>
   );
