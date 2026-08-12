@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { fmt1, fmtInt } from "@/lib/calculator";
+import { fmt1, fmt2, fmtInt } from "@/lib/calculator";
 import type { MieterstromCalculator } from "@/hooks/useMieterstromCalculator";
 import { Collapse } from "@/components/ui/Collapse";
 import { ChevronIcon } from "@/components/ui/Icons";
@@ -39,7 +39,7 @@ export function ImmobilieSection({ calc, printMode = false }: { calc: Mieterstro
         <Row label="Verbrauch Mieterstrom" value={`${fmtInt(r.verbrauchMieterstrom)} kWh`} />
         <Row label="Verbrauch Wärmepumpe" value={r.wpAktiv ? `${fmtInt(r.wpVerbrauch)} kWh` : "–"} />
         <Row label="PV-Anlage" value={`${fmt1(r.pvGroesse)} kWp`} />
-        <Row label="PV-Speicher" value={`${fmtInt(r.speicher)} kWh`} />
+        <Row label="PV-Speicher" value={`${fmt2(r.speicher)} kWh`} />
         <Row label="PV-Erzeugung" value={`${fmtInt(r.pvErtrag)} kWh`} />
         <Row label="Eigenverbrauch Mieterstrom" value={`${fmtInt(r.eigenverbrauchMieterstrom)} kWh`} />
         <Row label="Netzstrombedarf (Wohnungen)" value={`${fmtInt(r.netzMieterstrom)} kWh`} />
