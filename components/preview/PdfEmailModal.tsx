@@ -3,7 +3,7 @@
 import { useState } from "react";
 import type { MieterstromCalculator } from "@/hooks/useMieterstromCalculator";
 import { OUTPUT_LABELS, type OutputKey } from "@/hooks/useMieterstromCalculator";
-import { CheckIcon, ChevronIcon, DragHandleIcon } from "@/components/ui/Icons";
+import { CheckIcon, ChevronIcon, DragHandleIcon, InfoIcon } from "@/components/ui/Icons";
 import { downloadPrintDocumentAsPdf, buildPdfFilename } from "@/lib/generatePdf";
 
 export function PdfEmailModal({ calc }: { calc: MieterstromCalculator }) {
@@ -12,6 +12,7 @@ export function PdfEmailModal({ calc }: { calc: MieterstromCalculator }) {
   const [sent, setSent] = useState(false);
   const [draggedKey, setDraggedKey] = useState<OutputKey | null>(null);
   const [dragOverKey, setDragOverKey] = useState<OutputKey | null>(null);
+  const [showEmailInfo, setShowEmailInfo] = useState(false);
 
   if (!pdfEmailModalOpen) return null;
 
@@ -52,7 +53,22 @@ export function PdfEmailModal({ calc }: { calc: MieterstromCalculator }) {
           </div>
         ) : (
           <form onSubmit={handleSubmit}>
-            <h3 className="m-0 mb-1.5 text-base font-extrabold text-[#0A1628]">E-Mail des Installateurs</h3>
+            <div className="mb-1.5 flex items-center gap-1.5">
+              <h3 className="m-0 text-base font-extrabold text-[#0A1628]">E-Mail des Installateurs</h3>
+              <button
+                type="button"
+                onClick={() => setShowEmailInfo((v) => !v)}
+                title="Hinweis zum E-Mail-Versand"
+                className="flex h-4 w-4 shrink-0 cursor-pointer items-center justify-center rounded-full text-[#98A2B3] hover:text-[#3AA8DC]"
+              >
+                <InfoIcon />
+              </button>
+            </div>
+            {showEmailInfo && (
+              <p className="m-0 mb-3 rounded-lg bg-[#EAF6FC] px-3 py-2 text-[12.5px] text-[#1B2A3A]">
+                Der E-Mail-Versand funktioniert aktuell noch nicht, ist aber in den nächsten Tagen verfügbar.
+              </p>
+            )}
             <p className="m-0 mb-4 text-[13px] text-[#5B6472]">
               Bitte E-Mail-Adresse angeben, an die das PDF gesendet werden soll.
             </p>

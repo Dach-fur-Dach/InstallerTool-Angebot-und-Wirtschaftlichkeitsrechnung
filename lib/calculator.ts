@@ -312,7 +312,14 @@ export function computeResults(f: FormState): ComputedResults {
   if (wpAktiv && f.wpSzenario === "pv_optimiert") quote += 0.04;
   quote = Math.min(0.85, quote);
 
-  const eigenverbrauchGesamt = Math.min(pvErtrag, verbrauchGesamt) * quote;
+  // eigenverbrauchGesamt muss immer aus pvErtrag * quote berechnet werden (quote ist als
+  // Eigenverbrauchsquote kalibriert, also Anteil der PV-Erzeugung). verbrauchGesamt/pvErtrag
+  // dienen hier nur als physikalische Obergrenzen (mehr Eigenverbrauch als erzeugt oder
+  // verbraucht ist unmöglich) und dürfen NICHT anstelle von pvErtrag mit quote multipliziert
+  // werden - das würde quote bei großzügig dimensionierten Anlagen (pvErtrag > verbrauchGesamt,
+  // der Normalfall ohne Wärmepumpe) faktisch zum Autarkiegrad statt zur Eigenverbrauchsquote
+  // machen und beide Kennzahlen inkonsistent zueinander werden lassen.
+  const eigenverbrauchGesamt = Math.min(pvErtrag * quote, verbrauchGesamt, pvErtrag);
 
   // Die Eigenverbrauchsmenge wird nicht linear proportional zum Verbrauch auf Mieterstrom und
   // Wärmepumpe verteilt: Wärmepumpen-Lasten korrelieren zeitlich schlechter mit der PV-Erzeugung

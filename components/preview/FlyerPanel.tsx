@@ -107,7 +107,6 @@ export const FlyerPanel = forwardRef<HTMLDivElement, { calc: MieterstromCalculat
         *Berechnung basierend auf {fmt1(solarAnteilPct)}% Solarstromanteil ({fmt2(solarPreis)} €/kWh) und{" "}
         {fmt1(netzAnteilPct)}% Reststromanteil ({fmt2(netzPreis)} €/kWh)
         <br />
-        
         Kein Risiko - Selbst bei 100% Reststromanteil zahlen Sie in diesem Modell nicht mehr als in der Grundversorgung.
       </div>
     </div>
