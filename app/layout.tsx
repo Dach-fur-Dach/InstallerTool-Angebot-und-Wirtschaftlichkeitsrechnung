@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { DM_Sans } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import { LoadingScreen } from "@/components/ui/LoadingScreen";
 
@@ -24,6 +25,7 @@ export default function RootLayout({
       <body className="dfd-wave-bg min-h-full">
         <LoadingScreen />
         {children}
+        <Analytics />
       </body>
     </html>
   );
