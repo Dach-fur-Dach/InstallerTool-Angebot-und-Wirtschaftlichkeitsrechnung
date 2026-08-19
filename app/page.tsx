@@ -3,6 +3,8 @@
 import Image from "next/image";
 import { Suspense, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
+import { track } from "@vercel/analytics";
+import { trackEvent } from "@/lib/umami";
 import { CustomerBuildingBox } from "@/components/form/CustomerBuildingBox";
 import { MieterstromModelBox } from "@/components/form/MieterstromModelBox";
 import { WirtschaftGate } from "@/components/form/WirtschaftGate";
@@ -51,7 +53,11 @@ function HomeContent() {
             <button
               type="button"
               disabled={!anyOutput}
-              onClick={() => calc.setPdfEmailModalOpen(true)}
+              onClick={() => {
+                track("pdf_button_click");
+                trackEvent("pdf_button_click");
+                calc.setPdfEmailModalOpen(true);
+              }}
               title={anyOutput ? "PDF mit den ausgewählten Inhalten erstellen" : "Bitte mindestens einen Inhalt auswählen"}
               className={
                 anyOutput

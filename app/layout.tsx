@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { DM_Sans } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
@@ -26,6 +27,11 @@ export default function RootLayout({
         <LoadingScreen />
         {children}
         <Analytics />
+        <Script
+          defer
+          src="https://cloud.umami.is/script.js"
+          data-website-id="928ab8bf-f5f1-4548-8c9a-b4850e62407f"
+        />
       </body>
     </html>
   );

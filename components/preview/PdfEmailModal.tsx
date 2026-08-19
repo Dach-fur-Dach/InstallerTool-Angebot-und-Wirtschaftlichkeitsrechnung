@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { track } from "@vercel/analytics";
+import { trackEvent } from "@/lib/umami";
 import type { MieterstromCalculator } from "@/hooks/useMieterstromCalculator";
 import { OUTPUT_LABELS, type OutputKey } from "@/hooks/useMieterstromCalculator";
 import { CheckIcon, ChevronIcon, DragHandleIcon, InfoIcon } from "@/components/ui/Icons";
@@ -25,6 +27,8 @@ export function PdfEmailModal({ calc }: { calc: MieterstromCalculator }) {
     e.preventDefault();
     setSent(true);
     const filename = buildPdfFilename(form);
+    track("pdf_downloaded");
+    trackEvent("pdf_downloaded");
     setTimeout(() => {
       close();
       downloadPrintDocumentAsPdf(filename);
