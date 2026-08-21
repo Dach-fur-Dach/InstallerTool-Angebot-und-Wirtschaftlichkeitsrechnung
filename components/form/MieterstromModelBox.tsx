@@ -5,9 +5,11 @@ import { CollapsibleBox } from "@/components/ui/CollapsibleBox";
 import { FieldLabel, NumberInput, SelectInput, YesNoToggle } from "@/components/ui/Field";
 import { WarningIcon } from "@/components/ui/Icons";
 import type { MieterstromCalculator } from "@/hooks/useMieterstromCalculator";
+import { MesskonzeptDiagram } from "@/components/form/MesskonzeptDiagram";
 
 export function MieterstromModelBox({ calc }: { calc: MieterstromCalculator }) {
-  const { form, onNum, onText, setBool, box2Open, setBox2Open, wandlerWarning } = calc;
+  const { form, onNum, onText, setBool, box2Open, setBox2Open, wandlerWarning, messkonzeptExpanded, setMesskonzeptExpanded } =
+    calc;
 
   return (
     <CollapsibleBox
@@ -88,9 +90,7 @@ export function MieterstromModelBox({ calc }: { calc: MieterstromCalculator }) {
         <span className="text-[12.5px] font-semibold text-[#1B2A3A]">Wandlermessung für Summenzähler prüfen</span>
       </Collapse>
 
-      {/* Messkonzept (erweitert) is disabled for now per team feedback ("kein Nutzen aktuell").
-          Left in place, commented out, in case it's needed again later. */}
-      {/* <div
+      <div
         onClick={() => setMesskonzeptExpanded(!messkonzeptExpanded)}
         className="mt-[18px] flex cursor-pointer items-center justify-between border-t border-[#EDF1F6] pt-3.5"
       >
@@ -99,23 +99,8 @@ export function MieterstromModelBox({ calc }: { calc: MieterstromCalculator }) {
       </div>
 
       <Collapse open={messkonzeptExpanded} innerClassName="mt-3.5">
-        <div className="mb-2.5 text-[11.5px] text-[#98A2B3]">
-          Reihenfolge der Zähler am Summenzähler — klicken zum Umbenennen.
-        </div>
-        <div className="flex flex-wrap items-center gap-1.5">
-          {messkonzeptSlots.map((slot, i) => (
-            <div key={i} className="flex items-center gap-1.5">
-              <input
-                type="text"
-                value={slot.label}
-                onChange={(e) => setMesskonzeptLabel(i, e.target.value)}
-                className="w-[76px] rounded-lg border border-[#D0D5DD] bg-[#F8FAFC] px-1.5 py-2 text-center text-xs font-bold text-[#0A1628]"
-              />
-              {slot.hasArrow && <ArrowRightIcon className="text-[#B0B8C4]" />}
-            </div>
-          ))}
-        </div>
-      </Collapse> */}
+        <MesskonzeptDiagram form={form} />
+      </Collapse>
     </CollapsibleBox>
   );
 }

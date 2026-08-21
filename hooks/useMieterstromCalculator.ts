@@ -35,8 +35,6 @@ export const OUTPUT_LABELS: Record<OutputKey, string> = {
 
 const DEFAULT_OUTPUT_ORDER: OutputKey[] = ["angebot", "wirtschaft", "flyer"];
 
-const DEFAULT_MESSKONZEPT_LABELS = ["SZ", "PV", "AS", "WP", "WE1"];
-
 export function useMieterstromCalculator() {
   const [form, setForm] = useState<FormState>(DEFAULTS);
   const results = useMemo(() => computeResults(form), [form]);
@@ -44,7 +42,6 @@ export function useMieterstromCalculator() {
 
   const [showRechnungsadresse, setShowRechnungsadresse] = useState(false);
   const [messkonzeptExpanded, setMesskonzeptExpanded] = useState(false);
-  const [messkonzeptLabels, setMesskonzeptLabels] = useState<string[]>(DEFAULT_MESSKONZEPT_LABELS);
   const [messtechnikExpanded, setMesstechnikExpanded] = useState(false);
 
   const [box1Open, setBox1Open] = useState(true);
@@ -106,14 +103,6 @@ export function useMieterstromCalculator() {
     [update]
   );
 
-  const setMesskonzeptLabel = useCallback((i: number, value: string) => {
-    setMesskonzeptLabels((prev) => {
-      const next = [...prev];
-      next[i] = value;
-      return next;
-    });
-  }, []);
-
   const setWirtschaftBenoetigt = useCallback((val: "ja" | "nein") => {
     setWirtschaftBenoetigtState(val);
     setBox3Open(val === "ja");
@@ -170,15 +159,6 @@ export function useMieterstromCalculator() {
   const angebotReady = num(form.wohneinheiten) > 0 || num(form.gewerbeeinheiten) > 0;
   const tier2VisualOpacity = wirtschaftBenoetigt === "nein" ? 0.5 : 1;
 
-  const messkonzeptSlots = useMemo(
-    () =>
-      messkonzeptLabels.map((label, i) => ({
-        label,
-        hasArrow: i < messkonzeptLabels.length - 1,
-      })),
-    [messkonzeptLabels]
-  );
-
   const activeOutputOrder = useMemo(() => outputOrder.filter((key) => outputs[key]), [outputOrder, outputs]);
 
   return {
@@ -194,8 +174,6 @@ export function useMieterstromCalculator() {
     setShowRechnungsadresse,
     messkonzeptExpanded,
     setMesskonzeptExpanded,
-    messkonzeptSlots,
-    setMesskonzeptLabel,
     messtechnikExpanded,
     setMesstechnikExpanded,
 
