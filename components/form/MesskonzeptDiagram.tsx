@@ -59,14 +59,15 @@ function NodeRow({ nodes }: { nodes: string[] }) {
   );
 }
 
-// The bus line only spans from the first meter's connector to the last one's — each connector
-// sits at the horizontal center of its (equal-width) column, so that center point is at
-// (index + 0.5) / count of the row's width, giving a symmetric inset of 50/count % per side.
+// The bus line always starts at Netz (the left edge of this column, right after the Netz/Z1
+// label) and stops at the last meter's connector rather than running past it. Each connector
+// sits at the horizontal center of its (equal-width) column, so the last one's center is at
+// (count - 0.5) / count of the row's width, giving a right inset of 50/count %.
 function Bus({ nodes }: { nodes: string[] }) {
-  const inset = `${50 / nodes.length}%`;
+  const rightInset = `${50 / nodes.length}%`;
   return (
     <div>
-      <div className="h-px bg-[#3AA8DC]" style={{ marginLeft: inset, marginRight: inset }} />
+      <div className="h-px bg-[#3AA8DC]" style={{ marginRight: rightInset }} />
       <NodeRow nodes={nodes} />
     </div>
   );
