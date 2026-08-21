@@ -68,7 +68,7 @@ export function MesskonzeptDiagram({ form }: { form: FormState }) {
         </span>
 
         {isPhysisch && (
-          <div className="absolute left-11 top-[22px] flex h-7 items-center justify-center rounded-md border-2 border-[#3AA8DC] bg-[#EAF6FC] px-2.5 text-[11px] font-bold text-[#1B2A3A]">
+          <div className="absolute left-8 top-[22px] flex h-7 items-center justify-center rounded-md border-2 border-[#3AA8DC] bg-[#EAF6FC] px-2.5 text-[11px] font-bold text-[#1B2A3A]">
             Z1
           </div>
         )}
