@@ -51,7 +51,8 @@ function Page3({ calc }: { calc: MieterstromCalculator }) {
         <div className="mb-1.5 text-[12.5px] font-semibold text-white/85">Gewinn nach 20 Jahren</div>
         <div className="text-[28px] font-extrabold tracking-tight text-white">{fmtInt(r.gewinn20)} €</div>
         <div className="mt-2 text-[11px] text-white/80 italic">
-          Die Berechnungen basieren auf einer angenommenen Strompreissteigerung von 3% pro Jahr.
+          Die Berechnungen basieren auf einer angenommenen Strompreissteigerung von{" "}
+          {r.steigerungProzent.toLocaleString("de-DE")}% pro Jahr.
         </div>
       </div>
     </>

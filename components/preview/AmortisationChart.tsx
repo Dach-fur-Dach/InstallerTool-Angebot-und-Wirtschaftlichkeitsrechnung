@@ -3,11 +3,10 @@
 import { chartBarsKumuliert, chartPhase, chartYearLabels } from "@/lib/charts";
 import type { MieterstromCalculator } from "@/hooks/useMieterstromCalculator";
 
-const CAPTION = "Kumulierter Gewinn/Verlust nach Investition, unter Annahme von 3% Strompreissteigerung p.a.";
-
 export function AmortisationChart({ calc }: { calc: MieterstromCalculator }) {
   const { results: r } = calc;
   const phase = chartPhase(r);
+  const caption = `Kumulierter Gewinn/Verlust nach Investition, unter Annahme von ${r.steigerungProzent.toLocaleString("de-DE")}% Strompreissteigerung p.a.`;
 
   return (
     <div className="mt-3.5 break-inside-avoid">
@@ -37,7 +36,7 @@ export function AmortisationChart({ calc }: { calc: MieterstromCalculator }) {
         </div>
       </div>
 
-      <div className="mt-1.5 text-[11px] text-[#98A2B3]">{CAPTION}</div>
+      <div className="mt-1.5 text-[11px] text-[#98A2B3]">{caption}</div>
     </div>
   );
 }

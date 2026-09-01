@@ -1,20 +1,58 @@
 "use client";
 
-import { ReactNode, SelectHTMLAttributes, InputHTMLAttributes, useState } from "react";
+import { ReactNode, SelectHTMLAttributes, InputHTMLAttributes, useRef, useState } from "react";
+import { InfoIcon } from "@/components/ui/Icons";
 
 interface FieldLabelProps {
   label: string;
   required?: boolean;
   className?: string;
   children?: ReactNode;
+  info?: string;
 }
 
-export function FieldLabel({ label, required, className = "", children }: FieldLabelProps) {
+export function FieldLabel({ label, required, className = "", children, info }: FieldLabelProps) {
   return (
-    <label className={`mb-1.5 block text-[12.5px] font-semibold text-[#344054] ${className}`}>
-      {label} {required && <span className="text-[#3AA8DC]">*</span>}
+    <label className={`mb-1.5 flex items-center gap-1 text-[12.5px] font-semibold text-[#344054] ${className}`}>
+      <span>
+        {label} {required && <span className="text-[#3AA8DC]">*</span>}
+      </span>
+      {info && <InfoTooltip text={info} />}
       {children}
     </label>
+  );
+}
+
+// Positioned with a JS-measured `fixed` coordinate (not CSS absolute + group-hover) for two
+// reasons: it shows instantly on mouseenter with no transition/OS-tooltip delay, and `fixed`
+// escapes the `overflow-hidden` collapse-animation wrapper that clipped an absolutely
+// positioned tooltip near the top of a CollapsibleBox.
+export function InfoTooltip({ text }: { text: string }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
+
+  const show = () => {
+    const rect = ref.current?.getBoundingClientRect();
+    if (rect) setPos({ top: rect.bottom + 6, left: rect.left + rect.width / 2 });
+  };
+
+  return (
+    <span
+      ref={ref}
+      onMouseEnter={show}
+      onMouseLeave={() => setPos(null)}
+      className="inline-flex shrink-0 cursor-help items-center font-normal text-[#98A2B3] hover:text-[#3AA8DC]"
+    >
+      <InfoIcon className="h-3 w-3" />
+      {pos && (
+        <span
+          style={{ top: pos.top, left: pos.left }}
+          className="pointer-events-none fixed z-50 w-56 -translate-x-1/2 rounded-lg bg-[#1B2A3A] px-2.5 py-1.5 text-[11px] font-normal normal-case leading-snug text-white shadow-lg"
+        >
+          {text}
+        </span>
+      )}
+    </span>
   );
 }
 

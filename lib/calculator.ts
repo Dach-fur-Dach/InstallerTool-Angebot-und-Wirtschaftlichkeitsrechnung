@@ -43,6 +43,7 @@ export interface FormState {
   grundgebuehr: number | "";
   grundversorgerPreis: number | "";
   grundversorgerGrundgebuehr: number | "";
+  strompreisSteigerung: number | "";
 }
 
 export const DEFAULTS: FormState = {
@@ -84,6 +85,7 @@ export const DEFAULTS: FormState = {
   grundgebuehr: 10.0,
   grundversorgerPreis: 0.35,
   grundversorgerGrundgebuehr: 15.0,
+  strompreisSteigerung: 3,
 };
 
 const YIELD: Record<PvSzenario, number> = { steildach: 950, flachdach: 850 };
@@ -218,6 +220,7 @@ export interface ComputedResults {
   einnahmenEinspeisung: number;
   einnahmenZuschlag: number;
   gewinn20: number;
+  steigerungProzent: number;
   series: number[];
   seriesYearly: YearlySeriesEntry[];
   breakEvenYear: number | null;
@@ -434,13 +437,14 @@ export function computeResults(f: FormState): ComputedResults {
   const flyerGrundversorgerJahr = flyerVerbrauchProWohnung * num(f.grundversorgerPreis) + num(f.grundversorgerGrundgebuehr) * 12;
   const flyerErsparnisJahr = flyerGrundversorgerJahr - flyerMieterstromJahr;
 
-  // Die 3%ige Strompreissteigerung p.a. betrifft nur die strompreisgekoppelten Positionen
-  // (Arbeitspreise für Solar-/Netzstrom-Einnahmen und den Reststrom-Einkauf). Pauschale
-  // Jahresgebühren (Grundgebühr, Versicherung, Abrechnung, Zählergebühr, Netz-Grundgebühr)
-  // sowie der gesetzlich fixierte Mieterstromzuschlag bleiben nominal konstant. Zuvor wurden
-  // hier sämtliche Einnahmen eskaliert, während die Betriebskosten komplett konstant blieben –
-  // das hat den kumulierten Gewinn nach 20 Jahren gegenüber dem Referenz-Kalkulator (Google
-  // Sheet) fast verdoppelt.
+  // Die Strompreissteigerung p.a. (editierbar über f.strompreisSteigerung, Standard 3%) betrifft
+  // nur die strompreisgekoppelten Positionen (Arbeitspreise für Solar-/Netzstrom-Einnahmen und
+  // den Reststrom-Einkauf). Pauschale Jahresgebühren (Grundgebühr, Versicherung, Abrechnung,
+  // Zählergebühr, Netz-Grundgebühr) sowie der gesetzlich fixierte Mieterstromzuschlag bleiben
+  // nominal konstant. Zuvor wurden hier sämtliche Einnahmen eskaliert, während die
+  // Betriebskosten komplett konstant blieben – das hat den kumulierten Gewinn nach 20 Jahren
+  // gegenüber dem Referenz-Kalkulator (Google Sheet) fast verdoppelt.
+  const steigerungProzent = num(f.strompreisSteigerung, 3);
   const einnahmenVariabel = einnahmenSolarstrom + einnahmenNetzstrom + einnahmenEinspeisung;
   const einnahmenFix = einnahmenGrundgebuehr + einnahmenZuschlag;
   const betriebVariabel = betriebNetzstrom;
@@ -451,7 +455,7 @@ export function computeResults(f: FormState): ComputedResults {
   let cum = -investition;
   let breakEvenYear: number | null = null;
   for (let t = 0; t < 20; t++) {
-    const eskalation = Math.pow(1.03, t);
+    const eskalation = Math.pow(1 + steigerungProzent / 100, t);
     const jahresEinnahmen = einnahmenVariabel * eskalation + einnahmenFix;
     const jahresBetrieb = betriebVariabel * eskalation + betriebFix;
     const jahresGewinn = jahresEinnahmen - jahresBetrieb;
@@ -525,6 +529,7 @@ export function computeResults(f: FormState): ComputedResults {
     einnahmenEinspeisung,
     einnahmenZuschlag,
     gewinn20,
+    steigerungProzent,
     series,
     seriesYearly,
     breakEvenYear,
