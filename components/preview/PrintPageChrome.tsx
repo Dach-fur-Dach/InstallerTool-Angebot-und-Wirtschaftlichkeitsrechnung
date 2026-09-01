@@ -8,9 +8,13 @@ const FOOTER_COLUMNS = [
   ["Bankverbindung", "IBAN: DE58 1001 0123 7656 9865 67", "BIC: QNTODEB2XXX"],
 ];
 
-export function PrintPageHeader() {
+export function PrintPageHeader({ installerLogo }: { installerLogo?: string | null } = {}) {
   return (
-    <div className="mb-4 flex justify-end">
+    <div className="mb-4 flex items-center justify-end gap-3">
+      {installerLogo && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={installerLogo} alt="Installateur-Logo" className="h-9 w-auto max-w-[130px] object-contain" />
+      )}
       <Image src="/logo.png" alt="Dach für Dach" height={44} width={184} className="h-11 w-auto" />
     </div>
   );

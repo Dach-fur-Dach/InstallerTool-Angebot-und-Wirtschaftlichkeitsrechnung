@@ -186,6 +186,35 @@ export function SelectInput(props: SelectHTMLAttributes<HTMLSelectElement>) {
   );
 }
 
+interface ToggleSwitchProps {
+  label: string;
+  checked: boolean;
+  onChange: () => void;
+}
+
+export function ToggleSwitch({ label, checked, onChange }: ToggleSwitchProps) {
+  return (
+    <label className="flex cursor-pointer items-center justify-between gap-2.5 rounded-lg border border-[#E5EAF1] bg-[#FCFBF9] px-3 py-2.5">
+      <span className="text-[13px] font-medium text-[#1B2A3A]">{label}</span>
+      <button
+        type="button"
+        role="switch"
+        aria-checked={checked}
+        onClick={onChange}
+        className={`relative h-5 w-9 shrink-0 cursor-pointer rounded-full border-0 p-0 transition-colors ${
+          checked ? "bg-[#3AA8DC]" : "bg-[#D0D5DD]"
+        }`}
+      >
+        <span
+          className={`absolute top-0.5 left-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform ${
+            checked ? "translate-x-[16px]" : "translate-x-0"
+          }`}
+        />
+      </button>
+    </label>
+  );
+}
+
 interface YesNoToggleProps {
   label: string;
   value: boolean;

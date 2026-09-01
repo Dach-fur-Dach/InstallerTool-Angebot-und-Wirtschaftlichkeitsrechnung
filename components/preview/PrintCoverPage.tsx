@@ -16,13 +16,17 @@ function buildSubtitle(outputs: OutputsState) {
   return `${active.slice(0, -1).join(", ")} & ${active[active.length - 1]}`;
 }
 
-export function PrintCoverPage({ outputs }: { outputs: OutputsState }) {
+export function PrintCoverPage({ outputs, installerLogo }: { outputs: OutputsState; installerLogo?: string | null }) {
   const subtitle = buildSubtitle(outputs);
 
   return (
     <div className="break-after-page isolate relative flex h-[296mm] flex-col p-[14mm_12mm]">
       <div className="dfd-print-gradient dfd-print-bleed" aria-hidden="true" />
-      <div className="flex justify-end">
+      <div className="flex items-center justify-end gap-3">
+        {installerLogo && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={installerLogo} alt="Installateur-Logo" className="h-9 w-auto max-w-[130px] object-contain" />
+        )}
         <Image src="/logo.png" alt="Dach für Dach" height={44} width={184} className="h-11 w-auto" />
       </div>
       <div className="mt-10">

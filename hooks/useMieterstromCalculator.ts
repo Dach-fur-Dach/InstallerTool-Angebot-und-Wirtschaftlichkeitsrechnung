@@ -1,7 +1,9 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { DEFAULTS, FormState, computeResults, num } from "@/lib/calculator";
+
+const INSTALLER_LOGO_STORAGE_KEY = "d4d_installer_logo";
 
 export type WirtschaftBenoetigt = "ja" | "nein" | null;
 
@@ -23,6 +25,7 @@ export interface OutputsState {
   wirtschaft: boolean;
   angebot: boolean;
   flyer: boolean;
+  messkonzept: boolean;
 }
 
 export type OutputKey = keyof OutputsState;
@@ -31,9 +34,10 @@ export const OUTPUT_LABELS: Record<OutputKey, string> = {
   angebot: "Angebot",
   wirtschaft: "Wirtschaftlichkeit",
   flyer: "Mieter-Flyer",
+  messkonzept: "Messkonzept",
 };
 
-const DEFAULT_OUTPUT_ORDER: OutputKey[] = ["angebot", "wirtschaft", "flyer"];
+const DEFAULT_OUTPUT_ORDER: OutputKey[] = ["angebot", "wirtschaft", "flyer", "messkonzept"];
 
 export function useMieterstromCalculator() {
   const [form, setForm] = useState<FormState>(DEFAULTS);
@@ -53,7 +57,12 @@ export function useMieterstromCalculator() {
   const [wirtschaftBenoetigt, setWirtschaftBenoetigtState] = useState<WirtschaftBenoetigt>(null);
   const [wirtschaftPanelOpen, setWirtschaftPanelOpen] = useState(false);
 
-  const [outputs, setOutputs] = useState<OutputsState>({ wirtschaft: true, angebot: true, flyer: false });
+  const [outputs, setOutputs] = useState<OutputsState>({
+    wirtschaft: true,
+    angebot: true,
+    flyer: false,
+    messkonzept: false,
+  });
   const [outputOrder, setOutputOrder] = useState<OutputKey[]>(DEFAULT_OUTPUT_ORDER);
   const [betriebOpen, setBetriebOpen] = useState<BetriebOpenState>({
     versicherung: false,
@@ -63,6 +72,18 @@ export function useMieterstromCalculator() {
   });
   const [pdfEmailModalOpen, setPdfEmailModalOpen] = useState(false);
   const [installerEmail, setInstallerEmail] = useState("");
+  const [installerLogo, setInstallerLogoState] = useState<string | null>(null);
+
+  useEffect(() => {
+    const stored = window.localStorage.getItem(INSTALLER_LOGO_STORAGE_KEY);
+    if (stored) setInstallerLogoState(stored);
+  }, []);
+
+  const setInstallerLogo = useCallback((dataUrl: string | null) => {
+    setInstallerLogoState(dataUrl);
+    if (dataUrl) window.localStorage.setItem(INSTALLER_LOGO_STORAGE_KEY, dataUrl);
+    else window.localStorage.removeItem(INSTALLER_LOGO_STORAGE_KEY);
+  }, []);
   const [sectionOpen, setSectionOpen] = useState<SectionOpenState>({
     immobilie: false,
     investition: false,
@@ -223,6 +244,8 @@ export function useMieterstromCalculator() {
     setPdfEmailModalOpen,
     installerEmail,
     setInstallerEmail,
+    installerLogo,
+    setInstallerLogo,
   };
 }
 
