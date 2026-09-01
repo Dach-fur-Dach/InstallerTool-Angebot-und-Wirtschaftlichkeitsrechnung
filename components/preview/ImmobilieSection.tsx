@@ -37,14 +37,14 @@ export function ImmobilieSection({ calc, printMode = false }: { calc: Mieterstro
       <Collapse open={open} printMode={printMode} innerClassName="grid grid-cols-[1fr_auto] gap-x-4 gap-y-2 p-3.5 text-[12.5px]">
         <Row label="Wohneinheiten" value={fmtInt(r.einheiten)} />
         <Row label="Verbrauch Mieterstrom" value={`${fmt2(r.verbrauchMieterstrom)} kWh`} />
-        <Row label="Verbrauch Wärmepumpe" value={r.wpAktiv ? `${fmt2(r.wpVerbrauch)} kWh` : "–"} />
+        <Row label="Verbrauch Wärmepumpe" value={r.wpOwnMeter ? `${fmt2(r.wpVerbrauch)} kWh` : "–"} />
         <Row label="PV-Anlage" value={`${fmt1(r.pvGroesse)} kWp`} />
         <Row label="PV-Speicher" value={`${fmt2(r.speicher)} kWh`} />
         <Row label="PV-Erzeugung" value={`${fmt2(r.pvErtrag)} kWh`} />
         <Row label="Eigenverbrauch Mieterstrom" value={`${fmt2(r.eigenverbrauchMieterstrom)} kWh`} />
         <Row label="Netzstrombedarf (Wohnungen)" value={`${fmt2(r.netzMieterstrom)} kWh`} />
-        <Row label="Eigenverbrauch (Wärmepumpe)" value={r.wpAktiv ? `${fmt2(r.eigenverbrauchWP)} kWh` : "–"} />
-        <Row label="Netzstrombedarf (Wärmepumpe)" value={r.wpAktiv ? `${fmt2(r.netzWP)} kWh` : "–"} />
+        <Row label="Eigenverbrauch (Wärmepumpe)" value={r.wpOwnMeter ? `${fmt2(r.eigenverbrauchWP)} kWh` : "–"} />
+        <Row label="Netzstrombedarf (Wärmepumpe)" value={r.wpOwnMeter ? `${fmt2(r.netzWP)} kWh` : "–"} />
         <Row label="Überschusseinspeisung" value={`${fmt2(r.ueberschusseinspeisung)} kWh`} />
       </Collapse>
 

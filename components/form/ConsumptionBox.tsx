@@ -15,7 +15,6 @@ export function ConsumptionBox({ calc }: { calc: MieterstromCalculator }) {
     resetAllgemeinManual,
     resetWohnungenManual,
     resetGewerbeManual,
-    wpDisabled,
   } = calc;
 
   return (
@@ -81,15 +80,15 @@ export function ConsumptionBox({ calc }: { calc: MieterstromCalculator }) {
             onChange={onNum("verbrauchGewerbeManual")}
           />
         </div>
-        <div>
-          <FieldLabel label="Wärmepumpe (kWh)" />
-          <NumberInput
-            min={0}
-            disabled={wpDisabled}
-            value={wpDisabled ? 0 : form.verbrauchWaermepumpe}
-            onChange={onNum("verbrauchWaermepumpe")}
-          />
-        </div>
+        {form.waermepumpeModus === "eigener_zaehler" && (
+          <div>
+            <FieldLabel
+              label="Wärmepumpe (kWh)"
+              info="Nur bei eigenem Wärmepumpen-Zähler separat erfassen. Läuft die Wärmepumpe über den Allgemeinstromzähler, ist ihr Verbrauch bereits in der Allgemeinstrom-Zahl enthalten."
+            />
+            <NumberInput min={0} value={form.verbrauchWaermepumpe} onChange={onNum("verbrauchWaermepumpe")} />
+          </div>
+        )}
       </div>
     </CollapsibleBox>
   );

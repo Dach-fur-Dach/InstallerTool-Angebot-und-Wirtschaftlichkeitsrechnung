@@ -259,7 +259,11 @@ export function computeResults(f: FormState): ComputedResults {
   const allgemeinIsManual = isManualOverride(f.verbrauchAllgemeinManual);
   const autoAllgemein = allgemeinIsManual ? num(f.verbrauchAllgemeinManual) : autoAllgemeinCalc;
   const wpAktiv = waermepumpeAktiv(f);
-  const wpVerbrauch = wpAktiv ? num(f.verbrauchWaermepumpe) : 0;
+  // Nur bei eigenem Zähler wird der WP-Verbrauch separat gezählt. Läuft die Wärmepumpe über den
+  // Allgemeinstromzähler, ist ihr Verbrauch bereits in der Allgemeinstrom-Zahl enthalten (gleicher
+  // Zähler) - eine zusätzliche Addition hier würde ihn doppelt zählen.
+  const wpOwnMeter = f.waermepumpeModus === "eigener_zaehler";
+  const wpVerbrauch = wpOwnMeter ? num(f.verbrauchWaermepumpe) : 0;
   const autoWohnungen = num(f.wohneinheiten) * WOHNUNG_PRO_EINHEIT;
   const wohnungenIsManual = isManualOverride(f.verbrauchWohnungenManual);
   const verbrauchWohnungen = wohnungenIsManual ? num(f.verbrauchWohnungenManual) : autoWohnungen;
@@ -344,7 +348,6 @@ export function computeResults(f: FormState): ComputedResults {
   const eigenverbrauchsquote = pvErtrag > 0 ? (eigenverbrauchGesamt / pvErtrag) * 100 : 0;
   const autarkiegrad = verbrauchGesamt > 0 ? (eigenverbrauchGesamt / verbrauchGesamt) * 100 : 0;
 
-  const wpOwnMeter = f.waermepumpeModus === "eigener_zaehler";
   const wallboxOwnMeter = f.wallboxModus === "eigener_zaehler";
   const pvWpWallboxAnzahl = 1 + (wpOwnMeter ? 1 : 0) + (wallboxOwnMeter ? 1 : 0);
 
