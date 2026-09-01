@@ -97,10 +97,14 @@ export function AngebotPanel({ calc }: { calc: MieterstromCalculator }) {
             <div className="text-right text-[#98A2B3]">{money(r.gatewayNetto * UST)}</div>
             <div className="text-right">{money(brutto(r.gatewayNetto))}</div>
 
-            <div className="pl-1 text-[#5B6472]">{r.funkadapterAnzahl}x Funkadapter für Zähler</div>
-            <div className="text-right">{money(r.funkadapterNetto)}</div>
-            <div className="text-right text-[#98A2B3]">{money(r.funkadapterNetto * UST)}</div>
-            <div className="text-right">{money(brutto(r.funkadapterNetto))}</div>
+            {r.funkadapterAnzahl > 0 && (
+              <>
+                <div className="pl-1 text-[#5B6472]">{r.funkadapterAnzahl}x Funkadapter für Zähler</div>
+                <div className="text-right">{money(r.funkadapterNetto)}</div>
+                <div className="text-right text-[#98A2B3]">{money(r.funkadapterNetto * UST)}</div>
+                <div className="text-right">{money(brutto(r.funkadapterNetto))}</div>
+              </>
+            )}
           </div>
 
           <div className="mt-1.5 grid grid-cols-[1.6fr_0.8fr_0.7fr_0.8fr] gap-2 border-t border-[#1B2A3A] py-2.5 text-[13px] font-extrabold text-[#1B2A3A]">
