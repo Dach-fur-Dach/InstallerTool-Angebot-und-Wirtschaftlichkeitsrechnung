@@ -90,6 +90,17 @@ export function MinusIcon({ className = "", style }: IconProps) {
   );
 }
 
+export function DiagramIcon({ className = "", style }: IconProps) {
+  return (
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" className={className} style={style}>
+      <circle cx="2.3" cy="7" r="1.6" stroke="currentColor" strokeWidth="1.4" />
+      <circle cx="11.7" cy="2.3" r="1.6" stroke="currentColor" strokeWidth="1.4" />
+      <circle cx="11.7" cy="11.7" r="1.6" stroke="currentColor" strokeWidth="1.4" />
+      <path d="M3.8 6.2L10.2 3.1M3.8 7.8L10.2 10.9" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 export function ExternalLinkIcon({ className = "", style }: IconProps) {
   return (
     <svg width="11" height="11" viewBox="0 0 11 11" fill="none" className={className} style={style}>

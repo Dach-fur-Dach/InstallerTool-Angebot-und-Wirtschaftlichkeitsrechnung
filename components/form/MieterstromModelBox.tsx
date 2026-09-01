@@ -3,7 +3,7 @@
 import { Collapse } from "@/components/ui/Collapse";
 import { CollapsibleBox } from "@/components/ui/CollapsibleBox";
 import { FieldLabel, NumberInput, SelectInput, YesNoToggle } from "@/components/ui/Field";
-import { WarningIcon } from "@/components/ui/Icons";
+import { ChevronIcon, DiagramIcon, WarningIcon } from "@/components/ui/Icons";
 import type { MieterstromCalculator } from "@/hooks/useMieterstromCalculator";
 import { MesskonzeptDiagram } from "@/components/form/MesskonzeptDiagram";
 
@@ -90,17 +90,31 @@ export function MieterstromModelBox({ calc }: { calc: MieterstromCalculator }) {
         <span className="text-[12.5px] font-semibold text-[#1B2A3A]">Wandlermessung für Summenzähler prüfen</span>
       </Collapse>
 
-      <div
-        onClick={() => setMesskonzeptExpanded(!messkonzeptExpanded)}
-        className="mt-[18px] flex cursor-pointer items-center justify-between border-t border-[#EDF1F6] pt-3.5"
-      >
-        <span className="text-[13px] font-bold text-[#5B6472]">Messkonzept (erweitert)</span>
-        <span className="text-xs font-bold text-[#3AA8DC]">{messkonzeptExpanded ? "Einklappen −" : "Ausklappen +"}</span>
-      </div>
+      <div className="mt-[18px] overflow-hidden rounded-[10px] border border-[#EDF1F6] bg-white">
+        <button
+          type="button"
+          onClick={() => setMesskonzeptExpanded(!messkonzeptExpanded)}
+          className="flex w-full cursor-pointer appearance-none items-center justify-between gap-2.5 bg-transparent px-3.5 py-3 text-left outline-none transition-colors hover:bg-[#F7FAFC]"
+        >
+          <span className="flex items-center gap-2.5">
+            <span className="flex h-6 w-6 shrink-0 items-center justify-center text-[#3AA8DC]">
+              <DiagramIcon />
+            </span>
+            <span className="flex flex-col">
+              <span className="text-[13px] font-bold text-[#1B2A3A]">Messkonzept-Diagramm</span>
+              <span className="text-[11px] text-[#98A2B3]">Zeigt die Zähler- und Verteilungsstruktur der Anlage</span>
+            </span>
+          </span>
+          <ChevronIcon
+            className="shrink-0 text-[#3AA8DC] transition-transform"
+            style={{ transform: messkonzeptExpanded ? "rotate(180deg)" : "rotate(0deg)" }}
+          />
+        </button>
 
-      <Collapse open={messkonzeptExpanded} innerClassName="mt-3.5">
-        <MesskonzeptDiagram form={form} />
-      </Collapse>
+        <Collapse open={messkonzeptExpanded} innerClassName="border-t border-[#EDF1F6] px-3.5 pt-8 pb-3.5">
+          <MesskonzeptDiagram form={form} bare />
+        </Collapse>
+      </div>
     </CollapsibleBox>
   );
 }
