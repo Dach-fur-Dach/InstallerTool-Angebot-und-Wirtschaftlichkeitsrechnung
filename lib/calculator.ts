@@ -1,4 +1,4 @@
-export type MieterstromModell = "physischer_sz" | "ggv" | "virtueller_sz";
+export type MieterstromModell = "physischer_sz" | "ggv" | "virtueller_sz" | "physischer_sz_sw";
 export type WaermepumpeModus = "nein" | "eigener_zaehler" | "allgemeinstrom";
 export type WallboxModus = "nein" | "hinter_zaehler" | "eigener_zaehler";
 export type PvSzenario = "steildach" | "flachdach";
@@ -116,6 +116,7 @@ export const MODELL_LABEL: Record<MieterstromModell, string> = {
   ggv: "Gemeinschaftliche Gebäudeversorgung (GGV)",
   virtueller_sz: "Virtueller Summenzähler",
   physischer_sz: "Physischer Summenzähler",
+  physischer_sz_sw: "Softwarelösung für Netzbezug (MK D3)",
 };
 
 interface ModellPricing {
@@ -124,10 +125,14 @@ interface ModellPricing {
   gateway: number;
 }
 
+// MK D3 ist eine reine Softwarelösung (kein physischer Summenzähler nötig, sofern der
+// Netzbetreiber sie akzeptiert) und liegt daher preislich in derselben Kategorie wie
+// Virtueller Summenzähler / GGV statt bei Physischer Summenzähler.
 const MODELL_PRICING: Record<MieterstromModell, ModellPricing> = {
   physischer_sz: { projektpauschale: 1299, preisProZaehler: 149, gateway: 349 },
   virtueller_sz: { projektpauschale: 1999, preisProZaehler: 25, gateway: 25 },
   ggv: { projektpauschale: 1999, preisProZaehler: 25, gateway: 25 },
+  physischer_sz_sw: { projektpauschale: 1999, preisProZaehler: 25, gateway: 25 },
 };
 
 const MIETERSTROMZUSCHLAG = 0.021;
