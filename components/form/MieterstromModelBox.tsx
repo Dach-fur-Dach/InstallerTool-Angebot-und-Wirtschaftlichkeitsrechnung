@@ -5,11 +5,29 @@ import { CollapsibleBox } from "@/components/ui/CollapsibleBox";
 import { FieldLabel, NumberInput, SelectInput, YesNoToggle } from "@/components/ui/Field";
 import { ChevronIcon, DiagramIcon, WarningIcon } from "@/components/ui/Icons";
 import type { MieterstromCalculator } from "@/hooks/useMieterstromCalculator";
+import type { MieterstromModell } from "@/lib/calculator";
 import { MesskonzeptDiagram } from "@/components/form/MesskonzeptDiagram";
 
+// The dropdown only distinguishes the three top-level families; "physischer_sz_sw" (MK D3) is a
+// Netzbetreiber-dependent variant of "physischer_sz" (MK A2) switched via the pill toggle inside
+// the Messkonzept-Diagramm panel instead, so it shares the "Physischer Summenzähler" dropdown entry.
+function modellFamily(modell: MieterstromModell): MieterstromModell {
+  return modell === "physischer_sz_sw" ? "physischer_sz" : modell;
+}
+
 export function MieterstromModelBox({ calc }: { calc: MieterstromCalculator }) {
-  const { form, onNum, onText, setBool, box2Open, setBox2Open, wandlerWarning, messkonzeptExpanded, setMesskonzeptExpanded } =
-    calc;
+  const {
+    form,
+    onNum,
+    onText,
+    update,
+    setBool,
+    box2Open,
+    setBox2Open,
+    wandlerWarning,
+    messkonzeptExpanded,
+    setMesskonzeptExpanded,
+  } = calc;
 
   return (
     <CollapsibleBox
@@ -21,7 +39,7 @@ export function MieterstromModelBox({ calc }: { calc: MieterstromCalculator }) {
       <div className="mb-4 grid grid-cols-2 gap-4">
         <div className="col-span-2">
           <FieldLabel label="Mieterstrom-Modell" />
-          <SelectInput value={form.mieterstromModell} onChange={onText("mieterstromModell")}>
+          <SelectInput value={modellFamily(form.mieterstromModell)} onChange={onText("mieterstromModell")}>
             <option value="physischer_sz">Physischer Summenzähler</option>
             <option value="virtueller_sz">Virtueller Summenzähler</option>
             <option value="ggv">Gemeinschaftliche Gebäudeversorgung (GGV)</option>
@@ -111,8 +129,8 @@ export function MieterstromModelBox({ calc }: { calc: MieterstromCalculator }) {
           />
         </button>
 
-        <Collapse open={messkonzeptExpanded} innerClassName="border-t border-[#EDF1F6] px-3.5 pt-8 pb-3.5">
-          <MesskonzeptDiagram form={form} bare />
+        <Collapse open={messkonzeptExpanded} innerClassName="border-t border-[#EDF1F6] px-3.5 pt-3.5 pb-3.5">
+          <MesskonzeptDiagram form={form} bare onModellChange={(m) => update("mieterstromModell", m)} />
         </Collapse>
       </div>
     </CollapsibleBox>
