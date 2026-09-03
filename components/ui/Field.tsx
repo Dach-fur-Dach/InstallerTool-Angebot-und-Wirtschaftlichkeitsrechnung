@@ -47,7 +47,7 @@ export function InfoTooltip({ text }: { text: string }) {
       {pos && (
         <span
           style={{ top: pos.top, left: pos.left }}
-          className="pointer-events-none fixed z-50 w-56 -translate-x-1/2 rounded-lg bg-[#1B2A3A] px-2.5 py-1.5 text-[11px] font-normal normal-case leading-snug text-white shadow-lg"
+          className="pointer-events-none fixed z-50 w-56 -translate-x-1/2 rounded-lg bg-[#3AA8DC] px-2.5 py-1.5 text-[11px] font-normal normal-case leading-snug text-white shadow-lg"
         >
           {text}
         </span>

@@ -58,6 +58,24 @@
   z-index: -1;
 }
 
+/* Flashes the hint box's own fill/border rather than a box-shadow ring, since a
+   ring would get clipped by the Collapse wrapper's overflow-hidden (which is
+   sized tightly to the content, leaving no room for a shadow to bleed into). */
+@keyframes dfd-hint-highlight {
+  0% {
+    background-color: rgba(58, 168, 220, 0.4);
+    border-color: #3aa8dc;
+  }
+  100% {
+    background-color: #eaf6fc;
+    border-color: #cfe3f0;
+  }
+}
+
+.dfd-hint-highlight {
+  animation: dfd-hint-highlight 1.1s ease-out;
+}
+
 @keyframes spin-slow {
   to {
     transform: rotate(360deg);

@@ -53,7 +53,7 @@ function HoverTip({ text, children, className = "" }: { text?: string; children:
       {pos && (
         <span
           style={{ top: pos.top, left: pos.left }}
-          className="pointer-events-none fixed z-50 w-max max-w-[220px] -translate-x-1/2 rounded-lg bg-[#1B2A3A] px-2.5 py-1.5 text-[11px] font-normal leading-snug text-white shadow-lg"
+          className="pointer-events-none fixed z-50 w-max max-w-[220px] -translate-x-1/2 rounded-lg bg-[#3AA8DC] px-2.5 py-1.5 text-[11px] font-normal leading-snug text-white shadow-lg"
         >
           {text}
         </span>
@@ -104,12 +104,12 @@ function Bus({ nodes }: { nodes: string[] }) {
 
 const MODELL_CAPTION: Record<FormState["mieterstromModell"], string> = {
   physischer_sz:
-    "Ein physischer Summenzähler (Z1) erfasst den Gesamtbezug; alle Einheiten hängen über eigene Unterzähler daran.",
+    "Ein physischer Summenzähler (Z1) erfasst den Gesamtbezug; alle Einheiten hängen über eigene Unterzähler daran. Kein Anspruch auf den Mieterstromzuschlag.",
   virtueller_sz:
     "Kein physischer Summenzähler nötig — die Einzelzähler werden softwareseitig virtuell zu Z1 zusammengefasst.",
   ggv: "Jede Einheit bezieht direkt über ihren Standardzähler vom Netz; die PV-Erzeugung wird gemeinschaftlich verteilt.",
   physischer_sz_sw:
-    "Kein physischer Summenzähler nötig — jede Einheit hat einen eigenen, netzbetreiberrelevanten Zähler; die Software ordnet Bezug/Lieferung zu.",
+    "Wie MK A2 mit physischem Summenzähler (Z1); die Zuordnung von Bezug/Lieferung je Nutzer erfolgt jedoch softwareseitig. Qualifiziert für den Mieterstromzuschlag.",
 };
 
 // Official VBEW Messkonzept designation for each model, per the VBEW-Richtlinien referenced in
@@ -119,13 +119,13 @@ export const MODELL_MK: Record<FormState["mieterstromModell"], { code: string; n
     code: "MK A2",
     name: "Überschusseinspeisung",
     tooltip:
-      "VBEW MK A2: Überschusseinspeisung (physischer Summenzähler). Bei Volleinspeisung/Verdrahtung wie MK D1.",
+      "VBEW MK A2: Überschusseinspeisung (physischer Summenzähler). Bei Volleinspeisung/Verdrahtung wie MK D1. Kein Mieterstromzuschlag.",
   },
   physischer_sz_sw: {
     code: "MK D3",
     name: "Selbstversorgergemeinschaft, Softwarelösung für aus dem Netz versorgte Anschlussnutzer",
     tooltip:
-      "VBEW MK D3: Alternative zu MK A2/D1, wenn vom Netzbetreiber akzeptiert — kein physischer Summenzähler, Zuordnung von Bezug/Lieferung je Zähler erfolgt softwareseitig.",
+      "VBEW MK D3: Alternative zu MK A2/D1, wenn vom Netzbetreiber akzeptiert — ebenfalls physischer Summenzähler (Z1), Zuordnung von Bezug/Lieferung je Zähler erfolgt softwareseitig. Berechtigt zum Mieterstromzuschlag.",
   },
   virtueller_sz: {
     code: "MK D4",
@@ -188,7 +188,6 @@ export function MesskonzeptDiagram({
   const modell = form.mieterstromModell;
   const mk = MODELL_MK[modell];
 
-  const isPhysisch = modell === "physischer_sz";
   const isVirtuell = modell === "virtueller_sz";
   const isPhysischFamily = PHYSISCH_VARIANTS.includes(modell);
 
@@ -204,7 +203,7 @@ export function MesskonzeptDiagram({
           Z1 sit visually on the line via -translate-y-1/2 against the row's top edge. */}
       <div
         className="grid items-start gap-x-2"
-        style={{ gridTemplateColumns: isPhysisch ? "auto auto 1fr" : "auto 1fr" }}
+        style={{ gridTemplateColumns: isPhysischFamily ? "auto auto 1fr" : "auto 1fr" }}
       >
         <HoverTip text="Öffentliches Stromnetz">
           <span className="-translate-y-1/2 block whitespace-nowrap text-[10px] font-bold uppercase tracking-wide text-[#5B6472]">
@@ -212,7 +211,7 @@ export function MesskonzeptDiagram({
           </span>
         </HoverTip>
 
-        {isPhysisch && (
+        {isPhysischFamily && (
           <HoverTip text="Summenzähler — erfasst den Gesamtbezug aller angeschlossenen Einheiten">
             <div className="-translate-y-1/2 flex h-7 items-center justify-center rounded-md border-2 border-[#3AA8DC] bg-[#EAF6FC] px-2.5 text-[11px] font-bold text-[#1B2A3A]">
               Z1
