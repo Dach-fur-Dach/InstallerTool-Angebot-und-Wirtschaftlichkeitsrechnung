@@ -29,18 +29,18 @@ export function LogoUpload({ calc }: { calc: MieterstromCalculator }) {
   return (
     <div className="flex items-center gap-2">
       {installerLogo ? (
-        <div className="flex items-center gap-2">
+        <div className="group flex items-center gap-2">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={installerLogo}
             alt="Installateur-Logo"
-            className="h-10 w-auto max-w-[140px] object-contain"
+            className="h-16 w-auto max-w-[140px] object-contain"
           />
           <button
             type="button"
             onClick={() => setInstallerLogo(null)}
             title="Logo entfernen"
-            className="cursor-pointer text-[11px] font-semibold text-[#98A2B3] hover:text-[#3AA8DC]"
+            className="cursor-pointer text-[11px] font-semibold text-[#98A2B3] opacity-0 transition-opacity group-hover:opacity-100 hover:text-[#3AA8DC] focus-visible:opacity-100"
           >
             Entfernen
           </button>
