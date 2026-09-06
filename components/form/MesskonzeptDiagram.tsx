@@ -89,11 +89,16 @@ function NodeRow({ nodes }: { nodes: string[] }) {
 }
 
 // The bus line always starts at Netz (the left edge of this column, right after the Netz/Z1
-// label) and stops at the last meter's connector rather than running past it. Each connector
-// sits at the horizontal center of its (equal-width) column, so the last one's center is at
-// (count - 0.5) / count of the row's width, giving a right inset of 50/count %.
+// label) and stops at the last meter's connector rather than running past it. NodeRow lays out
+// equal-width columns with `justify-between` + a fixed `gap-2` (8px) between them, so the last
+// column's center isn't simply 50%/count from the right edge — the gaps eat into the row's
+// content width first. Solving for the last column's center given n columns of width w and
+// (n-1) gaps g in a row of width W (w = (W - (n-1)g) / n) works out to a right inset of w/2,
+// i.e. half a column width: (100% - (n-1)*gap) / (2*n).
+const NODE_GAP_PX = 8; // Tailwind gap-2
 function Bus({ nodes }: { nodes: string[] }) {
-  const rightInset = `${50 / nodes.length}%`;
+  const n = nodes.length;
+  const rightInset = `calc((100% - ${(n - 1) * NODE_GAP_PX}px) / ${2 * n})`;
   return (
     <div>
       <div className="h-px bg-[#3AA8DC]" style={{ marginRight: rightInset }} />
