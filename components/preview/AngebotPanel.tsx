@@ -22,6 +22,9 @@ export function AngebotPanel({ calc }: { calc: MieterstromCalculator }) {
   const messtechnikRows: { label: string; price: number }[] = [{ label: "Zähler PV-Anlage", price: r.zaehlerStueckpreis }];
   if (r.wpOwnMeter) messtechnikRows.push({ label: "Zähler Wärmepumpe", price: r.zaehlerStueckpreis });
   if (r.wallboxOwnMeter) messtechnikRows.push({ label: "Zähler Wallbox / Ladeinfrastruktur", price: r.zaehlerStueckpreis });
+  // A single row would just repeat the parent line when expanded, so only show the
+  // expand/collapse chevron once there's an actual breakdown to reveal.
+  const messtechnikExpandable = messtechnikRows.length > 1;
 
   if (!angebotReady) {
     return (
@@ -69,20 +72,23 @@ export function AngebotPanel({ calc }: { calc: MieterstromCalculator }) {
             <div className="text-right">{money(brutto(r.zaehlerASNetto))}</div>
 
             <div
-              onClick={() => setMesstechnikExpanded(!messtechnikExpanded)}
-              className="relative cursor-pointer pl-1 text-[#5B6472] select-none"
+              onClick={messtechnikExpandable ? () => setMesstechnikExpanded(!messtechnikExpanded) : undefined}
+              className={`relative pl-1 text-[#5B6472] select-none ${messtechnikExpandable ? "cursor-pointer" : ""}`}
             >
-              <ChevronIcon
-                className="absolute top-1/2 -left-3.5 text-[#C2C9D3] transition-transform"
-                style={{ transform: `translateY(-50%) rotate(${messtechnikExpanded ? 180 : 0}deg)` }}
-              />
+              {messtechnikExpandable && (
+                <ChevronIcon
+                  className="absolute top-1/2 -left-3.5 text-[#C2C9D3] transition-transform"
+                  style={{ transform: `translateY(-50%) rotate(${messtechnikExpanded ? 180 : 0}deg)` }}
+                />
+              )}
               {r.pvWpWallboxAnzahl}x Zähler {messtechnikLabel}
             </div>
             <div className="text-right">{money(r.zaehlerPVNetto)}</div>
             <div className="text-right text-[#98A2B3]">{money(r.zaehlerPVNetto * UST)}</div>
             <div className="text-right">{money(brutto(r.zaehlerPVNetto))}</div>
 
-            {messtechnikExpanded &&
+            {messtechnikExpandable &&
+              messtechnikExpanded &&
               messtechnikRows.map((row) => (
                 <Fragment key={row.label}>
                   <div className="pl-6 text-[11.5px] text-[#98A2B3]">1x {row.label}</div>
