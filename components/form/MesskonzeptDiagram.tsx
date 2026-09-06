@@ -145,50 +145,12 @@ export const MODELL_MK: Record<FormState["mieterstromModell"], { code: string; n
   },
 };
 
-// MK D3 is a Netzbetreiber-dependent alternative to MK A2 for the same "physischer
-// Summenzähler" family — both stay under form.mieterstromModell, switched via this pair.
+// MK D3 is the only "physischer Summenzähler" variant offered — it stays under
+// form.mieterstromModell alongside the legacy "physischer_sz" (MK A2) value for backward
+// compatibility, but MK A2 is no longer user-selectable.
 const PHYSISCH_VARIANTS: MieterstromModell[] = ["physischer_sz", "physischer_sz_sw"];
 
-function VariantToggle({
-  modell,
-  onModellChange,
-}: {
-  modell: MieterstromModell;
-  onModellChange: (modell: MieterstromModell) => void;
-}) {
-  return (
-    <div className="mb-3 flex gap-1.5">
-      {PHYSISCH_VARIANTS.map((variant) => {
-        const active = modell === variant;
-        return (
-          <button
-            key={variant}
-            type="button"
-            onClick={() => onModellChange(variant)}
-            aria-pressed={active}
-            className={`cursor-pointer rounded-full border px-2.5 py-1 text-[10.5px] font-bold transition-colors ${
-              active
-                ? "border-[#3AA8DC] bg-[#3AA8DC] text-white"
-                : "border-[#D0D5DD] bg-white text-[#5B6472] hover:border-[#3AA8DC]"
-            }`}
-          >
-            {MODELL_MK[variant].code}
-          </button>
-        );
-      })}
-    </div>
-  );
-}
-
-export function MesskonzeptDiagram({
-  form,
-  bare = false,
-  onModellChange,
-}: {
-  form: FormState;
-  bare?: boolean;
-  onModellChange?: (modell: MieterstromModell) => void;
-}) {
+export function MesskonzeptDiagram({ form, bare = false }: { form: FormState; bare?: boolean }) {
   const nodes = buildNodes(form);
   const modell = form.mieterstromModell;
   const mk = MODELL_MK[modell];
@@ -198,7 +160,6 @@ export function MesskonzeptDiagram({
 
   return (
     <div className={bare ? "" : "rounded-[10px] border border-[#EDF1F6] bg-white px-4 py-5"}>
-      {isPhysischFamily && onModellChange && <VariantToggle modell={modell} onModellChange={onModellChange} />}
       <HoverTip text={mk.tooltip} className="mb-3 block w-fit">
         <span className="text-[11px] font-bold uppercase tracking-wide text-[#1B2A3A]">{mk.code}</span>
         <span className="text-[11px] text-[#5B6472]"> · {mk.name}</span>

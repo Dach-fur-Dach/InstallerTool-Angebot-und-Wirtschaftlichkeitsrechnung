@@ -176,7 +176,9 @@ export function useMieterstromCalculator() {
   const resetKostenZaehlerschrankManual = useCallback(() => update("kostenZaehlerschrankManual", ""), [update]);
 
   const wpDisabled = form.waermepumpeModus === "nein";
-  const wandlerWarning = form.mieterstromModell === "physischer_sz" && !form.wandlermessung;
+  const wandlerWarning =
+    (form.mieterstromModell === "physischer_sz" || form.mieterstromModell === "physischer_sz_sw") &&
+    !form.wandlermessung;
   const angebotReady = num(form.wohneinheiten) > 0 || num(form.gewerbeeinheiten) > 0;
   const tier2VisualOpacity = wirtschaftBenoetigt === "nein" ? 0.5 : 1;
 

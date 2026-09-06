@@ -47,7 +47,7 @@ export interface FormState {
 }
 
 export const DEFAULTS: FormState = {
-  mieterstromModell: "physischer_sz",
+  mieterstromModell: "physischer_sz_sw",
   wohneinheiten: 0,
   gewerbeeinheiten: 0,
   allgemeinstrom: true,

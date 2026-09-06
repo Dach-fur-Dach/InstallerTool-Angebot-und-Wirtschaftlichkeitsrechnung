@@ -2,6 +2,7 @@
 
 import { MODELL_LABEL, fmtInt } from "@/lib/calculator";
 import type { MieterstromCalculator } from "@/hooks/useMieterstromCalculator";
+import { MODELL_MK } from "@/components/form/MesskonzeptDiagram";
 import { AmortisationChart } from "./AmortisationChart";
 import { BetriebskostenSection } from "./BetriebskostenSection";
 import { EinnahmenSection } from "./EinnahmenSection";
@@ -41,8 +42,11 @@ function Page2({ calc }: { calc: MieterstromCalculator }) {
   );
 }
 
+const PHYSISCH_VARIANTS = ["physischer_sz", "physischer_sz_sw"] as const;
+
 function Page3({ calc }: { calc: MieterstromCalculator }) {
-  const { results: r } = calc;
+  const { results: r, form } = calc;
+  const isPhysischFamily = (PHYSISCH_VARIANTS as readonly string[]).includes(form.mieterstromModell);
 
   return (
     <>
@@ -55,6 +59,12 @@ function Page3({ calc }: { calc: MieterstromCalculator }) {
           {r.steigerungProzent.toLocaleString("de-DE")}% pro Jahr.
         </div>
       </div>
+      {isPhysischFamily && (
+        <div className="mt-3 rounded-[10px] bg-[#F7FAFC] px-3.5 py-3 text-[11.5px] leading-relaxed text-[#5B6472]">
+          <span className="font-bold text-[#1B2A3A]">Hinweis {MODELL_MK.physischer_sz_sw.code}: </span>
+          {MODELL_MK.physischer_sz_sw.tooltip}
+        </div>
+      )}
     </>
   );
 }
