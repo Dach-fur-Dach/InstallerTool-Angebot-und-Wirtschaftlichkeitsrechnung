@@ -361,7 +361,7 @@ export function computeResults(f: FormState): ComputedResults {
 
   const zaehlerWEAnzahl = Math.max(1, einheiten);
   const zaehlpunkte0 = zaehlerWEAnzahl + (f.allgemeinstrom ? 1 : 0) + pvWpWallboxAnzahl;
-  const istPhysischerSZ = f.mieterstromModell === "physischer_sz";
+  const istPhysischerSZ = f.mieterstromModell === "physischer_sz" || f.mieterstromModell === "physischer_sz_sw";
 
   // Angebot pricing (moved up so Wirtschaftlichkeit can reuse the same numbers)
   const pricing = MODELL_PRICING[f.mieterstromModell] ?? MODELL_PRICING.ggv;
