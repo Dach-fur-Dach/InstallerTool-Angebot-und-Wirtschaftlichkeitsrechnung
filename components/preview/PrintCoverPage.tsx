@@ -27,7 +27,7 @@ export function PrintCoverPage({ outputs, installerLogo }: { outputs: OutputsSta
           // eslint-disable-next-line @next/next/no-img-element
           <img src={installerLogo} alt="Installateur-Logo" className="h-9 w-auto max-w-[130px] object-contain" />
         )}
-        <Image src="/logo.png" alt="Dach für Dach" height={44} width={184} className="h-11 w-auto" />
+        <Image src="/logo-pub.png" alt="Dach für Dach" height={44} width={184} className="h-11 w-auto" />
       </div>
       <div className="mt-10">
         <h1 className="m-0 text-[52px] leading-[1.05] font-extrabold tracking-tight text-[#1B2A3A]">Mieterstrom</h1>

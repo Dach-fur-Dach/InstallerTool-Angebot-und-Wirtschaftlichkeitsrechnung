@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { Suspense, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { track } from "@vercel/analytics";
@@ -13,6 +12,7 @@ import { ConsumptionBox } from "@/components/form/ConsumptionBox";
 import { PricingBox } from "@/components/form/PricingBox";
 import { OutputControls } from "@/components/preview/OutputControls";
 import { LogoUpload } from "@/components/ui/LogoUpload";
+import { AnimatedLogo } from "@/components/ui/AnimatedLogo";
 import { AddressMapCard } from "@/components/preview/AddressMapCard";
 import { AngebotPanel } from "@/components/preview/AngebotPanel";
 import { WirtschaftPanel } from "@/components/preview/WirtschaftPanel";
@@ -44,13 +44,9 @@ function HomeContent() {
             <div />
           ) : (
             <div className="flex items-center gap-3.5">
-              <a href="https://dachfuerdach.de" target="_blank" rel="noopener noreferrer">
-                <Image src="/logo.png" alt="Dach für Dach" height={64} width={264} className="h-16 w-auto" priority />
-              </a>
+              <AnimatedLogo />
               <div className="h-[26px] w-px bg-[rgba(10,22,40,0.12)]" />
               <LogoUpload calc={calc} />
-              <div className="h-[26px] w-px bg-[rgba(10,22,40,0.12)]" />
-              <div className="text-[12.5px] font-semibold text-[#5B6472]">Mieterstrom-Rechner</div>
             </div>
           )}
           <div className="flex items-center gap-5">

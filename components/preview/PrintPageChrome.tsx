@@ -15,7 +15,7 @@ export function PrintPageHeader({ installerLogo }: { installerLogo?: string | nu
         // eslint-disable-next-line @next/next/no-img-element
         <img src={installerLogo} alt="Installateur-Logo" className="h-9 w-auto max-w-[130px] object-contain" />
       )}
-      <Image src="/logo.png" alt="Dach für Dach" height={44} width={184} className="h-11 w-auto" />
+      <Image src="/logo-pub.png" alt="Dach für Dach" height={44} width={184} className="h-11 w-auto" />
     </div>
   );
 }
