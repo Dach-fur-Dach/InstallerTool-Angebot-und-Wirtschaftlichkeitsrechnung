@@ -25,7 +25,6 @@ export interface OutputsState {
   wirtschaft: boolean;
   angebot: boolean;
   flyer: boolean;
-  messkonzept: boolean;
 }
 
 export type OutputKey = keyof OutputsState;
@@ -34,10 +33,9 @@ export const OUTPUT_LABELS: Record<OutputKey, string> = {
   angebot: "Angebot",
   wirtschaft: "Wirtschaftlichkeit",
   flyer: "Mieter-Flyer",
-  messkonzept: "Messkonzept",
 };
 
-const DEFAULT_OUTPUT_ORDER: OutputKey[] = ["angebot", "wirtschaft", "flyer", "messkonzept"];
+const DEFAULT_OUTPUT_ORDER: OutputKey[] = ["angebot", "wirtschaft", "flyer"];
 
 export function useMieterstromCalculator() {
   const [form, setForm] = useState<FormState>(DEFAULTS);
@@ -61,7 +59,6 @@ export function useMieterstromCalculator() {
     wirtschaft: true,
     angebot: true,
     flyer: false,
-    messkonzept: false,
   });
   const [outputOrder, setOutputOrder] = useState<OutputKey[]>(DEFAULT_OUTPUT_ORDER);
   const [betriebOpen, setBetriebOpen] = useState<BetriebOpenState>({

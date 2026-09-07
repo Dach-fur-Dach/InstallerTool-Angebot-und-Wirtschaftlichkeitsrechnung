@@ -6,7 +6,6 @@ import { trackEvent } from "@/lib/umami";
 import type { MieterstromCalculator } from "@/hooks/useMieterstromCalculator";
 import { OUTPUT_LABELS, type OutputKey } from "@/hooks/useMieterstromCalculator";
 import { CheckIcon, ChevronIcon, DragHandleIcon } from "@/components/ui/Icons";
-import { ToggleSwitch } from "@/components/ui/Field";
 import { LogoUpload } from "@/components/ui/LogoUpload";
 import { downloadPrintDocumentAsPdf, buildPdfFilename } from "@/lib/generatePdf";
 
@@ -20,8 +19,6 @@ export function PdfEmailModal({ calc }: { calc: MieterstromCalculator }) {
     reorderOutputs,
     moveOutput,
     form,
-    outputs,
-    toggleOutput,
   } = calc;
   const [sent, setSent] = useState(false);
   const [draggedKey, setDraggedKey] = useState<OutputKey | null>(null);
@@ -88,14 +85,6 @@ export function PdfEmailModal({ calc }: { calc: MieterstromCalculator }) {
             <div className="mb-5">
               <div className="mb-2 text-[13px] font-semibold text-[#0A1628]">Installateur-Logo</div>
               <LogoUpload calc={calc} />
-            </div>
-
-            <div className="mb-5">
-              <ToggleSwitch
-                label="Messkonzept-Diagramm anhängen"
-                checked={outputs.messkonzept}
-                onChange={() => toggleOutput("messkonzept")}
-              />
             </div>
 
             {activeOutputOrder.length > 1 && (

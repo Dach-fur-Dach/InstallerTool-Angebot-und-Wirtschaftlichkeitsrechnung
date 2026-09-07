@@ -9,7 +9,6 @@ import { PrintPageHeader, PrintPageFooter } from "./PrintPageChrome";
 import { PrintCoverPage } from "./PrintCoverPage";
 import { ProcessStepsPanel } from "./ProcessStepsPanel";
 import { wirtschaftPrintPages } from "./WirtschaftPrintPages";
-import { MesskonzeptPrintPage } from "./MesskonzeptPrintPage";
 
 const PAGE_PADDING = { padding: "14mm 12mm" };
 
@@ -62,7 +61,5 @@ function getPrintPages(outputKey: OutputKey, calc: MieterstromCalculator): React
       return wirtschaftPrintPages(calc);
     case "flyer":
       return [<FlyerPanel key="flyer" calc={calc} />];
-    case "messkonzept":
-      return [<MesskonzeptPrintPage key="messkonzept" calc={calc} />];
   }
 }

@@ -80,7 +80,7 @@ function NodeRow({ nodes }: { nodes: string[] }) {
     <div className="flex justify-between gap-2">
       {nodes.map((n, i) => (
         <div key={i} className="flex flex-1 flex-col items-center gap-1">
-          <div className="h-2.5 w-px bg-[#3AA8DC]" />
+          <div className="h-2.5 w-[1.5px] bg-[#3AA8DC]" />
           <NodeBox label={n} />
         </div>
       ))}
@@ -101,7 +101,7 @@ function Bus({ nodes }: { nodes: string[] }) {
   const rightInset = `calc((100% - ${(n - 1) * NODE_GAP_PX}px) / ${2 * n})`;
   return (
     <div>
-      <div className="h-px bg-[#3AA8DC]" style={{ marginRight: rightInset }} />
+      <div className="h-[1.5px] bg-[#3AA8DC]" style={{ marginRight: rightInset }} />
       <NodeRow nodes={nodes} />
     </div>
   );
@@ -164,13 +164,11 @@ export function MesskonzeptDiagram({ form, bare = false }: { form: FormState; ba
         <span className="text-[11px] font-bold uppercase tracking-wide text-[#1B2A3A]">{mk.code}</span>
         <span className="text-[11px] text-[#5B6472]"> · {mk.name}</span>
       </HoverTip>
-      {/* Grid keeps the Netz/Z1 labels in their own column(s) so the bus line + node row — the
-          last column — always get the exact same width, however wide those labels are. Netz and
+      {/* Flexbox (not CSS grid — html2canvas, used for the PDF export, has weak grid support and
+          silently collapses the flexible column, dropping the bus lines) keeps the Netz/Z1 labels
+          at their natural width and hands the bus line + node row the rest via flex-1. Netz and
           Z1 sit visually on the line via -translate-y-1/2 against the row's top edge. */}
-      <div
-        className="grid items-start gap-x-2"
-        style={{ gridTemplateColumns: isPhysischFamily ? "auto auto 1fr" : "auto 1fr" }}
-      >
+      <div className="flex items-start gap-2">
         <HoverTip text="Öffentliches Stromnetz">
           <span className="-translate-y-1/2 block whitespace-nowrap text-[10px] font-bold uppercase tracking-wide text-[#5B6472]">
             Netz
@@ -186,14 +184,16 @@ export function MesskonzeptDiagram({ form, bare = false }: { form: FormState; ba
         )}
 
         {isVirtuell ? (
-          <div className="relative rounded-lg border border-dashed border-[#3AA8DC] px-2 pb-3 pt-4">
+          <div className="relative min-w-0 flex-1 rounded-lg border border-dashed border-[#3AA8DC] px-2 pb-3 pt-4">
             <span className="absolute -top-2.5 left-3 bg-white px-1.5 text-[10px] font-bold text-[#3AA8DC]">
               Z1 (vSZ)
             </span>
             <Bus nodes={nodes} />
           </div>
         ) : (
-          <Bus nodes={nodes} />
+          <div className="min-w-0 flex-1">
+            <Bus nodes={nodes} />
+          </div>
         )}
       </div>
 
