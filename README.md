@@ -42,3 +42,8 @@ npm run lint    # eslint
 - `lib/calculator.ts` — the Mieterstrom economics calculations.
 - `lib/generatePdf.ts` — renders the preview to a PDF and names the output file.
 - `lib/charts.ts` / `lib/umami.ts` — chart helpers and analytics event tracking.
+
+## Notes
+
+- This project is on Next.js 16, which has breaking changes vs. earlier versions — check `node_modules/next/dist/docs/` before assuming an API from older Next.js docs still applies.
+- PDF generation runs client-side via `html2canvas-pro` and `jspdf` (see `lib/generatePdf.ts`).
