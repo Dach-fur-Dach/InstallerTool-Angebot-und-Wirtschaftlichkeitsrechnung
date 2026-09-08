@@ -12,3 +12,22 @@ Built with [Next.js](https://nextjs.org) 16 (App Router), React 19, and Tailwind
 - **Address map preview** — shows the building location on a map alongside the form.
 - **PDF export** — generates an offer ("Angebot"), a cost/benefit analysis, and/or a flyer as a print-ready PDF, with an optional email step.
 - **Embeddable** — supports an `?embed=1` mode for embedding the tool in another page (e.g. an iframe).
+
+## Getting Started
+
+Install dependencies and run the development server:
+
+```bash
+npm install
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) in your browser. The app auto-reloads as you edit files under `app/`.
+
+Other scripts:
+
+```bash
+npm run build   # production build
+npm run start   # run a production build
+npm run lint    # eslint
+```
