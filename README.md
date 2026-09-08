@@ -31,3 +31,14 @@ npm run build   # production build
 npm run start   # run a production build
 npm run lint    # eslint
 ```
+
+## Project structure
+
+- `app/` — Next.js App Router entry point (`page.tsx`, `layout.tsx`).
+- `components/form/` — input boxes for the building, energy system, consumption, and pricing.
+- `components/preview/` — the offer, cost/benefit, and flyer panels, plus the print/PDF layout.
+- `components/ui/` — shared UI pieces (logo upload, collapsible sections, icons, loading screen).
+- `hooks/useMieterstromCalculator.ts` — central state and calculation hook driving the whole form/preview flow.
+- `lib/calculator.ts` — the Mieterstrom economics calculations.
+- `lib/generatePdf.ts` — renders the preview to a PDF and names the output file.
+- `lib/charts.ts` / `lib/umami.ts` — chart helpers and analytics event tracking.
