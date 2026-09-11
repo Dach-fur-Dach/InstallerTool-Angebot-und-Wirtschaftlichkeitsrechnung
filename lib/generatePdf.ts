@@ -41,8 +41,13 @@ export async function downloadPrintDocumentAsPdf(filename: string) {
   const container = document.getElementById("print-document");
   if (!container) return;
 
+  // Dynamically imported so these (large) libraries are only ever pulled into the
+  // client bundle when a PDF is actually generated.
   const [{ default: html2canvas }, { jsPDF }] = await Promise.all([import("html2canvas-pro"), import("jspdf")]);
 
+  // The print document is normally hidden; temporarily show it off-screen (rather than
+  // toggling visibility in place) so html2canvas can render it at a fixed A4 width
+  // without the user seeing a flash of the print layout.
   const prevStyle = {
     display: container.style.display,
     position: container.style.position,

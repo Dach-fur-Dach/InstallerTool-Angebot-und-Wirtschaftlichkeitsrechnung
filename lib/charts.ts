@@ -1,3 +1,6 @@
+// Pure layout/formatting helpers for the amortisation chart: turns ComputedResults'
+// 20-year cumulative profit series into pixel heights, gridlines, and labels for the
+// (CSS-based, not canvas) bar chart markup.
 import { ComputedResults, fmtInt, niceCeil } from "./calculator";
 
 export interface GridLine {
@@ -6,6 +9,8 @@ export interface GridLine {
   lineStyle: string;
 }
 
+// Fixed vertical positions (in the chart's coordinate space) for the five horizontal
+// gridlines: +max, +max/2, zero, -max/2, -max.
 const GRID_TOPS = [0, 35, 70, 105, 140];
 
 // Rounded to avoid SSR/CSR floating-point drift (e.g. Math.pow) producing mismatched
@@ -31,6 +36,8 @@ export interface Bar {
   tooltip: string;
 }
 
+// Builds one bar per year of r.series (cumulative profit), scaled against the series'
+// own peak magnitude so the tallest bar (positive or negative) always fills the chart.
 export function chartBarsKumuliert(r: ComputedResults): { bars: Bar[]; gridLines: GridLine[] } {
   const maxAbs = Math.max(...r.series.map((v) => Math.abs(v)), 1);
   const yMax = niceCeil(maxAbs);
@@ -43,6 +50,8 @@ export function chartBarsKumuliert(r: ComputedResults): { bars: Bar[]; gridLines
   return { bars, gridLines: buildGridLines(yMax) };
 }
 
+// Splits the chart timeline into a "deficit" phase (before break-even) and a "profit"
+// phase (after), expressed as percentages of total chart width for a two-tone background.
 export function chartPhase(r: ComputedResults) {
   const beY = r.breakEvenYear;
   const deficitWidthPct = beY ? ((beY - 1) / (r.series.length - 1)) * 100 : 100;
@@ -53,6 +62,7 @@ export function chartPhase(r: ComputedResults) {
   };
 }
 
+// Labels every 5th year (plus year 1) on the x-axis to avoid crowding 20 labels together.
 export function chartYearLabels(r: ComputedResults) {
   return r.series.map((_v, i) => ({ yearLabel: i === 0 || (i + 1) % 5 === 0 ? String(i + 1) : "" }));
 }

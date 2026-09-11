@@ -1,3 +1,7 @@
+// Core pricing/economics engine: turns a FormState (user inputs from the config form)
+// into ComputedResults (Angebot pricing, Wirtschaftlichkeit projections, flyer figures).
+// See computeResults() below for the actual calculation pipeline.
+
 export type MieterstromModell = "physischer_sz" | "ggv" | "virtueller_sz" | "physischer_sz_sw";
 export type WaermepumpeModus = "nein" | "eigener_zaehler" | "allgemeinstrom";
 export type WallboxModus = "nein" | "hinter_zaehler" | "eigener_zaehler";
@@ -138,6 +142,8 @@ const MODELL_PRICING: Record<MieterstromModell, ModellPricing> = {
 const MIETERSTROMZUSCHLAG = 0.021;
 export const UST = 0.19;
 
+// Safely coerces a form field (which may be "", a string, or a number) to a number,
+// falling back instead of propagating NaN into the calculation pipeline.
 export function num(v: unknown, fallback = 0): number {
   const n = parseFloat(String(v));
   return isFinite(n) ? n : fallback;
@@ -147,6 +153,8 @@ export function waermepumpeAktiv(f: FormState): boolean {
   return f.waermepumpeModus !== "nein";
 }
 
+// Rounds a positive number up to a "nice" chart-axis value (1/2/5/10 × a power of ten),
+// so y-axis gridlines land on round numbers instead of the raw computed maximum.
 export function niceCeil(n: number): number {
   if (n <= 0) return 1;
   const exp = Math.floor(Math.log10(n));
@@ -257,6 +265,8 @@ export interface ComputedResults {
   flyerErsparnisJahr: number;
 }
 
+// A manual override field is only "active" when it holds a real, parseable number;
+// "" (untouched/cleared) means "fall back to the auto-calculated value" instead.
 function isManualOverride(v: number | ""): boolean {
   return v !== "" && v != null && isFinite(parseFloat(String(v)));
 }

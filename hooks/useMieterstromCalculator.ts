@@ -37,6 +37,10 @@ export const OUTPUT_LABELS: Record<OutputKey, string> = {
 
 const DEFAULT_OUTPUT_ORDER: OutputKey[] = ["angebot", "wirtschaft", "flyer"];
 
+// Central state/controller hook for the calculator page: owns the form state, derives
+// results via computeResults(), and tracks all the UI state (which sections/boxes are
+// expanded, which outputs are enabled and in what order, modal visibility, etc.) so
+// page.tsx and its child components can stay presentational.
 export function useMieterstromCalculator() {
   const [form, setForm] = useState<FormState>(DEFAULTS);
   const results = useMemo(() => computeResults(form), [form]);
@@ -71,6 +75,8 @@ export function useMieterstromCalculator() {
   const [installerEmail, setInstallerEmail] = useState("");
   const [installerLogo, setInstallerLogoState] = useState<string | null>(null);
 
+  // Installer logo is persisted client-side (localStorage) rather than in FormState,
+  // since it should survive across different Angebote for the same installer/browser.
   useEffect(() => {
     const stored = window.localStorage.getItem(INSTALLER_LOGO_STORAGE_KEY);
     if (stored) setInstallerLogoState(stored);
@@ -141,6 +147,8 @@ export function useMieterstromCalculator() {
     setOutputs((prev) => ({ ...prev, [key]: !prev[key] }));
   }, []);
 
+  // Drag-and-drop reorder: pulls draggedKey out of the list and reinserts it at
+  // targetKey's current position, shifting everything between them.
   const reorderOutputs = useCallback((draggedKey: OutputKey, targetKey: OutputKey) => {
     if (draggedKey === targetKey) return;
     setOutputOrder((prev) => {
@@ -151,6 +159,8 @@ export function useMieterstromCalculator() {
     });
   }, []);
 
+  // Keyboard/button-driven reorder alternative to reorderOutputs: swaps an output one
+  // position up or down, a no-op at either end of the list.
   const moveOutput = useCallback((key: OutputKey, direction: -1 | 1) => {
     setOutputOrder((prev) => {
       const index = prev.indexOf(key);
@@ -172,11 +182,16 @@ export function useMieterstromCalculator() {
   const resetKostenSpeicherManual = useCallback(() => update("kostenSpeicherManual", ""), [update]);
   const resetKostenZaehlerschrankManual = useCallback(() => update("kostenZaehlerschrankManual", ""), [update]);
 
+  // Derived UI flags, recomputed each render from form/wirtschaftBenoetigt state.
   const wpDisabled = form.waermepumpeModus === "nein";
+  // Physical Summenzähler models need Wandlermessung (current-transformer metering);
+  // warn the installer if that box isn't checked.
   const wandlerWarning =
     (form.mieterstromModell === "physischer_sz" || form.mieterstromModell === "physischer_sz_sw") &&
     !form.wandlermessung;
   const angebotReady = num(form.wohneinheiten) > 0 || num(form.gewerbeeinheiten) > 0;
+  // Dims the Wirtschaftlichkeit section visually (without hiding it) once the installer
+  // has explicitly said it isn't needed for this offer.
   const tier2VisualOpacity = wirtschaftBenoetigt === "nein" ? 0.5 : 1;
 
   const activeOutputOrder = useMemo(() => outputOrder.filter((key) => outputs[key]), [outputOrder, outputs]);
