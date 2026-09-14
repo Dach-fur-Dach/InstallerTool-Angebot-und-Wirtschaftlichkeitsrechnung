@@ -43,6 +43,10 @@ npm run lint    # eslint
 - `lib/generatePdf.ts` — renders the preview to a PDF and names the output file.
 - `lib/charts.ts` / `lib/umami.ts` — chart helpers and analytics event tracking.
 
+## Documentation
+
+- [`docs/calculator.md`](docs/calculator.md) — how `lib/calculator.ts` turns form inputs into Angebot pricing, Wirtschaftlichkeit projections, and flyer figures, including the self-consumption approximation and the Mieterstrom pricing models.
+
 ## Notes
 
 - This project is on Next.js 16, which has breaking changes vs. earlier versions — check `node_modules/next/dist/docs/` before assuming an API from older Next.js docs still applies.
