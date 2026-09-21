@@ -12,6 +12,16 @@ const BULLETS = [
   "Bei Auszug automatisch Austritt aus dem Mieterstrom-Konzept",
 ];
 
+// Bei GGV liefert der Vermieter nur den Solarstrom — anders als bei den übrigen Modellen bleibt
+// der Reststrombezug beim eigenen Netzanbieter des Mieters, weshalb der erste Punkt oben (kein
+// eigener Stromvertrag mehr nötig) für GGV schlicht falsch wäre.
+const BULLETS_GGV = [
+  "Ihr Vermieter beliefert Sie zusätzlich zu Ihrem bestehenden Stromvertrag mit vergünstigtem Solarstrom vom Dach",
+  "Gesamtstromkosten werden als monatlicher Abschlag wie Ihr bisheriger Stromtarif abgerechnet.",
+  "Einfache Teilnahme über Vertrag mit Ihrem Vermieter",
+  "Bei Auszug automatisch Austritt aus dem Mieterstrom-Konzept",
+];
+
 function BulletIcon() {
   return (
     <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#EAF2FF] text-[#3AA8DC]">
@@ -25,6 +35,10 @@ export const FlyerPanel = forwardRef<HTMLDivElement, { calc: MieterstromCalculat
   ref
 ) {
   const { form, results: r } = calc;
+  // Bei GGV bezieht jede Einheit ihren Reststrom über den eigenen Stromvertrag, nicht über den
+  // Vermieter (siehe calculator.ts) — der Netzstrompreis darf im Flyer daher weder als Kosten-
+  // noch als Anteils-Angabe auftauchen, sonst widerspricht die Tabelle den ausgewiesenen Summen.
+  const isGgv = form.mieterstromModell === "ggv";
 
   const solarPreis = num(form.pvPreis);
   const netzPreis = num(form.netzPreis);
@@ -50,7 +64,7 @@ export const FlyerPanel = forwardRef<HTMLDivElement, { calc: MieterstromCalculat
       </p>
 
       <div className="mb-7 flex flex-col gap-3.5">
-        {BULLETS.map((b) => (
+        {(isGgv ? BULLETS_GGV : BULLETS).map((b) => (
           <div key={b} className="flex items-center gap-3">
             <BulletIcon />
             <div className="text-[12.5px] leading-snug text-[#344054]">{b}</div>
@@ -80,8 +94,12 @@ export const FlyerPanel = forwardRef<HTMLDivElement, { calc: MieterstromCalculat
           <div className="px-3 py-2.5 text-center font-semibold">{fmt2(grundversorgerPreis)} €</div>
           <div className="bg-[#F5FBFE] px-3 py-2.5 text-center text-[11.5px] font-semibold leading-snug">
             {fmt2(solarPreis)} € Solarstrom
-            <br />
-            {fmt2(netzPreis)} € Netzstrom
+            {!isGgv && (
+              <>
+                <br />
+                {fmt2(netzPreis)} € Netzstrom
+              </>
+            )}
           </div>
         </div>
 
@@ -104,10 +122,20 @@ export const FlyerPanel = forwardRef<HTMLDivElement, { calc: MieterstromCalculat
       </div>
 
       <div className="mt-3 text-[10.5px] leading-relaxed text-[#98A2B3]">
-        *Berechnung basierend auf {fmt1(solarAnteilPct)}% Solarstromanteil ({fmt2(solarPreis)} €/kWh) und{" "}
-        {fmt1(netzAnteilPct)}% Reststromanteil ({fmt2(netzPreis)} €/kWh)
-        <br />
-        Kein Risiko - Selbst bei 100% Reststromanteil zahlen Sie in diesem Modell nicht mehr als in der Grundversorgung.
+        {isGgv ? (
+          <>
+            *Berechnung basierend auf {fmt1(solarAnteilPct)}% Solarstromanteil ({fmt2(solarPreis)} €/kWh). Den
+            Reststromanteil beziehen Sie weiterhin über Ihren eigenen Stromvertrag.
+          </>
+        ) : (
+          <>
+            *Berechnung basierend auf {fmt1(solarAnteilPct)}% Solarstromanteil ({fmt2(solarPreis)} €/kWh) und{" "}
+            {fmt1(netzAnteilPct)}% Reststromanteil ({fmt2(netzPreis)} €/kWh)
+            <br />
+            Kein Risiko - Selbst bei 100% Reststromanteil zahlen Sie in diesem Modell nicht mehr als in der
+            Grundversorgung.
+          </>
+        )}
       </div>
     </div>
   );

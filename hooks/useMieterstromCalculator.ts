@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { DEFAULTS, FormState, computeResults, num } from "@/lib/calculator";
+import { DEFAULTS, FormState, MieterstromModell, computeResults, num } from "@/lib/calculator";
 
 const INSTALLER_LOGO_STORAGE_KEY = "d4d_installer_logo";
 
@@ -127,6 +127,19 @@ export function useMieterstromCalculator() {
     [update]
   );
 
+  // GGV has no metered Grundpreis on the operator side (it would inflate ROI unrealistically),
+  // so switching to it resets Grundgebühr to 0; switching away restores the default.
+  const setMieterstromModell = useCallback(
+    (modell: MieterstromModell) => {
+      setForm((prev) => ({
+        ...prev,
+        mieterstromModell: modell,
+        grundgebuehr: modell === "ggv" ? 0 : prev.mieterstromModell === "ggv" ? DEFAULTS.grundgebuehr : prev.grundgebuehr,
+      }));
+    },
+    []
+  );
+
   const setWirtschaftBenoetigt = useCallback((val: "ja" | "nein") => {
     setWirtschaftBenoetigtState(val);
     setBox3Open(val === "ja");
@@ -199,6 +212,7 @@ export function useMieterstromCalculator() {
   return {
     form,
     update,
+    setMieterstromModell,
     onNum,
     onText,
     setBool,

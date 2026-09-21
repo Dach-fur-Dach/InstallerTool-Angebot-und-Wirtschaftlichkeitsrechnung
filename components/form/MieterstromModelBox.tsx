@@ -6,12 +6,14 @@ import { FieldLabel, NumberInput, SelectInput, YesNoToggle } from "@/components/
 import { ChevronIcon, DiagramIcon, WarningIcon } from "@/components/ui/Icons";
 import type { MieterstromCalculator } from "@/hooks/useMieterstromCalculator";
 import { MesskonzeptDiagram } from "@/components/form/MesskonzeptDiagram";
+import type { MieterstromModell } from "@/lib/calculator";
 
 export function MieterstromModelBox({ calc }: { calc: MieterstromCalculator }) {
   const {
     form,
     onNum,
     onText,
+    setMieterstromModell,
     setBool,
     box2Open,
     setBox2Open,
@@ -30,7 +32,10 @@ export function MieterstromModelBox({ calc }: { calc: MieterstromCalculator }) {
       <div className="mb-4 grid grid-cols-2 gap-4">
         <div className="col-span-2">
           <FieldLabel label="Mieterstrom-Modell" />
-          <SelectInput value={form.mieterstromModell} onChange={onText("mieterstromModell")}>
+          <SelectInput
+            value={form.mieterstromModell}
+            onChange={(e) => setMieterstromModell(e.target.value as MieterstromModell)}
+          >
             <option value="physischer_sz_sw">Physischer Summenzähler</option>
             <option value="virtueller_sz">Virtueller Summenzähler</option>
             <option value="ggv">Gemeinschaftliche Gebäudeversorgung (GGV)</option>

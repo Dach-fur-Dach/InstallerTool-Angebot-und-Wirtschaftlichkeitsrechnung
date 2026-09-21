@@ -8,10 +8,13 @@ import { CollapsibleSection } from "./CollapsibleSection";
 
 function useDetails(calc: MieterstromCalculator): Record<keyof BetriebOpenState, string> {
   const { form } = calc;
+  const isGgv = form.mieterstromModell === "ggv";
   return {
     versicherung: "0,5% der Investition",
     abrechnung: "Wie im Angebot (Abrechnung Standard)",
-    netzstrom: `${fmt2(Number(form.netzPreisEinkauf) || 0)}€ Einkaufspreis pro kWh + 120€/Jahr Grundgebühr`,
+    netzstrom: isGgv
+      ? "Entfällt bei GGV — jede Einheit bezieht Reststrom über den eigenen Stromvertrag"
+      : `${fmt2(Number(form.netzPreisEinkauf) || 0)}€ Einkaufspreis pro kWh + 120€/Jahr Grundgebühr`,
     zaehler: "Wie im Angebot (Zählergebühren)",
   };
 }

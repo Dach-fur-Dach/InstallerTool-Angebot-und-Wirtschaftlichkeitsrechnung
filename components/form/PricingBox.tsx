@@ -6,6 +6,9 @@ import type { MieterstromCalculator } from "@/hooks/useMieterstromCalculator";
 
 export function PricingBox({ calc }: { calc: MieterstromCalculator }) {
   const { form, onNum, box5Open, setBox5Open, tier2VisualOpacity } = calc;
+  // GGV has no Netzstrom leg on the operator side, so these two fields don't feed into
+  // its calculation and are hidden to avoid implying otherwise.
+  const isGgv = form.mieterstromModell === "ggv";
 
   return (
     <CollapsibleBox
@@ -24,20 +27,24 @@ export function PricingBox({ calc }: { calc: MieterstromCalculator }) {
           />
           <NumberInput min={0} step={0.01} value={form.pvPreis} onChange={onNum("pvPreis")} />
         </div>
-        <div>
-          <FieldLabel
-            label="Verkauf Netzstrompreis / kWh (€)"
-            info="Preis, den die Mieter pro kWh Reststrom aus dem Netz zahlen, wenn die PV-Erzeugung nicht ausreicht. Fließt in Angebot und Einnahmenberechnung ein."
-          />
-          <NumberInput min={0} step={0.01} value={form.netzPreis} onChange={onNum("netzPreis")} />
-        </div>
-        <div>
-          <FieldLabel
-            label="Einkauf Netzstrompreis / kWh (€)"
-            info="Preis, den der Betreiber selbst pro kWh für zugekauften Netzstrom zahlt. Fließt als Kostenposition in die Wirtschaftlichkeitsberechnung ein."
-          />
-          <NumberInput min={0} step={0.01} value={form.netzPreisEinkauf} onChange={onNum("netzPreisEinkauf")} />
-        </div>
+        {!isGgv && (
+          <div>
+            <FieldLabel
+              label="Verkauf Netzstrompreis / kWh (€)"
+              info="Preis, den die Mieter pro kWh Reststrom aus dem Netz zahlen, wenn die PV-Erzeugung nicht ausreicht. Fließt in Angebot und Einnahmenberechnung ein."
+            />
+            <NumberInput min={0} step={0.01} value={form.netzPreis} onChange={onNum("netzPreis")} />
+          </div>
+        )}
+        {!isGgv && (
+          <div>
+            <FieldLabel
+              label="Einkauf Netzstrompreis / kWh (€)"
+              info="Preis, den der Betreiber selbst pro kWh für zugekauften Netzstrom zahlt. Fließt als Kostenposition in die Wirtschaftlichkeitsberechnung ein."
+            />
+            <NumberInput min={0} step={0.01} value={form.netzPreisEinkauf} onChange={onNum("netzPreisEinkauf")} />
+          </div>
+        )}
         <div>
           <FieldLabel
             label="Grundgebühr (€/Monat)"

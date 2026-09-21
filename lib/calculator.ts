@@ -423,16 +423,20 @@ export function computeResults(f: FormState): ComputedResults {
   const betriebVersicherung = investition * VERSICHERUNG_QUOTE;
   // Abrechnung & Zähler-Jahresgebühr entsprechen den Werten aus dem Angebot.
   const betriebAbrechnung = abrechnungNetto;
-  const betriebNetzstrom = restbezug * num(f.netzPreisEinkauf);
+  // Bei GGV rechnet jeder Mieter seinen Reststrombezug direkt mit seinem eigenen
+  // Lieferanten ab, nicht über den Betreiber — Netzstrompreise fließen daher nicht ein.
+  const istGgv = f.mieterstromModell === "ggv";
+  const betriebNetzstrom = istGgv ? 0 : restbezug * num(f.netzPreisEinkauf);
   // Pauschale Grundgebühr des Netzbetreibers für den Reststrombezug (unabhängig vom Verbrauch).
-  const betriebNetzstromGrundgebuehr = NETZSTROM_GRUNDGEBUEHR_JAHR;
+  // Bei GGV entfällt sie ebenfalls, da der Betreiber dort keinerlei Reststrom-Rolle hat.
+  const betriebNetzstromGrundgebuehr = istGgv ? 0 : NETZSTROM_GRUNDGEBUEHR_JAHR;
   const betriebZaehler = zaehlgebuehrNetto;
   const betrieb =
     betriebVersicherung + betriebAbrechnung + betriebNetzstrom + betriebNetzstromGrundgebuehr + betriebZaehler;
 
   const einnahmenGrundgebuehr = einheiten * num(f.grundgebuehr) * 12;
   const einnahmenSolarstrom = eigenverbrauchGesamt * num(f.pvPreis);
-  const einnahmenNetzstrom = restbezug * num(f.netzPreis);
+  const einnahmenNetzstrom = istGgv ? 0 : restbezug * num(f.netzPreis);
   const einnahmenEinspeisung = ueberschusseinspeisung * FEED_IN_TARIF;
   const einnahmenZuschlag = eigenverbrauchGesamt * MIETERSTROMZUSCHLAG;
   const einnahmen =
@@ -448,7 +452,11 @@ export function computeResults(f: FormState): ComputedResults {
   const flyerSolarAnteil = verbrauchMieterstrom > 0 ? eigenverbrauchMieterstrom / verbrauchMieterstrom : 0;
   const flyerSolarKwh = flyerVerbrauchProWohnung * flyerSolarAnteil;
   const flyerNetzKwh = flyerVerbrauchProWohnung - flyerSolarKwh;
-  const flyerMieterstromJahr = flyerSolarKwh * num(f.pvPreis) + flyerNetzKwh * num(f.netzPreis) + num(f.grundgebuehr) * 12;
+  // Bei GGV bezieht jeder Mieter seinen Reststrom über den eigenen Stromvertrag, nicht über den
+  // Vermieter — der Netzstrompreis darf daher nicht in die Mieterstrom-Kosten des Flyers einfließen.
+  const flyerMieterstromJahr = istGgv
+    ? flyerSolarKwh * num(f.pvPreis) + num(f.grundgebuehr) * 12
+    : flyerSolarKwh * num(f.pvPreis) + flyerNetzKwh * num(f.netzPreis) + num(f.grundgebuehr) * 12;
   const flyerGrundversorgerJahr = flyerVerbrauchProWohnung * num(f.grundversorgerPreis) + num(f.grundversorgerGrundgebuehr) * 12;
   const flyerErsparnisJahr = flyerGrundversorgerJahr - flyerMieterstromJahr;
 
