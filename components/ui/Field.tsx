@@ -86,6 +86,12 @@ const numberInputBase =
 const toText = (v: unknown) =>
   v === "" || v === undefined || v === null ? "" : String(v).replace(".", ",");
 
+const decimalPlaces = (n: number) => {
+  const s = String(n);
+  const i = s.indexOf(".");
+  return i === -1 ? 0 : s.length - i - 1;
+};
+
 // Renders as a text input (with a numeric mobile keypad via inputMode) instead of
 // type="number": native number inputs silently discard invalid keystrokes/pastes without
 // updating the DOM value, which left stray characters visible while the controlled value
@@ -126,7 +132,10 @@ export function NumberInput(props: InputHTMLAttributes<HTMLInputElement>) {
   const adjust = (delta: number) => {
     if (disabled || !onChange) return;
     const current = parseFloat(text.replace(",", ".")) || 0;
-    let next = current + delta;
+    // Plain float addition (e.g. 0.1 + 0.2) accumulates binary rounding error
+    // (0.30000000000000004); round to the step's own decimal precision to clean it up.
+    const decimals = Math.max(decimalPlaces(stepNum), decimalPlaces(current));
+    let next = parseFloat((current + delta).toFixed(decimals));
     if (min !== undefined && min !== "") next = Math.max(next, parseFloat(String(min)));
     if (max !== undefined && max !== "") next = Math.min(next, parseFloat(String(max)));
     setText(String(next).replace(".", ","));
