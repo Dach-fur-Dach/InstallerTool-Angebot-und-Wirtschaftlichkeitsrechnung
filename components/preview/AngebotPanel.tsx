@@ -1,7 +1,7 @@
 "use client";
 
 import { Fragment } from "react";
-import { MODELL_LABEL, UST, fmt2, istPhysischerSZFamily } from "@/lib/calculator";
+import { MODELL_LABEL, UST, fmt2, istPhysischerSZFamily, num } from "@/lib/calculator";
 import type { MieterstromCalculator } from "@/hooks/useMieterstromCalculator";
 import { ChevronIcon } from "@/components/ui/Icons";
 
@@ -13,6 +13,11 @@ export function AngebotPanel({ calc }: { calc: MieterstromCalculator }) {
   const messkonzeptLabel = MODELL_LABEL[form.mieterstromModell] ?? "GGV";
   const todayFmt = new Date().toLocaleDateString("de-DE");
   const dashboardOpacity = loading ? 0.55 : 1;
+
+  // zaehlerWEAnzahl bills one meter per Wohn- UND Gewerbeeinheit (they're priced identically),
+  // so the line item must say so once Gewerbeeinheiten are actually in the mix — otherwise a
+  // mixed-use building's Angebot bills e.g. "15x Zähler Wohneinheit" for 10 WE + 5 GE.
+  const zaehlerWELabel = num(form.gewerbeeinheiten) > 0 ? "Zähler Wohn-/Gewerbeeinheit" : "Zähler Wohneinheit";
 
   const messtechnikComponents = ["PV-Anlage"];
   if (r.wpOwnMeter) messtechnikComponents.push("WP");
@@ -61,7 +66,7 @@ export function AngebotPanel({ calc }: { calc: MieterstromCalculator }) {
 
             <div className="col-span-4 mt-2 font-bold">Messtechnik Einrichtung</div>
 
-            <div className="pl-1 text-[#5B6472]">{r.zaehlerWEAnzahl}x Zähler Wohneinheit</div>
+            <div className="pl-1 text-[#5B6472]">{r.zaehlerWEAnzahl}x {zaehlerWELabel}</div>
             <div className="text-right">{money(r.zaehlerWENetto)}</div>
             <div className="text-right text-[#98A2B3]">{money(r.zaehlerWENetto * UST)}</div>
             <div className="text-right">{money(brutto(r.zaehlerWENetto))}</div>

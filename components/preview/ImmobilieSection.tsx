@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { fmt1, fmt2, fmtInt } from "@/lib/calculator";
+import { fmt1, fmt2, fmtInt, num } from "@/lib/calculator";
 import type { MieterstromCalculator } from "@/hooks/useMieterstromCalculator";
 import { Collapse } from "@/components/ui/Collapse";
 import { ChevronIcon } from "@/components/ui/Icons";
@@ -14,7 +14,7 @@ const Row = ({ label, value }: { label: string; value: string }) => (
 );
 
 export function ImmobilieSection({ calc, printMode = false }: { calc: MieterstromCalculator; printMode?: boolean }) {
-  const { results: r, sectionOpen, toggleSection } = calc;
+  const { form, results: r, sectionOpen, toggleSection } = calc;
   const open = printMode || sectionOpen.immobilie;
 
   return (
@@ -35,7 +35,10 @@ export function ImmobilieSection({ calc, printMode = false }: { calc: Mieterstro
       </div>
 
       <Collapse open={open} printMode={printMode} innerClassName="grid grid-cols-[1fr_auto] gap-x-4 gap-y-2 p-3.5 text-[12.5px]">
-        <Row label="Wohneinheiten" value={fmtInt(r.einheiten)} />
+        <Row label="Wohneinheiten" value={fmtInt(num(form.wohneinheiten))} />
+        {num(form.gewerbeeinheiten) > 0 && (
+          <Row label="Gewerbeeinheiten" value={fmtInt(num(form.gewerbeeinheiten))} />
+        )}
         <Row label="Verbrauch Mieterstrom" value={`${fmt2(r.verbrauchMieterstrom)} kWh`} />
         <Row label="Verbrauch Wärmepumpe" value={r.wpOwnMeter ? `${fmt2(r.wpVerbrauch)} kWh` : "–"} />
         <Row label="PV-Anlage" value={`${fmt1(r.pvGroesse)} kWp`} />
