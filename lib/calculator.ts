@@ -163,6 +163,15 @@ export function istPhysischerSZFamily(modell: MieterstromModell): boolean {
   return modell === "physischer_sz" || modell === "physischer_sz_sw";
 }
 
+// A Wärmepumpe "auf Allgemeinstromzähler" implies there is an Allgemeinstrom-Zähler for it to
+// run on, regardless of whether the separate Allgemeinstrom toggle is set — otherwise the
+// Wärmepumpe's consumption would silently vanish from the calculation whenever that toggle is
+// off (it isn't counted as its own meter, and isn't folded into the Allgemeinstrom estimate
+// either). This is the single source of truth for "is there an active Allgemeinstrom-Zähler".
+export function allgemeinstromAktiv(f: Pick<FormState, "allgemeinstrom" | "waermepumpeModus">): boolean {
+  return f.allgemeinstrom || f.waermepumpeModus === "allgemeinstrom";
+}
+
 // Rounds a positive number up to a "nice" chart-axis value (1/2/5/10 × a power of ten),
 // so y-axis gridlines land on round numbers instead of the raw computed maximum.
 export function niceCeil(n: number): number {
@@ -283,7 +292,8 @@ function isManualOverride(v: number | ""): boolean {
 
 export function computeResults(f: FormState): ComputedResults {
   const einheiten = num(f.wohneinheiten) + num(f.gewerbeeinheiten);
-  const autoAllgemeinCalc = f.allgemeinstrom ? num(f.wohneinheiten) * ALLGEMEIN_PRO_EINHEIT : 0;
+  const allgemeinstromIstAktiv = allgemeinstromAktiv(f);
+  const autoAllgemeinCalc = allgemeinstromIstAktiv ? num(f.wohneinheiten) * ALLGEMEIN_PRO_EINHEIT : 0;
   const allgemeinIsManual = isManualOverride(f.verbrauchAllgemeinManual);
   const autoAllgemein = allgemeinIsManual ? num(f.verbrauchAllgemeinManual) : autoAllgemeinCalc;
   const wpAktiv = waermepumpeAktiv(f);
@@ -380,7 +390,7 @@ export function computeResults(f: FormState): ComputedResults {
   const pvWpWallboxAnzahl = 1 + (wpOwnMeter ? 1 : 0) + (wallboxOwnMeter ? 1 : 0);
 
   const zaehlerWEAnzahl = Math.max(1, einheiten);
-  const zaehlpunkte0 = zaehlerWEAnzahl + (f.allgemeinstrom ? 1 : 0) + pvWpWallboxAnzahl;
+  const zaehlpunkte0 = zaehlerWEAnzahl + (allgemeinstromIstAktiv ? 1 : 0) + pvWpWallboxAnzahl;
   const istPhysischerSZ = istPhysischerSZFamily(f.mieterstromModell);
 
   // Angebot pricing (moved up so Wirtschaftlichkeit can reuse the same numbers)
@@ -388,7 +398,7 @@ export function computeResults(f: FormState): ComputedResults {
   const zaehlerStueckpreis = pricing.preisProZaehler;
   const projektNetto = pricing.projektpauschale;
   const zaehlerWENetto = zaehlerWEAnzahl * zaehlerStueckpreis;
-  const zaehlerASAnzahl = f.allgemeinstrom ? 1 : 0;
+  const zaehlerASAnzahl = allgemeinstromIstAktiv ? 1 : 0;
   const zaehlerASNetto = zaehlerASAnzahl * zaehlerStueckpreis;
   const zaehlerPVNetto = pvWpWallboxAnzahl * zaehlerStueckpreis;
   const gatewayNetto = pricing.gateway;

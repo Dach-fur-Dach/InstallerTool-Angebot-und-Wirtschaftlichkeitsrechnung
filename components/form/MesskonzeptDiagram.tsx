@@ -1,7 +1,7 @@
 "use client";
 
 import { ReactNode, useRef, useState } from "react";
-import { FormState, MieterstromModell, num } from "@/lib/calculator";
+import { FormState, MieterstromModell, allgemeinstromAktiv, num } from "@/lib/calculator";
 
 function buildUnitLabels(prefix: string, count: number, maxShown = 3): string[] {
   if (count <= 0) return [];
@@ -13,7 +13,7 @@ function buildNodes(form: FormState): string[] {
   const nodes: string[] = ["PV"];
   if (form.waermepumpeModus === "eigener_zaehler") nodes.push("WP");
   if (form.wallboxModus === "eigener_zaehler") nodes.push("WB");
-  if (form.allgemeinstrom) nodes.push("AS");
+  if (allgemeinstromAktiv(form)) nodes.push("AS");
   nodes.push(...buildUnitLabels("WE", num(form.wohneinheiten)));
   nodes.push(...buildUnitLabels("GE", num(form.gewerbeeinheiten)));
   return nodes;
