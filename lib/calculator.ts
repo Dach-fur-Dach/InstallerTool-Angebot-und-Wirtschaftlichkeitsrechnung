@@ -464,7 +464,6 @@ export function computeResults(f: FormState): ComputedResults {
 
   const gewinnJahr1 = einnahmen - betrieb;
   const rendite = investition > 0 ? (gewinnJahr1 / investition) * 100 : 0;
-  const amortisation = gewinnJahr1 > 0 ? investition / gewinnJahr1 : Infinity;
   const co2 = (pvErtrag * 0.366) / 1000;
 
   // Beispielrechnung für eine durchschnittliche Wohnung (für den Mieter-Ersparnis-Flyer).
@@ -497,15 +496,26 @@ export function computeResults(f: FormState): ComputedResults {
   const seriesYearly: YearlySeriesEntry[] = [];
   let cum = -investition;
   let breakEvenYear: number | null = null;
+  // Amortisation (in Jahren) wird aus derselben eskalierenden Serie wie breakEvenYear
+  // abgeleitet (statt aus investition/gewinnJahr1, einer reinen Jahr-1-Momentaufnahme ohne
+  // Eskalation) — sonst können "Amortisation" und die "Break-even"-Angabe im Chart bei
+  // nennenswerter Strompreissteigerung um mehrere Jahre auseinanderlaufen, da Letztere
+  // schneller amortisiert als die unskalierte Kennzahl suggeriert.
+  let amortisation = Infinity;
   for (let t = 0; t < 20; t++) {
     const eskalation = Math.pow(1 + steigerungProzent / 100, t);
     const jahresEinnahmen = einnahmenVariabel * eskalation + einnahmenFix;
     const jahresBetrieb = betriebVariabel * eskalation + betriebFix;
     const jahresGewinn = jahresEinnahmen - jahresBetrieb;
+    const cumVorJahr = cum;
     cum += jahresGewinn;
     series.push(cum);
     seriesYearly.push({ jahresEinnahmen, betrieb: jahresBetrieb, jahresGewinn });
-    if (breakEvenYear === null && cum >= 0) breakEvenYear = t + 1;
+    if (breakEvenYear === null && cum >= 0) {
+      breakEvenYear = t + 1;
+      // Lineare Interpolation innerhalb des Break-even-Jahres für einen kommagenauen Wert.
+      amortisation = jahresGewinn > 0 ? t + -cumVorJahr / jahresGewinn : t + 1;
+    }
   }
   const gewinn20 = cum;
 
