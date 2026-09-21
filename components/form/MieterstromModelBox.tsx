@@ -43,11 +43,11 @@ export function MieterstromModelBox({ calc }: { calc: MieterstromCalculator }) {
         </div>
         <div>
           <FieldLabel label="Wohneinheiten" />
-          <NumberInput min={0} value={form.wohneinheiten} onChange={onNum("wohneinheiten")} />
+          <NumberInput integer min={0} value={form.wohneinheiten} onChange={onNum("wohneinheiten")} />
         </div>
         <div>
           <FieldLabel label="Gewerbeeinheiten" />
-          <NumberInput min={0} value={form.gewerbeeinheiten} onChange={onNum("gewerbeeinheiten")} />
+          <NumberInput integer min={0} value={form.gewerbeeinheiten} onChange={onNum("gewerbeeinheiten")} />
         </div>
       </div>
 
@@ -73,7 +73,7 @@ export function MieterstromModelBox({ calc }: { calc: MieterstromCalculator }) {
           </div>
           <Collapse open={form.wallboxModus === "eigener_zaehler"} innerClassName="border-l-2 border-[#EDF1F6] pl-3">
             <FieldLabel label="Wallbox: Anzahl" />
-            <NumberInput min={0} value={form.wallboxAnzahl} onChange={onNum("wallboxAnzahl")} />
+            <NumberInput integer min={0} value={form.wallboxAnzahl} onChange={onNum("wallboxAnzahl")} />
           </Collapse>
         </div>
         <div className="flex flex-col gap-3.5">
@@ -94,7 +94,7 @@ export function MieterstromModelBox({ calc }: { calc: MieterstromCalculator }) {
           />
           <Collapse open={form.durchlauferhitzer} innerClassName="border-l-2 border-[#EDF1F6] pl-3">
             <FieldLabel label="Durchlauferhitzer: Anzahl" />
-            <NumberInput min={0} value={form.durchlauferhitzerAnzahl} onChange={onNum("durchlauferhitzerAnzahl")} />
+            <NumberInput integer min={0} value={form.durchlauferhitzerAnzahl} onChange={onNum("durchlauferhitzerAnzahl")} />
           </Collapse>
         </div>
       </div>

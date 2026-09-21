@@ -98,13 +98,20 @@ const decimalPlaces = (n: number) => {
 // prop couldn't overwrite them. Sanitizing via regex here keeps garbage input out of state
 // and out of the field, and a real "0" is always shown (no more hiding zero as a placeholder,
 // which made it impossible to type a leading 0 for decimals like 0,27).
-export function NumberInput(props: InputHTMLAttributes<HTMLInputElement>) {
-  const { className = "", value, onChange, min, max, step, disabled, placeholder, ...rest } = props;
+export function NumberInput(props: InputHTMLAttributes<HTMLInputElement> & { integer?: boolean }) {
+  const { className = "", value, onChange, min, max, step, disabled, placeholder, integer = false, ...rest } = props;
   const stepNum = step ? parseFloat(String(step)) || 1 : 1;
   const allowNegative = min !== undefined && min !== "" && parseFloat(String(min)) < 0;
   // Accept "," as a decimal separator alongside "." so German-formatted input (e.g. "0,27") is
-  // not silently rejected keystroke-by-keystroke.
-  const pattern = allowNegative ? /^-?\d*[.,]?\d*$/ : /^\d*[.,]?\d*$/;
+  // not silently rejected keystroke-by-keystroke. `integer` fields (unit/meter counts — you
+  // can't install half a Zähler) reject the separator outright instead.
+  const pattern = integer
+    ? allowNegative
+      ? /^-?\d*$/
+      : /^\d*$/
+    : allowNegative
+      ? /^-?\d*[.,]?\d*$/
+      : /^\d*[.,]?\d*$/;
 
   const [text, setText] = useState(() => toText(value));
   const [focused, setFocused] = useState(false);
@@ -134,8 +141,9 @@ export function NumberInput(props: InputHTMLAttributes<HTMLInputElement>) {
     const current = parseFloat(text.replace(",", ".")) || 0;
     // Plain float addition (e.g. 0.1 + 0.2) accumulates binary rounding error
     // (0.30000000000000004); round to the step's own decimal precision to clean it up.
-    const decimals = Math.max(decimalPlaces(stepNum), decimalPlaces(current));
+    const decimals = integer ? 0 : Math.max(decimalPlaces(stepNum), decimalPlaces(current));
     let next = parseFloat((current + delta).toFixed(decimals));
+    if (integer) next = Math.round(next);
     if (min !== undefined && min !== "") next = Math.max(next, parseFloat(String(min)));
     if (max !== undefined && max !== "") next = Math.min(next, parseFloat(String(max)));
     setText(String(next).replace(".", ","));
