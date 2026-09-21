@@ -1,7 +1,7 @@
 "use client";
 
 import { Fragment } from "react";
-import { MODELL_LABEL, UST, fmt2 } from "@/lib/calculator";
+import { MODELL_LABEL, UST, fmt2, istPhysischerSZFamily } from "@/lib/calculator";
 import type { MieterstromCalculator } from "@/hooks/useMieterstromCalculator";
 import { ChevronIcon } from "@/components/ui/Icons";
 
@@ -132,7 +132,7 @@ export function AngebotPanel({ calc }: { calc: MieterstromCalculator }) {
             <div className="mt-2.5 text-right text-[#98A2B3]">{money(r.zaehlgebuehrNetto * UST)}</div>
             <div className="mt-2.5 text-right font-semibold">{money(brutto(r.zaehlgebuehrNetto))}</div>
             <div className="col-span-4 -mt-1 text-[11px] text-[#98A2B3]">
-              {form.mieterstromModell === "physischer_sz"
+              {istPhysischerSZFamily(form.mieterstromModell)
                 ? "Entfällt für teilnehmende Wohneinheiten durch Messkonzept mit physischem Summenzähler"
                 : `Für Zählpunkte: ${r.zaehlpunkte} inkl. ${messkonzeptLabel}`}
             </div>

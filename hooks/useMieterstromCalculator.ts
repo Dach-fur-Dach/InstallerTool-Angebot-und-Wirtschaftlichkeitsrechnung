@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { DEFAULTS, FormState, MieterstromModell, computeResults, num } from "@/lib/calculator";
+import { DEFAULTS, FormState, MieterstromModell, computeResults, istPhysischerSZFamily, num } from "@/lib/calculator";
 
 const INSTALLER_LOGO_STORAGE_KEY = "d4d_installer_logo";
 
@@ -199,9 +199,7 @@ export function useMieterstromCalculator() {
   const wpDisabled = form.waermepumpeModus === "nein";
   // Physical Summenzähler models need Wandlermessung (current-transformer metering);
   // warn the installer if that box isn't checked.
-  const wandlerWarning =
-    (form.mieterstromModell === "physischer_sz" || form.mieterstromModell === "physischer_sz_sw") &&
-    !form.wandlermessung;
+  const wandlerWarning = istPhysischerSZFamily(form.mieterstromModell) && !form.wandlermessung;
   const angebotReady = num(form.wohneinheiten) > 0 || num(form.gewerbeeinheiten) > 0;
   // Dims the Wirtschaftlichkeit section visually (without hiding it) once the installer
   // has explicitly said it isn't needed for this offer.

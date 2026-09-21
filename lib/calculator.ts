@@ -153,6 +153,16 @@ export function waermepumpeAktiv(f: FormState): boolean {
   return f.waermepumpeModus !== "nein";
 }
 
+// "physischer_sz" (MK A2) is a legacy value kept only for backward compatibility — it is no
+// longer selectable in the UI (see MieterstromModelBox), which resolves "Physischer
+// Summenzähler" straight to "physischer_sz_sw" (MK D3). Both share the same physical-Z1
+// characteristics (Zählergebühren, Funkadapter, Wandlermessung-Warnung), so every check for
+// "is this a physischer Summenzähler model" must include both keys — use this helper instead
+// of comparing against "physischer_sz" alone, which silently never matches the live model.
+export function istPhysischerSZFamily(modell: MieterstromModell): boolean {
+  return modell === "physischer_sz" || modell === "physischer_sz_sw";
+}
+
 // Rounds a positive number up to a "nice" chart-axis value (1/2/5/10 × a power of ten),
 // so y-axis gridlines land on round numbers instead of the raw computed maximum.
 export function niceCeil(n: number): number {
@@ -371,7 +381,7 @@ export function computeResults(f: FormState): ComputedResults {
 
   const zaehlerWEAnzahl = Math.max(1, einheiten);
   const zaehlpunkte0 = zaehlerWEAnzahl + (f.allgemeinstrom ? 1 : 0) + pvWpWallboxAnzahl;
-  const istPhysischerSZ = f.mieterstromModell === "physischer_sz" || f.mieterstromModell === "physischer_sz_sw";
+  const istPhysischerSZ = istPhysischerSZFamily(f.mieterstromModell);
 
   // Angebot pricing (moved up so Wirtschaftlichkeit can reuse the same numbers)
   const pricing = MODELL_PRICING[f.mieterstromModell] ?? MODELL_PRICING.ggv;
