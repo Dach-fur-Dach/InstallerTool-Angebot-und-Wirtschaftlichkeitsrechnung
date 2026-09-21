@@ -11,7 +11,7 @@ import { InvestitionSection } from "./InvestitionSection";
 import { StatTiles } from "./StatTiles";
 
 export function WirtschaftPanel({ calc, printMode = false }: { calc: MieterstromCalculator; printMode?: boolean }) {
-  const { form, results: r, loading, wirtschaftPanelOpen, setWirtschaftPanelOpen } = calc;
+  const { form, results: r, loading, angebotReady, wirtschaftPanelOpen, setWirtschaftPanelOpen } = calc;
   const messkonzeptLabel = MODELL_LABEL[form.mieterstromModell] ?? "GGV";
   const dashboardOpacity = loading ? 0.55 : 1;
   const kundeDisplay = form.kunde ? form.kunde : "Kunde noch nicht angegeben";
@@ -32,6 +32,13 @@ export function WirtschaftPanel({ calc, printMode = false }: { calc: Mieterstrom
         {!printMode && <span className="text-[13px] font-bold text-[#98A2B3]">{wirtschaftPanelOpen ? "−" : "+"}</span>}
       </div>
 
+      {!angebotReady ? (
+        <div className="px-7 pb-7">
+          <div className="rounded-[10px] border border-dashed border-[#D0D5DD] bg-white/50 px-4 py-3.5 text-center text-[12.5px] font-medium text-[#667085]">
+            Die Wirtschaftlichkeitsrechnung wird angezeigt, sobald Wohneinheiten oder Gewerbeeinheiten angegeben wurden.
+          </div>
+        </div>
+      ) : (
       <Collapse open={isOpen} printMode={printMode} innerClassName="px-7 pb-7">
         {loading && (
           <div className="mb-2 flex items-center gap-2 text-[11.5px] font-semibold text-[#3AA8DC]">
@@ -67,6 +74,7 @@ export function WirtschaftPanel({ calc, printMode = false }: { calc: Mieterstrom
           </div>
         </div>
       </Collapse>
+      )}
     </div>
   );
 }
