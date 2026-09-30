@@ -95,10 +95,11 @@ Four `MieterstromModell` values, each with a `projektpauschale` (flat project fe
 | `ggv` | Gemeinschaftliche Gebäudeversorgung | Distribution by formula, no summing meter. |
 | `physischer_sz_sw` | Softwarelösung für Netzbezug (MK D3) | A physical summing meter *may* be needed depending on the Netzbetreiber, but pricing follows the software-based models since assignment of Bezug/Lieferung is done in software. |
 
-`projektpauschale` is currently 1999 € across all four models (kept as separate
-entries, not a shared constant, so they can diverge again if pricing changes
-per-model). Only `physischer_sz` differs on `preisProZaehler` (149 € vs. 25 €) and
-`gateway` (349 € vs. 25 €), reflecting the added hardware cost of a physical meter.
+`projektpauschale` is 1299 € for `physischer_sz` and `physischer_sz_sw`, 1999 € for
+`virtueller_sz` and `ggv`. `preisProZaehler` is 149 € for `physischer_sz` and
+`physischer_sz_sw` (physical meter hardware, also applies to the Funkadapter) versus
+25 € for `virtueller_sz`/`ggv`. Only the legacy `physischer_sz` has the 349 € `gateway`
+(others 25 €).
 
 **Zählpunkte counting**: the number of billed metering points is one more than the
 number of physical metering *positions* — the summing meter (Summenzähler) itself is
