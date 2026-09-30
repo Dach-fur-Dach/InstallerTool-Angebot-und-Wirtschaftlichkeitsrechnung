@@ -98,8 +98,8 @@ Four `MieterstromModell` values, each with a `projektpauschale` (flat project fe
 `projektpauschale` is 1299 € for `physischer_sz` and `physischer_sz_sw`, 1999 € for
 `virtueller_sz` and `ggv`. `preisProZaehler` is 149 € for `physischer_sz` and
 `physischer_sz_sw` (physical meter hardware, also applies to the Funkadapter) versus
-25 € for `virtueller_sz`/`ggv`. Only the legacy `physischer_sz` has the 349 € `gateway`
-(others 25 €).
+25 € for `virtueller_sz`/`ggv`. The `gateway` is 349 € for `physischer_sz` and
+`physischer_sz_sw`, 25 € for `virtueller_sz`/`ggv`.
 
 **Zählpunkte counting**: the number of billed metering points is one more than the
 number of physical metering *positions* — the summing meter (Summenzähler) itself is

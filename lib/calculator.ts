@@ -132,13 +132,13 @@ interface ModellPricing {
 // MK D3 ist die einzige im Formular wählbare "Physischer Summenzähler"-Variante (siehe
 // MieterstromModelBox) und übernimmt daher deren Projektpauschale (1.299 €) statt der
 // höheren Virtueller-SZ-/GGV-Kategorie, auch wenn sie technisch eine Softwarelösung ist. Die
-// Zähler-Hardware wird dagegen wie beim physischen Summenzähler mit 149 € pro Stück eingekauft
-// (nicht 25 € wie bei vSZ/GGV).
+// Hardware wird dagegen wie beim physischen Summenzähler eingekauft: 149 € pro Zähler und
+// Funkadapter, Gateway 349 € (nicht 25 € wie bei vSZ/GGV).
 const MODELL_PRICING: Record<MieterstromModell, ModellPricing> = {
   physischer_sz: { projektpauschale: 1299, preisProZaehler: 149, gateway: 349 },
   virtueller_sz: { projektpauschale: 1999, preisProZaehler: 25, gateway: 25 },
   ggv: { projektpauschale: 1999, preisProZaehler: 25, gateway: 25 },
-  physischer_sz_sw: { projektpauschale: 1299, preisProZaehler: 149, gateway: 25 },
+  physischer_sz_sw: { projektpauschale: 1299, preisProZaehler: 149, gateway: 349 },
 };
 
 const MIETERSTROMZUSCHLAG = 0.021;
