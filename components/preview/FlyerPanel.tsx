@@ -54,7 +54,7 @@ export const FlyerPanel = forwardRef<HTMLDivElement, { calc: MieterstromCalculat
       className="overflow-hidden rounded-2xl border border-[#E5EAF1] bg-white px-7 py-[26px] shadow-[0_1px_3px_rgba(16,24,40,0.06)]"
     >
       {!forPrint && (
-        <div className="mb-5 text-[11.5px] font-semibold tracking-wide text-[#98A2B3] uppercase">Mieter-Flyer Vorschau</div>
+        <div className="mb-5 text-[11.5px] font-semibold tracking-wide text-[#98A2B3] uppercase">Mieter-Flyer </div>
       )}
 
       <h2 className="m-0 mb-3 text-[22px] leading-[1.25] font-extrabold text-[#0A1628]">
