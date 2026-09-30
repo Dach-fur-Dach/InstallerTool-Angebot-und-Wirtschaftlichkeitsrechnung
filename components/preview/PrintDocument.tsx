@@ -60,6 +60,6 @@ function getPrintPages(outputKey: OutputKey, calc: MieterstromCalculator): React
     case "wirtschaft":
       return wirtschaftPrintPages(calc);
     case "flyer":
-      return [<FlyerPanel key="flyer" calc={calc} />];
+      return [<FlyerPanel key="flyer" calc={calc} forPrint />];
   }
 }
