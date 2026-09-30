@@ -80,8 +80,8 @@ export const FlyerPanel = forwardRef<HTMLDivElement, { calc: MieterstromCalculat
 
       <div className="overflow-hidden rounded-[10px] border border-[#1B2A3A]/15">
         <div className="grid grid-cols-[1.3fr_1fr_1fr] items-center bg-[#F7FAFC] text-[11.5px] font-bold text-[#1B2A3A]">
-          <div className="px-3.5 py-2.5" />
-          <div className="px-3 py-2.5 text-center leading-tight">Grundversorgung Stromvertrag</div>
+          <div className="px-3.5 py-2.5">Stromvertrag</div>
+          <div className="px-3 py-2.5 text-center leading-tight">Grundversorgung</div>
           <div className="bg-[#EAF6FC] px-3 py-2.5 text-center leading-tight text-[#1B6FA8]">Mieterstrom</div>
         </div>
 
