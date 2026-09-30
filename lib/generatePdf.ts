@@ -33,13 +33,14 @@ export function buildPdfFilename(form: {
   return `${sanitizeFilenamePart(`${parts} - ${buildReferenceNumber()}`)}.pdf`;
 }
 
-// Renders the hidden print document (id="print-document") to a real PDF and
-// triggers a direct file download. Replaces window.print(): that route opens
-// the browser's print dialog, which requires the user to manually choose
-// "Save as PDF" rather than downloading a file outright.
-export async function downloadPrintDocumentAsPdf(filename: string) {
+// Max. PDF size we attach to an email. Vercel caps request bodies at ~4.5 MB; the
+// multipart upload has small overhead, so keep the raw file safely below that.
+export const MAX_EMAIL_PDF_BYTES = 3.3 * 1024 * 1024;
+
+// Renders the hidden print document (id="print-document") to a real PDF Blob.
+export async function renderPrintDocumentPdf(): Promise<Blob | null> {
   const container = document.getElementById("print-document");
-  if (!container) return;
+  if (!container) return null;
 
   // Dynamically imported so these (large) libraries are only ever pulled into the
   // client bundle when a PDF is actually generated.
@@ -69,13 +70,13 @@ export async function downloadPrintDocumentAsPdf(filename: string) {
     const pdf = new jsPDF({ unit: "mm", format: "a4" });
 
     for (let i = 0; i < pages.length; i++) {
-      const canvas = await html2canvas(pages[i], { scale: 2, useCORS: true, backgroundColor: "#ffffff" });
-      const imgData = canvas.toDataURL("image/jpeg", 0.92);
+      const canvas = await html2canvas(pages[i], { scale: 1.5, useCORS: true, backgroundColor: "#ffffff" });
+      const imgData = canvas.toDataURL("image/jpeg", 0.8);
       if (i > 0) pdf.addPage();
       pdf.addImage(imgData, "JPEG", 0, 0, A4_WIDTH_MM, A4_HEIGHT_MM);
     }
 
-    pdf.save(filename);
+    return pdf.output("blob");
   } finally {
     container.style.display = prevStyle.display;
     container.style.position = prevStyle.position;
@@ -84,4 +85,18 @@ export async function downloadPrintDocumentAsPdf(filename: string) {
     container.style.width = prevStyle.width;
     container.style.background = prevStyle.background;
   }
+}
+
+// Triggers a direct file download of an already rendered PDF. Replaces window.print():
+// that route opens the browser's print dialog, which requires the user to manually
+// choose "Save as PDF" rather than downloading a file outright.
+export function downloadPdfBlob(blob: Blob, filename: string) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 10_000);
 }
