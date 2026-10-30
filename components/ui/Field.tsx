@@ -256,3 +256,107 @@ export function YesNoToggle({ label, value, onChange }: YesNoToggleProps) {
     </div>
   );
 }
+
+interface SwitchRowProps {
+  label: string;
+  value: boolean;
+  onChange: (value: boolean) => void;
+}
+
+// One-tap on/off switch for yes/no fields; the whole row is the tap target (iPad-friendly).
+export function SwitchRow({ label, value, onChange }: SwitchRowProps) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={value}
+      onClick={() => onChange(!value)}
+      className="flex w-full cursor-pointer items-center justify-between gap-3 rounded-lg border-0 bg-transparent p-0 py-1.5 text-left"
+    >
+      <span className="text-[13px] font-semibold text-[#344054]">{label}</span>
+      <span
+        className={`relative h-7 w-12 shrink-0 rounded-full transition-colors ${value ? "bg-[#3AA8DC]" : "bg-[#D0D5DD]"}`}
+      >
+        <span
+          className={`absolute top-0.5 left-0.5 h-6 w-6 rounded-full bg-white shadow transition-transform ${
+            value ? "translate-x-5" : "translate-x-0"
+          }`}
+        />
+      </span>
+    </button>
+  );
+}
+
+interface SliderFieldProps {
+  label: string;
+  value: number | "";
+  min: number;
+  max: number;
+  onChange: (value: number) => void;
+}
+
+// Slider with the current value shown (and −/+ buttons for precise taps). Values above `max`
+// are kept and displayed; the thumb just pins at the end.
+export function SliderField({ label, value, min, max, onChange }: SliderFieldProps) {
+  const n = typeof value === "number" && isFinite(value) ? value : 0;
+  const clamp = (v: number) => Math.max(min, Math.min(max, v));
+  const step = (d: number) => onChange(clamp(n + d));
+  const btn =
+    "flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-[#D0D5DD] bg-white text-lg font-semibold text-[#667085] select-none active:bg-[#EAF6FC]";
+  return (
+    <div>
+      <FieldLabel label={label} />
+      <div className="flex items-center gap-2.5">
+        <button type="button" aria-label={`${label} verringern`} onClick={() => step(-1)} className={btn}>
+          −
+        </button>
+        <input
+          type="range"
+          min={min}
+          max={max}
+          step={1}
+          value={Math.min(n, max)}
+          onChange={(e) => onChange(parseInt(e.target.value, 10))}
+          aria-label={label}
+          className="h-9 min-w-0 flex-1 cursor-pointer touch-pan-y accent-[#3AA8DC]"
+        />
+        <button type="button" aria-label={`${label} erhöhen`} onClick={() => step(1)} className={btn}>
+          +
+        </button>
+        <span className="w-8 shrink-0 text-right text-[15px] font-bold text-[#0A1628] tabular-nums">{n}</span>
+      </div>
+    </div>
+  );
+}
+
+interface ButtonGroupProps<T extends string> {
+  value: T;
+  options: { value: T; label: string }[];
+  onChange: (value: T) => void;
+}
+
+export function ButtonGroup<T extends string>({ value, options, onChange }: ButtonGroupProps<T>) {
+  return (
+    <div role="radiogroup" className="grid grid-cols-3 gap-2">
+      {options.map((o) => {
+        const active = o.value === value;
+        return (
+          <button
+            key={o.value}
+            type="button"
+            role="radio"
+            aria-checked={active}
+            onClick={() => onChange(o.value)}
+            className={`min-h-12 cursor-pointer rounded-lg border px-2 py-2 text-[12.5px] leading-tight font-semibold ${
+              active
+                ? "border-[#3AA8DC] bg-[#3AA8DC] font-bold text-white"
+                : "border-[#D0D5DD] bg-white text-[#344054]"
+            }`}
+          >
+            {o.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
