@@ -2,17 +2,18 @@
 
 import { Collapse } from "@/components/ui/Collapse";
 import { CollapsibleBox } from "@/components/ui/CollapsibleBox";
-import { FieldLabel, NumberInput, SelectInput, YesNoToggle } from "@/components/ui/Field";
+import { ButtonGroup, FieldLabel, NumberInput, SelectInput, SliderField, SwitchRow } from "@/components/ui/Field";
 import { ChevronIcon, DiagramIcon, WarningIcon } from "@/components/ui/Icons";
 import type { MieterstromCalculator } from "@/hooks/useMieterstromCalculator";
 import { MesskonzeptDiagram } from "@/components/form/MesskonzeptDiagram";
-import type { MieterstromModell } from "@/lib/calculator";
 
 export function MieterstromModelBox({ calc }: { calc: MieterstromCalculator }) {
   const {
     form,
     onNum,
     onText,
+    setNum,
+    setWaermepumpe,
     setMieterstromModell,
     setBool,
     box2Open,
@@ -29,74 +30,81 @@ export function MieterstromModelBox({ calc }: { calc: MieterstromCalculator }) {
       open={box2Open}
       onToggle={() => setBox2Open(!box2Open)}
     >
-      <div className="mb-4 grid grid-cols-2 gap-4">
-        <div className="col-span-2">
+      <div className="mb-4 flex flex-col gap-4">
+        <div>
           <FieldLabel label="Mieterstrom-Modell" />
-          <SelectInput
-            value={form.mieterstromModell}
-            onChange={(e) => setMieterstromModell(e.target.value as MieterstromModell)}
-          >
-            <option value="physischer_sz_sw">Physischer Summenzähler</option>
-            <option value="virtueller_sz">Virtueller Summenzähler</option>
-            <option value="ggv">Gemeinschaftliche Gebäudeversorgung (GGV)</option>
-          </SelectInput>
+          <ButtonGroup
+            value={form.mieterstromModell === "physischer_sz" ? "physischer_sz_sw" : form.mieterstromModell}
+            onChange={setMieterstromModell}
+            options={[
+              { value: "physischer_sz_sw", label: "Mieterstrom (phys. Summenzähler)" },
+              { value: "virtueller_sz", label: "Mieterstrom (virt. Summenzähler)" },
+              { value: "ggv", label: "GGV (Gemeinschaftliche Gebäudeversorgung)" },
+            ]}
+          />
         </div>
-        <div>
-          <FieldLabel label="Wohneinheiten" />
-          <NumberInput integer min={0} value={form.wohneinheiten} onChange={onNum("wohneinheiten")} />
-        </div>
-        <div>
-          <FieldLabel label="Gewerbeeinheiten" />
-          <NumberInput integer min={0} value={form.gewerbeeinheiten} onChange={onNum("gewerbeeinheiten")} />
-        </div>
+        <SliderField
+          label="Wohneinheiten"
+          min={0}
+          max={40}
+          value={form.wohneinheiten}
+          onChange={(v) => setNum("wohneinheiten", v)}
+        />
+        <SliderField
+          label="Gewerbeeinheiten"
+          min={0}
+          max={20}
+          value={form.gewerbeeinheiten}
+          onChange={(v) => setNum("gewerbeeinheiten", v)}
+        />
       </div>
 
       <div className="my-1 mb-[18px] h-px bg-[#EDF1F6]" />
 
-      <div className="mb-4 grid grid-cols-2 gap-x-6 gap-y-3.5">
-        <div className="flex flex-col gap-3.5">
-          <div>
-            <FieldLabel label="Wärmepumpe" />
-            <SelectInput value={form.waermepumpeModus} onChange={onText("waermepumpeModus")}>
-              <option value="nein">Nein</option>
-              <option value="eigener_zaehler">Ja, mit eigenem Zähler</option>
-              <option value="allgemeinstrom">Ja, läuft auf Allgemeinstromzähler</option>
-            </SelectInput>
-          </div>
-          <div>
-            <FieldLabel label="Wallbox / Ladeinfrastruktur" />
-            <SelectInput value={form.wallboxModus} onChange={onText("wallboxModus")}>
-              <option value="nein">Nein </option>
-              <option value="hinter_zaehler">Ja, hinter Mieter-/Allgemeinstromzähler</option>
-              <option value="eigener_zaehler">Ja mit eigenem Zähler für Ladeinfrastruktur</option>
-            </SelectInput>
-          </div>
-          <Collapse open={form.wallboxModus === "eigener_zaehler"} innerClassName="border-l-2 border-[#EDF1F6] pl-3">
-            <FieldLabel label="Wallbox: Anzahl" />
-            <NumberInput integer min={0} value={form.wallboxAnzahl} onChange={onNum("wallboxAnzahl")} />
-          </Collapse>
-        </div>
-        <div className="flex flex-col gap-3.5">
-          <YesNoToggle
+      <div className="mb-4 flex flex-col gap-4">
+        <div className="grid grid-cols-2 gap-x-6 gap-y-1">
+          <SwitchRow
+            label="Wärmepumpe"
+            value={form.waermepumpeModus !== "nein"}
+            onChange={(v) => setWaermepumpe(v)}
+          />
+          <SwitchRow
             label="Allgemeinstrom"
             value={form.allgemeinstrom}
             onChange={(v) => setBool("allgemeinstrom", v)}
           />
-          <YesNoToggle
+          <SwitchRow
             label="Wandlermessung"
             value={form.wandlermessung}
             onChange={(v) => setBool("wandlermessung", v)}
           />
-          <YesNoToggle
+          <SwitchRow
             label="Durchlauferhitzer vorhanden"
             value={form.durchlauferhitzer}
             onChange={(v) => setBool("durchlauferhitzer", v)}
           />
-          <Collapse open={form.durchlauferhitzer} innerClassName="border-l-2 border-[#EDF1F6] pl-3">
-            <FieldLabel label="Durchlauferhitzer: Anzahl" />
-            <NumberInput integer min={0} value={form.durchlauferhitzerAnzahl} onChange={onNum("durchlauferhitzerAnzahl")} />
-          </Collapse>
         </div>
+        <Collapse open={form.durchlauferhitzer} innerClassName="border-l-2 border-[#EDF1F6] pl-3">
+          <FieldLabel label="Durchlauferhitzer: Anzahl" />
+          <NumberInput integer min={0} value={form.durchlauferhitzerAnzahl} onChange={onNum("durchlauferhitzerAnzahl")} />
+        </Collapse>
+        <div>
+          <FieldLabel label="Wallbox / Ladeinfrastruktur" />
+          <SelectInput value={form.wallboxModus} onChange={onText("wallboxModus")}>
+            <option value="nein">Nein </option>
+            <option value="hinter_zaehler">Ja, hinter Mieter-/Allgemeinstromzähler</option>
+            <option value="eigener_zaehler">Ja mit eigenem Zähler für Ladeinfrastruktur</option>
+          </SelectInput>
+        </div>
+        <Collapse open={form.wallboxModus === "eigener_zaehler"} innerClassName="border-l-2 border-[#EDF1F6] pl-3">
+          <SliderField
+            label="Wallbox: Anzahl"
+            min={0}
+            max={15}
+            value={form.wallboxAnzahl}
+            onChange={(v) => setNum("wallboxAnzahl", v)}
+          />
+        </Collapse>
       </div>
 
       <Collapse open={wandlerWarning} innerClassName="mb-4 flex items-start gap-2.5 rounded-[10px] border border-[#CFE3F0] bg-[#EAF6FC] px-3.5 py-3">
