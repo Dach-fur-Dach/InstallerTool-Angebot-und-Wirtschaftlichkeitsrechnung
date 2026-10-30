@@ -127,6 +127,17 @@ export function useMieterstromCalculator() {
     [update]
   );
 
+  const setNum = useCallback(
+    (field: keyof FormState, value: number) => update(field, value as FormState[typeof field]),
+    [update]
+  );
+
+  // Simplified yes/no UI: "Ja" maps to the own-meter variant (separate Zähler + own consumption field).
+  const setWaermepumpe = useCallback(
+    (on: boolean) => update("waermepumpeModus", on ? "eigener_zaehler" : "nein"),
+    [update]
+  );
+
   // GGV has no metered Grundpreis on the operator side (it would inflate ROI unrealistically),
   // so switching to it resets Grundgebühr to 0; switching away restores the default.
   const setMieterstromModell = useCallback(
@@ -214,6 +225,8 @@ export function useMieterstromCalculator() {
     onNum,
     onText,
     setBool,
+    setNum,
+    setWaermepumpe,
     results,
     loading,
 
