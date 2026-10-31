@@ -200,6 +200,9 @@ export function useMieterstromCalculator() {
   const resetErtragManual = useCallback(() => update("ertragProKwpManual", ""), [update]);
   const resetWohnungenManual = useCallback(() => update("verbrauchWohnungenManual", ""), [update]);
   const resetGewerbeManual = useCallback(() => update("verbrauchGewerbeManual", ""), [update]);
+  const resetWallboxManual = useCallback(() => update("verbrauchWallboxManual", ""), [update]);
+  const resetDurchlauferhitzerManual = useCallback(() => update("verbrauchDurchlauferhitzerManual", ""), [update]);
+  const resetWaermepumpeManual = useCallback(() => update("verbrauchWaermepumpe", ""), [update]);
   const resetPvGroesseManual = useCallback(() => update("pvGroesseManual", ""), [update]);
   const resetSpeicherManual = useCallback(() => update("speicherManual", ""), [update]);
   const resetKostenPVManual = useCallback(() => update("kostenPVManual", ""), [update]);
@@ -268,6 +271,9 @@ export function useMieterstromCalculator() {
     resetErtragManual,
     resetWohnungenManual,
     resetGewerbeManual,
+    resetWallboxManual,
+    resetDurchlauferhitzerManual,
+    resetWaermepumpeManual,
     resetPvGroesseManual,
     resetSpeicherManual,
     resetKostenPVManual,

@@ -35,6 +35,8 @@ export interface FormState {
   verbrauchAllgemeinManual: number | "";
   verbrauchWohnungenManual: number | "";
   verbrauchGewerbeManual: number | "";
+  verbrauchWallboxManual: number | "";
+  verbrauchDurchlauferhitzerManual: number | "";
   kostenPVManual: number | "";
   kostenSpeicherManual: number | "";
   kostenZaehlerschrankManual: number | "";
@@ -77,11 +79,13 @@ export const DEFAULTS: FormState = {
   verbrauchAllgemeinManual: "",
   verbrauchWohnungenManual: "",
   verbrauchGewerbeManual: "",
+  verbrauchWallboxManual: "",
+  verbrauchDurchlauferhitzerManual: "",
   kostenPVManual: "",
   kostenSpeicherManual: "",
   kostenZaehlerschrankManual: "",
 
-  verbrauchWaermepumpe: 0,
+  verbrauchWaermepumpe: "",
 
   pvPreis: 0.27,
   netzPreis: 0.3,
@@ -94,10 +98,14 @@ export const DEFAULTS: FormState = {
 
 const YIELD: Record<PvSzenario, number> = { steildach: 950, flachdach: 850 };
 const ALLGEMEIN_PRO_EINHEIT = 100;
-// Referenzwerte laut Engineering-Kalkulator (Google Sheet) / Team-Abstimmung 2026-08:
-// Wohnung 2.100 kWh/Jahr, Gewerbe 6.000 kWh/Jahr.
-const WOHNUNG_PRO_EINHEIT = 2100;
-const GEWERBE_PRO_EINHEIT = 6000;
+// Referenzwerte laut Team-Abstimmung 2026-10: Wohnung 1.850 kWh/Jahr, Gewerbe 3.500 kWh/Jahr.
+const WOHNUNG_PRO_EINHEIT = 1850;
+const GEWERBE_PRO_EINHEIT = 3500;
+// Wärmepumpe wird je Wohn- UND Gewerbeeinheit veranschlagt, Wallbox (E-Auto) und
+// Durchlauferhitzer (Warmwasser) je Gerät (Team-Abstimmung 2026-10).
+const WAERMEPUMPE_PRO_EINHEIT = 1250;
+const WALLBOX_PRO_STUECK = 2250;
+const DURCHLAUFERHITZER_PRO_STUECK = 1850;
 const PV_KWP_PRO_EINHEIT = 3;
 const SPEICHER_KWH_PRO_EINHEIT = 1.2;
 const FEED_IN_TARIF = 0.08;
@@ -116,6 +124,14 @@ const ZAEHLGEBUEHR_PRO_ZAEHLPUNKT = 71.37;
 // zahlt (laut Engineering-Kalkulator: "Reststrom Grundgebühr", pauschal 120 €/Jahr).
 const NETZSTROM_GRUNDGEBUEHR_JAHR = 120;
 const VERSICHERUNG_QUOTE = 0.005;
+// Überschrift der Leistungsübersicht (Angebot), kurz je Modell.
+export const ANGEBOT_TITEL: Record<MieterstromModell, string> = {
+  physischer_sz: "Mieterstrom (pSZ)",
+  physischer_sz_sw: "Mieterstrom (pSZ)",
+  virtueller_sz: "Mieterstrom (vSZ)",
+  ggv: "GGV",
+};
+
 export const MODELL_LABEL: Record<MieterstromModell, string> = {
   ggv: "Gemeinschaftliche Gebäudeversorgung (GGV)",
   virtueller_sz: "Virtueller Summenzähler",
@@ -215,6 +231,14 @@ export interface ComputedResults {
   autoGewerbe: number;
   gewerbeIsManual: boolean;
   verbrauchGewerbe: number;
+  autoWallbox: number;
+  wallboxIsManual: boolean;
+  verbrauchWallbox: number;
+  autoDurchlauferhitzer: number;
+  durchlauferhitzerIsManual: boolean;
+  verbrauchDurchlauferhitzer: number;
+  autoWaermepumpe: number;
+  waermepumpeIsManual: boolean;
   verbrauchMieterstrom: number;
   verbrauchGesamt: number;
   wpVerbrauch: number;
@@ -303,14 +327,29 @@ export function computeResults(f: FormState): ComputedResults {
   // Allgemeinstromzähler, ist ihr Verbrauch bereits in der Allgemeinstrom-Zahl enthalten (gleicher
   // Zähler) - eine zusätzliche Addition hier würde ihn doppelt zählen.
   const wpOwnMeter = f.waermepumpeModus === "eigener_zaehler";
-  const wpVerbrauch = wpOwnMeter ? num(f.verbrauchWaermepumpe) : 0;
+  const autoWaermepumpe = einheiten * WAERMEPUMPE_PRO_EINHEIT;
+  const waermepumpeIsManual = isManualOverride(f.verbrauchWaermepumpe);
+  const wpVerbrauch = wpOwnMeter ? (waermepumpeIsManual ? num(f.verbrauchWaermepumpe) : autoWaermepumpe) : 0;
   const autoWohnungen = num(f.wohneinheiten) * WOHNUNG_PRO_EINHEIT;
   const wohnungenIsManual = isManualOverride(f.verbrauchWohnungenManual);
   const verbrauchWohnungen = wohnungenIsManual ? num(f.verbrauchWohnungenManual) : autoWohnungen;
   const autoGewerbe = num(f.gewerbeeinheiten) * GEWERBE_PRO_EINHEIT;
   const gewerbeIsManual = isManualOverride(f.verbrauchGewerbeManual);
   const verbrauchGewerbe = gewerbeIsManual ? num(f.verbrauchGewerbeManual) : autoGewerbe;
-  const verbrauchMieterstrom = verbrauchWohnungen + autoAllgemein + verbrauchGewerbe;
+  // Wallboxen und Durchlauferhitzer werden über Mieter-/Allgemeinstrom- bzw. eigene Zähler mit
+  // Mieterstrom beliefert und zählen daher zum Mieterstrom-Verbrauch.
+  const autoWallbox = f.wallboxModus !== "nein" ? num(f.wallboxAnzahl) * WALLBOX_PRO_STUECK : 0;
+  const wallboxIsManual = f.wallboxModus !== "nein" && isManualOverride(f.verbrauchWallboxManual);
+  const verbrauchWallbox = wallboxIsManual ? num(f.verbrauchWallboxManual) : autoWallbox;
+  const autoDurchlauferhitzer = f.durchlauferhitzer
+    ? num(f.durchlauferhitzerAnzahl) * DURCHLAUFERHITZER_PRO_STUECK
+    : 0;
+  const durchlauferhitzerIsManual = f.durchlauferhitzer && isManualOverride(f.verbrauchDurchlauferhitzerManual);
+  const verbrauchDurchlauferhitzer = durchlauferhitzerIsManual
+    ? num(f.verbrauchDurchlauferhitzerManual)
+    : autoDurchlauferhitzer;
+  const verbrauchMieterstrom =
+    verbrauchWohnungen + autoAllgemein + verbrauchGewerbe + verbrauchWallbox + verbrauchDurchlauferhitzer;
   const verbrauchGesamt = verbrauchMieterstrom + wpVerbrauch;
 
   const ertragProKwpAuto = YIELD[f.pvSzenario] || YIELD.steildach;
@@ -545,6 +584,14 @@ export function computeResults(f: FormState): ComputedResults {
     autoGewerbe,
     gewerbeIsManual,
     verbrauchGewerbe,
+    autoWallbox,
+    wallboxIsManual,
+    verbrauchWallbox,
+    autoDurchlauferhitzer,
+    durchlauferhitzerIsManual,
+    verbrauchDurchlauferhitzer,
+    autoWaermepumpe,
+    waermepumpeIsManual,
     verbrauchMieterstrom,
     verbrauchGesamt,
     wpVerbrauch,

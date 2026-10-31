@@ -96,7 +96,7 @@ export function MieterstromModelBox({ calc }: { calc: MieterstromCalculator }) {
             <option value="eigener_zaehler">Ja mit eigenem Zähler für Ladeinfrastruktur</option>
           </SelectInput>
         </div>
-        <Collapse open={form.wallboxModus === "eigener_zaehler"} innerClassName="border-l-2 border-[#EDF1F6] pl-3">
+        <Collapse open={form.wallboxModus !== "nein"} innerClassName="border-l-2 border-[#EDF1F6] pl-3">
           <SliderField
             label="Wallbox: Anzahl"
             min={0}
