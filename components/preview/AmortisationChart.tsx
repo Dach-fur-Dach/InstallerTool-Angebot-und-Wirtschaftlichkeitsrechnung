@@ -48,7 +48,7 @@ function BarChart({ calc }: { calc: MieterstromCalculator }) {
 
   return (
     <div className="flex gap-2">
-      <div className="relative h-[140px] w-[52px] shrink-0">
+      <div className="relative h-[230px] w-[52px] shrink-0">
         {gridLines.map((gl, i) => (
           <div
             key={i}
@@ -59,7 +59,7 @@ function BarChart({ calc }: { calc: MieterstromCalculator }) {
           </div>
         ))}
       </div>
-      <div className="relative h-[140px] flex-1">
+      <div className="relative h-[230px] flex-1">
         <div
           className="absolute top-0 bottom-0 left-0 bg-[rgba(58,168,220,0.06)]"
           style={{ width: `${phase.deficitWidthPct}%` }}
@@ -75,7 +75,7 @@ function BarChart({ calc }: { calc: MieterstromCalculator }) {
           {bars.map((bar, i) => (
             <div key={i} className="relative flex min-w-[6px] flex-1 flex-col justify-end">
               <div title={bar.tooltip} style={{ height: bar.posHeight, background: bar.color }} className="rounded-t-sm" />
-              <div className="flex h-[70px] items-start">
+              <div className="flex h-[115px] items-start">
                 <div
                   title={bar.tooltip}
                   style={{ height: bar.negHeight, background: bar.color }}

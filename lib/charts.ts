@@ -11,7 +11,9 @@ export interface GridLine {
 
 // Fixed vertical positions (in the chart's coordinate space) for the five horizontal
 // gridlines: +max, +max/2, zero, -max/2, -max.
-const GRID_TOPS = [0, 35, 70, 105, 140];
+const CHART_HEIGHT = 230;
+const HALF = CHART_HEIGHT / 2;
+const GRID_TOPS = [0, HALF / 2, HALF, HALF * 1.5, CHART_HEIGHT];
 
 // Rounded to avoid SSR/CSR floating-point drift (e.g. Math.pow) producing mismatched
 // style strings between server and client render, which breaks React hydration.
@@ -42,8 +44,8 @@ export function chartBarsKumuliert(r: ComputedResults): { bars: Bar[]; gridLines
   const maxAbs = Math.max(...r.series.map((v) => Math.abs(v)), 1);
   const yMax = niceCeil(maxAbs);
   const bars = r.series.map((v, i) => ({
-    posHeight: v > 0 ? round2((v / yMax) * 70) : 0,
-    negHeight: v < 0 ? round2((Math.abs(v) / yMax) * 70) : 0,
+    posHeight: v > 0 ? round2((v / yMax) * HALF) : 0,
+    negHeight: v < 0 ? round2((Math.abs(v) / yMax) * HALF) : 0,
     color: v >= 0 ? "#F2D9A6" : "#3AA8DC",
     tooltip: `Jahr ${i + 1}: ${fmtInt(v)} €`,
   }));

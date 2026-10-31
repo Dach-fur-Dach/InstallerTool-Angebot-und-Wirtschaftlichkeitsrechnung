@@ -8,7 +8,7 @@ import { BetriebskostenSection } from "./BetriebskostenSection";
 import { EinnahmenSection } from "./EinnahmenSection";
 import { ImmobilieSection } from "./ImmobilieSection";
 import { InvestitionSection } from "./InvestitionSection";
-import { StatTiles } from "./StatTiles";
+import { Co2Tile, StatTiles } from "./StatTiles";
 
 function Page1({ calc }: { calc: MieterstromCalculator }) {
   const { form } = calc;
@@ -56,6 +56,7 @@ function Page3({ calc }: { calc: MieterstromCalculator }) {
           {r.steigerungProzent.toLocaleString("de-DE")}% pro Jahr.
         </div>
       </div>
+      <Co2Tile calc={calc} />
       <h3 className="mt-[22px] mb-2.5 text-[13px] font-bold text-[#1B2A3A]">Messkonzept</h3>
       <MesskonzeptDiagram form={form} />
     </>

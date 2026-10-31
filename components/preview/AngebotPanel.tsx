@@ -1,9 +1,10 @@
 "use client";
 
 import { Fragment } from "react";
-import { MODELL_LABEL, UST, fmt2, istPhysischerSZFamily, num } from "@/lib/calculator";
+import { ANGEBOT_TITEL, MODELL_LABEL, UST, fmt2, istPhysischerSZFamily, num } from "@/lib/calculator";
 import type { MieterstromCalculator } from "@/hooks/useMieterstromCalculator";
 import { ChevronIcon } from "@/components/ui/Icons";
+import { StatTiles } from "./StatTiles";
 
 const money = (n: number) => `${fmt2(n)} €`;
 const brutto = (n: number) => n * (1 + UST);
@@ -11,6 +12,7 @@ const brutto = (n: number) => n * (1 + UST);
 export function AngebotPanel({ calc }: { calc: MieterstromCalculator }) {
   const { angebotReady, results: r, loading, form, messtechnikExpanded, setMesstechnikExpanded } = calc;
   const messkonzeptLabel = MODELL_LABEL[form.mieterstromModell] ?? "GGV";
+  const angebotTitel = `Leistungsübersicht: ${ANGEBOT_TITEL[form.mieterstromModell] ?? "GGV"}`;
   const todayFmt = new Date().toLocaleDateString("de-DE");
   const dashboardOpacity = loading ? 0.55 : 1;
 
@@ -34,7 +36,7 @@ export function AngebotPanel({ calc }: { calc: MieterstromCalculator }) {
   if (!angebotReady) {
     return (
       <div className="dfd-print-card relative rounded-2xl border border-[#E5EAF1] bg-[#FCFBF9] px-7 py-[18px] shadow-[0_1px_3px_rgba(16,24,40,0.06)]">
-        <h3 className="m-0 mb-3 text-base font-extrabold text-[#1B2A3A]">Leistungsübersicht: Mieterstrom</h3>
+        <h3 className="m-0 mb-3 text-base font-extrabold text-[#1B2A3A]">{angebotTitel}</h3>
         <div className="rounded-[10px] border border-dashed border-[#D0D5DD] bg-white/50 px-4 py-3.5 text-center text-[12.5px] font-medium text-[#667085] backdrop-blur-sm">
           Das Angebot wird angezeigt, sobald Wohneinheiten oder Gewerbeeinheiten angegeben wurden.
         </div>
@@ -47,8 +49,12 @@ export function AngebotPanel({ calc }: { calc: MieterstromCalculator }) {
       <div className="relative mb-5 text-[12.5px] font-medium text-[#5B6472]">{todayFmt}</div>
 
       <h3 className="mb-4 text-base font-extrabold text-[#1B2A3A]">
-        Leistungsübersicht: Mieterstrom ({messkonzeptLabel})
+        {angebotTitel}
       </h3>
+
+      <div className="mb-5">
+        <StatTiles calc={calc} compact />
+      </div>
 
       <div style={{ opacity: dashboardOpacity, transition: "opacity 0.25s ease" }}>
           <div className="mb-2 grid grid-cols-[1.6fr_0.8fr_0.7fr_0.8fr] gap-x-2 gap-y-1 border-b border-[#E5EAF1] pb-2 text-[11.5px] font-bold tracking-wide text-[#5B6472] uppercase">

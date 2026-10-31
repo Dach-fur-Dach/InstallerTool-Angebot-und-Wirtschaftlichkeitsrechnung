@@ -41,10 +41,6 @@ export function EinnahmenSection({ calc, printMode = false }: { calc: Mieterstro
         <div className="font-bold text-[#1B2A3A]">Gesamteinnahmen</div>
         <div className="font-extrabold text-[#1B2A3A]">{fmtInt(r.einnahmen)} €</div>
       </div>
-      <div className="flex items-center justify-between px-1 pt-3 pb-1">
-        <div className="text-[13.5px] font-bold text-[#1B2A3A]">Überschuss im 1. Jahr</div>
-        <div className="text-[15px] font-extrabold text-[#1B2A3A]">{fmtInt(r.gewinnJahr1)} €</div>
-      </div>
     </CollapsibleSection>
   );
 }

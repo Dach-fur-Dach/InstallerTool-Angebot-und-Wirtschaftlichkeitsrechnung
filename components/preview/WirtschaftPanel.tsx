@@ -8,7 +8,7 @@ import { BetriebskostenSection } from "./BetriebskostenSection";
 import { EinnahmenSection } from "./EinnahmenSection";
 import { ImmobilieSection } from "./ImmobilieSection";
 import { InvestitionSection } from "./InvestitionSection";
-import { StatTiles } from "./StatTiles";
+import { Co2Tile, StatTiles } from "./StatTiles";
 
 export function WirtschaftPanel({ calc, printMode = false }: { calc: MieterstromCalculator; printMode?: boolean }) {
   const { form, results: r, loading, angebotReady, wirtschaftPanelOpen, setWirtschaftPanelOpen } = calc;
@@ -72,6 +72,9 @@ export function WirtschaftPanel({ calc, printMode = false }: { calc: Mieterstrom
             Die Berechnungen basieren auf einer angenommenen Strompreissteigerung von{" "}
             {r.steigerungProzent.toLocaleString("de-DE")}% pro Jahr.
           </div>
+        </div>
+        <div style={{ opacity: dashboardOpacity, transition: "opacity 0.25s ease" }}>
+          <Co2Tile calc={calc} />
         </div>
       </Collapse>
       )}
