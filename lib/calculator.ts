@@ -106,8 +106,9 @@ const GEWERBE_PRO_EINHEIT = 3500;
 const WAERMEPUMPE_PRO_EINHEIT = 1250;
 const WALLBOX_PRO_STUECK = 2250;
 const DURCHLAUFERHITZER_PRO_STUECK = 1850;
-const PV_KWP_PRO_EINHEIT = 3;
-const SPEICHER_KWH_PRO_EINHEIT = 1.2;
+const PV_KWP_PRO_EINHEIT = 2;
+// Speicher-Default = 2/3 der PV-Größe (kWh je kWp), auf ganze kWh gerundet.
+const SPEICHER_KWH_PRO_KWP = 2 / 3;
 const FEED_IN_TARIF = 0.08;
 const PV_KOSTEN_PRO_KWP = 1300;
 const SPEICHER_KOSTEN_PRO_KWH = 450;
@@ -356,13 +357,13 @@ export function computeResults(f: FormState): ComputedResults {
   const ertragIsManual = isManualOverride(f.ertragProKwpManual);
   const ertragProKwp = ertragIsManual ? num(f.ertragProKwpManual) : ertragProKwpAuto;
 
-  // PV-Anlage und Speicher werden anhand der Anzahl Wohn-/Gewerbeeinheiten überschlägig dimensioniert,
-  // solange kein manueller Wert eingegeben wurde.
+  // PV-Anlage wird anhand der Anzahl Wohn-/Gewerbeeinheiten überschlägig dimensioniert, der Speicher
+  // anhand der (ggf. manuellen) PV-Größe – jeweils solange kein manueller Wert eingegeben wurde.
   const autoPvGroesse = einheiten * PV_KWP_PRO_EINHEIT;
   const pvGroesseIsManual = isManualOverride(f.pvGroesseManual);
   const pvGroesse = pvGroesseIsManual ? num(f.pvGroesseManual) : autoPvGroesse;
 
-  const autoSpeicher = einheiten * SPEICHER_KWH_PRO_EINHEIT;
+  const autoSpeicher = Math.round(pvGroesse * SPEICHER_KWH_PRO_KWP);
   const speicherIsManual = isManualOverride(f.speicherManual);
   const speicher = speicherIsManual ? num(f.speicherManual) : autoSpeicher;
 

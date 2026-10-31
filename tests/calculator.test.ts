@@ -142,14 +142,19 @@ describe("Zähler und Angebot (Leistungsübersicht)", () => {
 });
 
 describe("Investition", () => {
-  it("PV 3 kWp je Einheit à 1.300 €, Speicher 1,2 kWh je Einheit à 450 €, plus Mieterstrompaket", () => {
+  it("PV 2 kWp je Einheit à 1.300 €, Speicher 2/3 der PV-Größe à 450 €/kWh, plus Mieterstrompaket", () => {
     const r = computeResults(form({ wohneinheiten: 10 }));
-    assert.equal(r.pvGroesse, 30);
-    close(r.speicher, 12);
-    assert.equal(r.kostenPV, 39000);
-    close(r.kostenSpeicher, 5400);
+    assert.equal(r.pvGroesse, 20);
+    assert.equal(r.speicher, 13);
+    assert.equal(r.kostenPV, 26000);
+    assert.equal(r.kostenSpeicher, 5850);
     assert.equal(r.kostenZaehlerschrank, 0);
-    close(r.investition, 39000 + 5400 + 3585);
+    close(r.investition, 26000 + 5850 + 3585);
+  });
+
+  it("Speicher-Default folgt einer manuellen PV-Größe, bleibt aber selbst überschreibbar", () => {
+    assert.equal(computeResults(form({ wohneinheiten: 10, pvGroesseManual: 30 })).speicher, 20);
+    assert.equal(computeResults(form({ wohneinheiten: 10, speicherManual: 8 })).speicher, 8);
   });
 
   it("Wandlermessung: 5.000 € Zählerschrank-Pauschale", () => {
@@ -165,14 +170,14 @@ describe("Investition", () => {
 
 describe("Energiebilanz", () => {
   // Referenzfall 10 WE, Standardwerte, gerechnet mit der Näherungsformel aus computeResults:
-  // PV 30 kWp × 950 = 28.500 kWh, Verbrauch 19.500 kWh, Speicher 12 kWh
-  // Basisquote 0,405 / √(28.500/19.500) = 0,33501, Speicherbonus 12.000/19.500 × 0,05 = 0,03077
+  // PV 20 kWp × 950 = 19.000 kWh, Verbrauch 19.500 kWh, Speicher 13 kWh
+  // Basisquote 0,405 / √(19.000/19.500) = 0,41030, Speicherbonus 13.000/19.500 × 0,05 = 0,03333
   const r = computeResults(form({ wohneinheiten: 10 }));
-  const quote = 0.405 / Math.sqrt(28500 / 19500) + (12000 / 19500) * 0.05;
+  const quote = 0.405 / Math.sqrt(19000 / 19500) + (13000 / 19500) * 0.05;
 
   it("PV-Ertrag und Eigenverbrauch (Referenzfall)", () => {
-    assert.equal(r.pvErtrag, 28500);
-    close(r.eigenverbrauchGesamt, 28500 * quote, 0.5);
+    assert.equal(r.pvErtrag, 19000);
+    close(r.eigenverbrauchGesamt, 19000 * quote, 0.5);
     close(r.eigenverbrauchsquote, quote * 100, 0.01);
   });
 
@@ -201,7 +206,7 @@ describe("Energiebilanz", () => {
   });
 
   it("CO2-Ersparnis 0,366 kg je erzeugter kWh", () => {
-    close(r.co2, (28500 * 0.366) / 1000);
+    close(r.co2, (19000 * 0.366) / 1000);
   });
 });
 

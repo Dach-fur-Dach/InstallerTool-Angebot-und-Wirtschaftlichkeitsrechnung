@@ -29,9 +29,9 @@ The function runs through the following stages in order, each building on the la
    unit counts. Every one of these has a manual-override field
    (`verbrauchWohnungenManual`, etc.) that takes precedence when set — see
    `isManualOverride()`.
-2. **PV sizing & yield** — PV size (kWp) and battery size (kWh) are estimated from
-   the number of units (`PV_KWP_PRO_EINHEIT`, `SPEICHER_KWH_PRO_EINHEIT`), again
-   overridable manually. Yield per kWp comes from `YIELD[pvSzenario]`
+2. **PV sizing & yield** — PV size (kWp) is estimated from the number of units
+   (`PV_KWP_PRO_EINHEIT`, 2 kWp each); battery size (kWh) defaults to ⅔ of the PV
+   size, rounded to whole kWh (`SPEICHER_KWH_PRO_KWP`). Both are overridable manually. Yield per kWp comes from `YIELD[pvSzenario]`
    (Steildach vs. Flachdach), producing `pvErtrag` (kWh/year).
 3. **Self-consumption / autarky model** — the biggest approximation in this file.
    See "Self-consumption model" below.
