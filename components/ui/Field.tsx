@@ -1,7 +1,7 @@
 "use client";
 
 import { ReactNode, SelectHTMLAttributes, InputHTMLAttributes, useRef, useState } from "react";
-import { InfoIcon } from "@/components/ui/Icons";
+import { InfoIcon, ResetIcon } from "@/components/ui/Icons";
 
 interface FieldLabelProps {
   label: string;
@@ -20,6 +20,23 @@ export function FieldLabel({ label, required, className = "", children, info }: 
       {info && <InfoTooltip text={info} />}
       {children}
     </label>
+  );
+}
+
+// Auto-calculated fields carry no badge; only once a value has been overridden does a quiet
+// "Auto" link appear next to the label to restore the calculated value.
+export function AutoResetLink({ isManual, onReset }: { isManual: boolean; onReset: () => void }) {
+  if (!isManual) return null;
+  return (
+    <button
+      type="button"
+      onClick={onReset}
+      title="Manuellen Wert verwerfen und automatisch berechnen"
+      className="ml-auto inline-flex cursor-pointer items-center gap-1 text-[10.5px] font-medium text-[#98A2B3] hover:text-[#3AA8DC]"
+    >
+      <ResetIcon />
+      Auto
+    </button>
   );
 }
 

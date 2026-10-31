@@ -1,7 +1,7 @@
 "use client";
 
 import { CollapsibleBox } from "@/components/ui/CollapsibleBox";
-import { FieldLabel, NumberInput, SelectInput } from "@/components/ui/Field";
+import { AutoResetLink, FieldLabel, NumberInput, SelectInput } from "@/components/ui/Field";
 import type { MieterstromCalculator } from "@/hooks/useMieterstromCalculator";
 
 function CostOverrideField({
@@ -20,15 +20,8 @@ function CostOverrideField({
   return (
     <div>
       <label className="mb-1.5 flex items-center gap-1.5 text-[12.5px] font-semibold text-[#344054]">
-        {label}{" "}
-        <span className="rounded bg-[#EAF2FF] px-1.5 py-0.5 text-[9.5px] font-bold text-[#3AA8DC]">
-          {isManual ? "MANUELL" : "AUTO"}
-        </span>
-        {isManual && (
-          <a onClick={onReset} className="cursor-pointer text-[10px] font-bold text-[#3AA8DC]">
-            zurücksetzen
-          </a>
-        )}
+        {label}
+        <AutoResetLink isManual={isManual} onReset={onReset} />
       </label>
       <NumberInput min={0} value={Math.round(value)} onChange={onChange} />
     </div>
@@ -64,15 +57,8 @@ export function EnergySystemBox({ calc }: { calc: MieterstromCalculator }) {
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="mb-1.5 flex items-center gap-1.5 text-[12.5px] font-semibold text-[#344054]">
-            PV-Anlage (kWp){" "}
-            <span className="rounded bg-[#EAF2FF] px-1.5 py-0.5 text-[9.5px] font-bold text-[#3AA8DC]">
-              {results.pvGroesseIsManual ? "MANUELL" : "AUTO"}
-            </span>
-            {results.pvGroesseIsManual && (
-              <a onClick={resetPvGroesseManual} className="cursor-pointer text-[10px] font-bold text-[#3AA8DC]">
-                zurücksetzen
-              </a>
-            )}
+            PV-Anlage (kWp)
+            <AutoResetLink isManual={results.pvGroesseIsManual} onReset={resetPvGroesseManual} />
           </label>
           <div className="flex items-center gap-2.5">
             <NumberInput
@@ -92,27 +78,13 @@ export function EnergySystemBox({ calc }: { calc: MieterstromCalculator }) {
               />
             </div>
             <span className="text-[11px] font-semibold whitespace-nowrap text-[#667085]">kWh/kWp</span>
-            {results.ertragIsManual && (
-              <a
-                onClick={resetErtragManual}
-                className="cursor-pointer text-[10.5px] font-bold whitespace-nowrap text-[#3AA8DC]"
-              >
-                zurücksetzen
-              </a>
-            )}
+            <AutoResetLink isManual={results.ertragIsManual} onReset={resetErtragManual} />
           </div>
         </div>
         <div>
           <label className="mb-1.5 flex items-center gap-1.5 text-[12.5px] font-semibold text-[#344054]">
-            Speicher (kWh){" "}
-            <span className="rounded bg-[#EAF2FF] px-1.5 py-0.5 text-[9.5px] font-bold text-[#3AA8DC]">
-              {results.speicherIsManual ? "MANUELL" : "AUTO"}
-            </span>
-            {results.speicherIsManual && (
-              <a onClick={resetSpeicherManual} className="cursor-pointer text-[10px] font-bold text-[#3AA8DC]">
-                zurücksetzen
-              </a>
-            )}
+            Speicher (kWh)
+            <AutoResetLink isManual={results.speicherIsManual} onReset={resetSpeicherManual} />
           </label>
           <NumberInput min={0} value={Math.round(results.speicher)} onChange={onNum("speicherManual")} />
         </div>

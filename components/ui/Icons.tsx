@@ -114,3 +114,17 @@ export function ExternalLinkIcon({ className = "", style }: IconProps) {
     </svg>
   );
 }
+
+export function ResetIcon({ className = "", style }: IconProps) {
+  return (
+    <svg width="11" height="11" viewBox="0 0 12 12" fill="none" className={className} style={style}>
+      <path
+        d="M2 6a4 4 0 1 0 1.2-2.85M2 1.5v2.2h2.2"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
