@@ -3,21 +3,24 @@
 import { CollapsibleBox } from "@/components/ui/CollapsibleBox";
 import { FieldLabel, TextInput } from "@/components/ui/Field";
 import type { MieterstromCalculator } from "@/hooks/useMieterstromCalculator";
+import { AddressSearch } from "@/components/form/AddressSearch";
 
 
 export function CustomerBuildingBox({ calc }: { calc: MieterstromCalculator }) {
-  const { form, onText, box1Open, setBox1Open, showRechnungsadresse, setShowRechnungsadresse } = calc;
+  const { form, update, onText, box1Open, setBox1Open, showRechnungsadresse, setShowRechnungsadresse } = calc;
 
   return (
     <CollapsibleBox number={1} title="Kunde & Gebäude" open={box1Open} onToggle={() => setBox1Open(!box1Open)}>
       <div className="grid grid-cols-2 gap-4">
-        <div>
-          <FieldLabel label="Objekt Str. + Nr." required />
-          <TextInput value={form.objektStrasse} onChange={onText("objektStrasse")} />
-        </div>
-        <div>
-          <FieldLabel label="Objekt PLZ + Stadt" required />
-          <TextInput value={form.objektPlzStadt} onChange={onText("objektPlzStadt")} />
+        <div className="col-span-2">
+          <AddressSearch
+            strasse={form.objektStrasse}
+            plzStadt={form.objektPlzStadt}
+            onChange={(s) => {
+              update("objektStrasse", s.strasse);
+              update("objektPlzStadt", s.plzStadt);
+            }}
+          />
         </div>
         <div>
           <FieldLabel label="Kundenname" />
